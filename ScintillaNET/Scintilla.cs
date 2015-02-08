@@ -28,6 +28,9 @@ namespace ScintillaNET
         private static IntPtr moduleHandle;
         private static NativeMethods.Scintilla_DirectFunction directFunction;
 
+        // Events
+        private static readonly object modifyAttemptEventKey = new object();
+
         // The goods
         private IntPtr sciPtr;
 
@@ -36,6 +39,54 @@ namespace ScintillaNET
         #endregion Fields
 
         #region Methods
+
+        /// <summary>
+        /// Inserts the specified text at the current caret position.
+        /// </summary>
+        /// <param name="text">The text to insert at the current caret position.</param>
+        /// <remarks>The caret position is set to the end of the inserted text, but it is not scrolled into view.</remarks>
+        public unsafe void AddText(string text)
+        {
+            if(text != null)
+            {
+                var bytes = Helpers.GetBytes(text, Encoding, zeroTerminated: false);
+                fixed (byte* bp = bytes)
+                    DirectMessage(NativeMethods.SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+            }
+        }
+
+        /// <summary>
+        /// Adds the specified text to the end of the document.
+        /// </summary>
+        /// <param name="text">The text to add to the document.</param>
+        /// <remarks>The current selection is not changed and the new text is not scrolled into view.</remarks>
+        public unsafe void AppendText(string text)
+        {
+            if (text != null)
+            {
+                var bytes = Helpers.GetBytes(text, Encoding, zeroTerminated: false);
+                fixed (byte* bp = bytes)
+                    DirectMessage(NativeMethods.SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+            }
+        }
+
+        /// <summary>
+        /// Deletes all document text, unless the document is read-only.
+        /// </summary>
+        public void ClearAll()
+        {
+            DirectMessage(NativeMethods.SCI_CLEARALL);
+        }
+
+        /// <summary>
+        /// Deletes a range of text from the document.
+        /// </summary>
+        /// <param name="position">The zero-based byte position to start deleting.</param>
+        /// <param name="length">The number of bytes to delete.</param>
+        public void DeleteRange(int position, int length)
+        {
+            DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(position), new IntPtr(length));
+        }
 
         internal IntPtr DirectMessage(int msg)
         {
@@ -138,13 +189,21 @@ namespace ScintillaNET
             return modulePath;
         }
 
-        internal unsafe string GetText(int startInBytes, int lengthInBytes)
+        /// <summary>
+        /// Gets a range of text from the document.
+        /// </summary>
+        /// <param name="position">The zero-based starting byte position of the range to get.</param>
+        /// <param name="length">The number of bytes to get.</param>
+        /// <returns>A string representing the text range.</returns>
+        public unsafe string GetTextRange(int position, int length)
         {
-            var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(startInBytes), new IntPtr(lengthInBytes));
+            var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(position), new IntPtr(length));
             if (ptr == IntPtr.Zero)
                 return string.Empty;
 
-            var text = new string((sbyte*)ptr, 0, lengthInBytes, Encoding);
+            // Assumption is that moving the gap will always be equal to or less expensive
+            // than using one of the APIs which requires an intermediate buffer.
+            var text = new string((sbyte*)ptr, 0, length, Encoding);
             return text;
         }
 
@@ -158,6 +217,21 @@ namespace ScintillaNET
             var version = FileVersionInfo.GetVersionInfo(path);
 
             return version;
+        }
+
+        /// <summary>
+        /// Inserts text at the specified position.
+        /// </summary>
+        /// <param name="position">The zero-based byte position to insert the text. Specify -1 to use the current caret position.</param>
+        /// <param name="text">The text to insert into the document.</param>
+        /// <remarks>The current selection is not affected and no scrolling is performed.</remarks>
+        public unsafe void InsertText(int position, string text)
+        {
+            if (text != null)
+            {
+                fixed (byte* bp = Helpers.GetBytes(text, Encoding, zeroTerminated: true))
+                    DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
+            }
         }
 
         /// <summary>
@@ -181,6 +255,34 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="ModifyAttempt" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnModifyAttempt(EventArgs e)
+        {
+            var handler = Events[modifyAttemptEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Replaces the current selection with the specified text.
+        /// </summary>
+        /// <param name="text">The text that should replace the current selection.</param>
+        /// <remarks>
+        /// If there is not a current selection, the text will be inserted at the current caret position.
+        /// Following the operation the caret is placed at the end of the inserted text and scrolled into view.
+        /// </remarks>
+        public unsafe void ReplaceSelection(string text)
+        {
+            if (text != null)
+            {
+                fixed (byte* bp = Helpers.GetBytes(text, Encoding, zeroTerminated: true))
+                    DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
+            }
+        }
+
+        /// <summary>
         /// Sets the application-wide default module path of the native Scintilla library.
         /// </summary>
         /// <param name="modulePath">The native Scintilla module path.</param>
@@ -193,6 +295,73 @@ namespace ScintillaNET
             if (Scintilla.modulePath == null)
             {
                 Scintilla.modulePath = modulePath;
+            }
+        }
+
+        /// <summary>
+        /// Marks the document as unmodified.
+        /// </summary>
+        /// <seealso cref="Modified" />
+        public void SetSavePoint()
+        {
+            DirectMessage(NativeMethods.SCI_SETSAVEPOINT);
+        }
+
+        private void WmReflectNotify(ref Message m)
+        {
+            // A standard Windows notification and a Scintilla notification header are compatible
+            NativeMethods.SCNotification scn = (NativeMethods.SCNotification)Marshal.PtrToStructure(m.LParam, typeof(NativeMethods.SCNotification));
+            if (scn.nmhdr.code >= NativeMethods.SCN_STYLENEEDED && scn.nmhdr.code <= NativeMethods.SCN_FOCUSOUT)
+            {
+                switch (scn.nmhdr.code)
+                {
+                    case NativeMethods.SCN_MODIFYATTEMPTRO:
+                        OnModifyAttempt(EventArgs.Empty);
+                        break;
+
+                    //case NativeMethods.SCN_MODIFIED:
+                    //    ScnModified(ref scn);
+                    //    break;
+
+                    //case NativeMethods.SCN_UPDATEUI:
+                    //    ScnUpdateUI(ref scn);
+                    //    break;
+
+                    //case NativeMethods.SCN_FOCUSIN:
+                    //    OnFocusIn(EventArgs.Empty);
+                    //    break;
+
+                    //case NativeMethods.SCN_FOCUSOUT:
+                    //    OnFocusOut(EventArgs.Empty);
+                    //    break;
+
+                    //case NativeMethods.SCN_ZOOM:
+                    //    OnZoomed(EventArgs.Empty);
+                    //    break;
+
+                    default:
+                        // Not our notification
+                        base.WndProc(ref m);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processes Windows messages.
+        /// </summary>
+        /// <param name="m">The Windows Message to process.</param>
+        protected override void WndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case (NativeMethods.WM_REFLECT + NativeMethods.WM_NOTIFY):
+                    WmReflectNotify(ref m);
+                    break;
+
+                default:
+                    base.WndProc(ref m);
+                    break;
             }
         }
 
@@ -258,9 +427,45 @@ namespace ScintillaNET
         {
             get
             {
-                // Should always be UTF-8
+                // Should always be UTF-8 unless someone has done an end run around us
                 int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
                 return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the document has been modified (is dirty)
+        /// since the last call to <see cref="SetSavePoint" />.
+        /// </summary>
+        /// <returns>true if the document has been modified; otherwise, false.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool Modified
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETMODIFY) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the document is read-only.
+        /// </summary>
+        /// <returns>true if the document is read-only; otherwise, false. The default is false.</returns>
+        /// <seealso cref="ModifyAttempt" />
+        [DefaultValue(false)]
+        [Category("Behavior")]
+        [Description("Controls whether the document text can be modified.")]
+        public bool ReadOnly
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETREADONLY) != IntPtr.Zero);
+            }
+            set
+            {
+                var readOnly = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETREADONLY, readOnly);
             }
         }
 
@@ -329,26 +534,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets or sets the current text in the <see cref="Scintilla" /> control.
+        /// Gets or sets the current document text in the <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>The text displayed in the control.</returns>
         /// <remarks>Depending on the length of text get or set, this operation can be expensive.</remarks>
         [Editor("System.ComponentModel.Design.MultilineStringEditor, System.Design", typeof(UITypeEditor))]
-        public override string Text
+        public unsafe override string Text
         {
             get
             {
                 var length = DirectMessage(NativeMethods.SCI_GETLENGTH).ToInt32();
-                return GetText(0, length);
+                return GetTextRange(0, length);
             }
             set
             {
-                var bytes = Helpers.GetBytes(value ?? string.Empty, Encoding, zeroTerminated: true);
-                unsafe
-                {
-                    fixed (byte* bp = bytes)
-                        DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
-                }
+                // The default behavior is for Scintilla to ignore the call to SCI_SETTEXT if the specified text is null.
+                // That's not what .NET developers would expect so we treat null as an empty string.
+                fixed (byte* bp = Helpers.GetBytes(value ?? string.Empty, Encoding, zeroTerminated: true))
+                    DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
             }
         }
 
@@ -356,7 +559,6 @@ namespace ScintillaNET
         /// Gets the length of the document text measured in bytes.
         /// </summary>
         /// <returns>The number of bytes in the document.</returns>
-        /// <remarks>The value is bytes, not characters.</remarks>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TextLength
@@ -368,6 +570,28 @@ namespace ScintillaNET
         }
 
         #endregion Properties
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when a user attempts to change text while the document is in read-only mode.
+        /// </summary>
+        /// <seealso cref="ReadOnly" />
+        [Category("Notifications")]
+        [Description("Occurs when an attempt is made to change text in read-only mode.")]
+        public event EventHandler<EventArgs> ModifyAttempt
+        {
+            add
+            {
+                Events.AddHandler(modifyAttemptEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(modifyAttemptEventKey, value);
+            }
+        }
+
+        #endregion Events
 
         #region Constructors
 
