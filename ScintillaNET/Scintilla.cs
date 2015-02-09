@@ -374,6 +374,24 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Increases the zoom factor by 1 until it reaches 20 points.
+        /// </summary>
+        /// <seealso cref="Zoom" />
+        public void ZoomIn()
+        {
+            DirectMessage(NativeMethods.SCI_ZOOMIN);
+        }
+
+        /// <summary>
+        /// Decreases the zoom factor by 1 until it reaches -10 points.
+        /// </summary>
+        /// <seealso cref="Zoom" />
+        public void ZoomOut()
+        {
+            DirectMessage(NativeMethods.SCI_ZOOMOUT);
+        }
+
         #endregion Methods
 
         #region Properties
@@ -753,6 +771,28 @@ namespace ScintillaNET
             get
             {
                 return DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the zoom factor.
+        /// </summary>
+        /// <returns>The zoom factor measured in points.</returns>
+        /// <remarks>For best results, values should range from -10 to 20 points.</remarks>
+        /// <seealso cref="ZoomIn" />
+        /// <seealso cref="ZoomOut" />
+        [DefaultValue(0)]
+        [Category("Appearance")]
+        [Description("Zoom factor in points applied to the displayed text.")]
+        public int Zoom
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETZOOM).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETZOOM, new IntPtr(value));
             }
         }
 

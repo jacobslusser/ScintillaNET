@@ -30,11 +30,16 @@ If any of that is unclear, you should reread the paragraphs above and [take a cr
 
 ## Recipes
 
-### Basic Text Retrieval and Modification
+1. [Basic Text Retrieval and Modification](#basic-text)
+  1. [Retrieving Text](#retrieve-text)
+  2. [Insert, Append, Delete](#modify-text)
+2. [Zooming](#zooming)
+
+### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
 At its most basic level ScintillaNET is a text editor. The following recipes demonstrate basic text I/O.
 
-#### Retrieving Text
+#### <a name="retrieve-text"></a>Retrieving Text
 
 The `Text` property is the obvious choice if you want to get a string that represents all the text currently in a Scintilla control. Internally the Scintilla control will copy the entire contents of the document into a new string. Depending on the amount of text in the editor, this could be an expensive operation. Scintilla is designed to work efficiently with large amounts of text, but using the `Text` property to retrieve only a substring negates that.
 
@@ -46,7 +51,7 @@ var text = scintilla.GetTextRange(0, Math.Min(256, scintilla.TextLength));
 Console.WriteLine(text);
 ```
 
-#### Insert, Append, and Delete
+#### <a name="modify-text"></a>Insert, Append, and Delete
 
 Modifications usually come in the form of insert, append, and delete operations. As was discussed above, using the `Text` property to make a small change in the document contents is highly inefficient. Instead try one of the following options:
 
@@ -58,6 +63,19 @@ scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
 ```
 
 *NOTE: It may help to think of a Scintilla control as a `StringBuilder`.*
+
+### <a name="zooming"></a>Zooming
+
+Scintilla can increase or decrease the size of the displayed text by a "zoom factor":
+
+```cs
+scintilla.ZoomIn(); // Increase
+scintilla.ZoomOut(); // Decrease
+scintilla.Zoom = 15; // "I like big 'text' and I cannot lie..."
+```
+
+*NOTE: The default key bindings set `CTRL+NUMPLUS` and `CTRL+NUMMINUS` to zoom in and zoom out, respectively.*
+
 
 ## License
 
