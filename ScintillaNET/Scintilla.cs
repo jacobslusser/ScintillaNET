@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
@@ -401,6 +402,57 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Color BackColor
+        {
+            get
+            {
+                return base.BackColor;
+            }
+            set
+            {
+                base.BackColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Image BackgroundImage
+        {
+            get
+            {
+                return base.BackgroundImage;
+            }
+            set
+            {
+                base.BackgroundImage = value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override ImageLayout BackgroundImageLayout
+        {
+            get
+            {
+                return base.BackgroundImageLayout;
+            }
+            set
+            {
+                base.BackgroundImageLayout = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the required creation parameters when the control handle is created.
         /// </summary>
         /// <returns>A CreateParams that contains the required creation parameters when the handle to the control is created.</returns>
@@ -477,6 +529,36 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Gets or sets the default cursor for the control.
+        /// </summary>
+        /// <returns>An object of type Cursor representing the current default cursor.</returns>
+        protected override Cursor DefaultCursor
+        {
+            get
+            {
+                return Cursors.IBeam;
+            }
+        }
+
+        /// <summary>
+        /// Gets the default size of the control.
+        /// </summary>
+        /// <returns>The default Size of the control.</returns>
+        protected override Size DefaultSize
+        {
+            get
+            {
+                // I've discovered that using a DefaultSize property other than 'empty' triggers a flaw (IMO)
+                // in Windows Forms that will cause CreateParams to be called in the base constructor.
+                // That's too early. It makes it impossible to use the Site or DesignMode properties during
+                // handle creation because they haven't been set yet. Since we don't currently depend on those
+                // properties it's okay, but if we need them this is the place to start fixing things.
+
+                return new Size(200, 100);
+            }
+        }
+
         internal Encoding Encoding
         {
             get
@@ -484,6 +566,40 @@ namespace ScintillaNET
                 // Should always be UTF-8 unless someone has done an end run around us
                 int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
                 return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Font Font
+        {
+            get
+            {
+                return base.Font;
+            }
+            set
+            {
+                base.Font = value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Color ForeColor
+        {
+            get
+            {
+                return base.ForeColor;
+            }
+            set
+            {
+                base.ForeColor = value;
             }
         }
 
@@ -499,6 +615,23 @@ namespace ScintillaNET
             get
             {
                 return (DirectMessage(NativeMethods.SCI_GETMODIFY) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new Padding Padding
+        {
+            get
+            {
+                return base.Padding;
+            }
+            set
+            {
+                base.Padding = value;
             }
         }
 
