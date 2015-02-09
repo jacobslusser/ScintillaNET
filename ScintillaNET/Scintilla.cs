@@ -283,6 +283,14 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Scrolls the current position into view, if it is not already visible.
+        /// </summary>
+        public void ScrollCaret()
+        {
+            DirectMessage(NativeMethods.SCI_SCROLLCARET);
+        }
+
+        /// <summary>
         /// Sets the application-wide default module path of the native Scintilla library.
         /// </summary>
         /// <param name="modulePath">The native Scintilla module path.</param>
@@ -370,6 +378,29 @@ namespace ScintillaNET
         #region Properties
 
         /// <summary>
+        /// Gets or sets the current caret position.
+        /// </summary>
+        /// <returns>The zero-based byte position of the caret.</returns>
+        /// <remarks>
+        /// Setting the current caret position will create a selection between it and the <see cref="CurrentPosition" />.
+        /// The caret is not scrolled into view.
+        /// </remarks>
+        /// <seealso cref="ScrollCaret" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int AnchorPosition
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETANCHOR).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets the required creation parameters when the control handle is created.
         /// </summary>
         /// <returns>A CreateParams that contains the required creation parameters when the handle to the control is created.</returns>
@@ -420,6 +451,29 @@ namespace ScintillaNET
                 }
 
                 return cp;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current caret position.
+        /// </summary>
+        /// <returns>The zero-based byte position of the caret.</returns>
+        /// <remarks>
+        /// Setting the current caret position will create a selection between it and the current <see cref="AnchorPosition" />.
+        /// The caret is not scrolled into view.
+        /// </remarks>
+        /// <seealso cref="ScrollCaret" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int CurrentPosition
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(value));
             }
         }
 

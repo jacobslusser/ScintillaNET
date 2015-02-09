@@ -22,11 +22,42 @@ Scintilla (and by extension ScintillaNET) operates on bytes, not characters. Thi
 
 Scintilla(NET), on the other hand, stores text as UTF-8—where a single character can be represented as one, two, or more bytes of memory. So the third character _could_ be at the 4th offset in memory—if the preceding two characters each required two bytes each, _or_ it could be at the 2nd offset in memory if the preceding two characters only required one byte each. How many bytes of memory a UTF-8 character can occupy depends on the character.
 
-If Scintilla(NET) operated on characters that would make all this exposition superfluous. But it doesn't. For performance and historical reasons the Scintilla(NET) APIs expect byte offsets and ranges, not character offsets and ranges. If you want to replace the the word "World" in "Hello World" you would need to know the byte offset and range of the word "World", _not_ its character offset and range. Sometimes byte and character offsets will be equal to each other, sometimes not. It all depends on the characters being used.
+If Scintilla(NET) operated on characters that would make all this exposition superfluous. But it doesn't. For performance and historical reasons the **Scintilla(NET) APIs expect byte offsets and ranges, not character offsets and ranges**. If you want to replace the word "World" in "Hello World" you would need to know the byte offset and range of the word "World", _not_ its character offset and range. Sometimes byte and character offsets will be equal to each other, sometimes not. It all depends on the characters being used.
 
 The work of converting a character offset and range to a byte offset and range (and vice versa) is on you. The [Encoding APIs](https://msdn.microsoft.com/en-us/library/system.text.encoding) offered in the .NET framework provide all the necessary tools. In addition, ScintillaNET provides some APIs to help with this.
 
 If any of that is unclear, you should reread the paragraphs above and [take a crash course on Unicode](http://www.joelonsoftware.com/articles/Unicode.html).
+
+## Recipes
+
+### Basic Text Retrieval and Modification
+
+At its most basic level ScintillaNET is a text editor. The following recipes demonstrate basic text I/O.
+
+#### Retrieving Text
+
+The `Text` property is the obvious choice if you want to get a string that represents all the text currently in a Scintilla control. Internally the Scintilla control will copy the entire contents of the document into a new string. Depending on the amount of text in the editor, this could be an expensive operation. Scintilla is designed to work efficiently with large amounts of text, but using the `Text` property to retrieve only a substring negates that.
+
+Instead, it's usually best to identify the range of text you're interested in (through search, selection, or some other means) and use the `GetTextRange` method to copy only what you need into a string:
+
+```cs
+// Get the first 256 bytes of the document
+var text = scintilla.GetTextRange(0, Math.Min(256, scintilla.TextLength));
+Console.WriteLine(text);
+```
+
+#### Insert, Append, and Delete
+
+Modifications usually come in the form of insert, append, and delete operations. As was discussed above, using the `Text` property to make a small change in the document contents is highly inefficient. Instead try one of the following options:
+
+```cs
+scintilla.Text = "Hello";
+scintilla.AppendText(" World"); // 'Hello' -> 'Hello World'
+scintilla.DeleteRange(0, 5); // 'Hello World' -> ' World'
+scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
+```
+
+*NOTE: It may help to think of a Scintilla control as a `StringBuilder`.*
 
 ## License
 
