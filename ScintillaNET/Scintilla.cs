@@ -30,12 +30,14 @@ namespace ScintillaNET
         private static NativeMethods.Scintilla_DirectFunction directFunction;
 
         // Events
+        private static readonly object scNotificationEventKey = new object();
+        private static readonly object updateUIEventKey = new object();
         private static readonly object modifyAttemptEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
-
         private BorderStyle borderStyle;
+        private LineCollection lines;
 
         #endregion Fields
 
@@ -48,12 +50,9 @@ namespace ScintillaNET
         /// <remarks>The caret position is set to the end of the inserted text, but it is not scrolled into view.</remarks>
         public unsafe void AddText(string text)
         {
-            if(text != null)
-            {
-                var bytes = Helpers.GetBytes(text, Encoding, zeroTerminated: false);
-                fixed (byte* bp = bytes)
-                    DirectMessage(NativeMethods.SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
-            }
+            var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
         }
 
         /// <summary>
@@ -63,12 +62,9 @@ namespace ScintillaNET
         /// <remarks>The current selection is not changed and the new text is not scrolled into view.</remarks>
         public unsafe void AppendText(string text)
         {
-            if (text != null)
-            {
-                var bytes = Helpers.GetBytes(text, Encoding, zeroTerminated: false);
-                fixed (byte* bp = bytes)
-                    DirectMessage(NativeMethods.SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
-            }
+            var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
         }
 
         /// <summary>
@@ -82,11 +78,29 @@ namespace ScintillaNET
         /// <summary>
         /// Deletes a range of text from the document.
         /// </summary>
-        /// <param name="position">The zero-based byte position to start deleting.</param>
-        /// <param name="length">The number of bytes to delete.</param>
+        /// <param name="position">The zero-based character position to start deleting.</param>
+        /// <param name="length">The number of characters to delete.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="position" /> or <paramref name="length" /> is less than zero. -or-
+        /// The sum of <paramref name="position" /> and <paramref name="length" /> is greater than the document length.
+        /// </exception>
         public void DeleteRange(int position, int length)
         {
-            DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(position), new IntPtr(length));
+            var textLength = TextLength;
+
+            if (position < 0)
+                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
+            if (position > textLength)
+                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
+            if (position + length > textLength)
+                throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
+
+            // Convert to byte position/length
+            var byteStartPos = lines.CharToBytePosition(position);
+            var byteEndPos = lines.CharToBytePosition(position + length);
+            DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
         }
 
         internal IntPtr DirectMessage(int msg)
@@ -193,17 +207,33 @@ namespace ScintillaNET
         /// <summary>
         /// Gets a range of text from the document.
         /// </summary>
-        /// <param name="position">The zero-based starting byte position of the range to get.</param>
-        /// <param name="length">The number of bytes to get.</param>
+        /// <param name="position">The zero-based starting character position of the range to get.</param>
+        /// <param name="length">The number of characters to get.</param>
         /// <returns>A string representing the text range.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="position" /> or <paramref name="length" /> is less than zero. -or-
+        /// The sum of <paramref name="position" /> and <paramref name="length" /> is greater than the document length.
+        /// </exception>
         public unsafe string GetTextRange(int position, int length)
         {
-            var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(position), new IntPtr(length));
+            var textLength = TextLength;
+
+            if (position < 0)
+                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
+            if (position > textLength)
+                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
+            if (position + length > textLength)
+                throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
+
+            // Convert to byte position/length
+            var byteStartPos = lines.CharToBytePosition(position);
+            var byteEndPos = lines.CharToBytePosition(position + length);
+            var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
             if (ptr == IntPtr.Zero)
                 return string.Empty;
 
-            // Assumption is that moving the gap will always be equal to or less expensive
-            // than using one of the APIs which requires an intermediate buffer.
             var text = new string((sbyte*)ptr, 0, length, Encoding);
             return text;
         }
@@ -223,16 +253,29 @@ namespace ScintillaNET
         /// <summary>
         /// Inserts text at the specified position.
         /// </summary>
-        /// <param name="position">The zero-based byte position to insert the text. Specify -1 to use the current caret position.</param>
+        /// <param name="position">The zero-based character position to insert the text. Specify -1 to use the current caret position.</param>
         /// <param name="text">The text to insert into the document.</param>
-        /// <remarks>The current selection is not affected and no scrolling is performed.</remarks>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="position" /> less than zero and not equal to -1. -or-
+        /// <paramref name="position" /> is greater than the document length.
+        /// </exception>
+        /// <remarks>No scrolling is performed.</remarks>
         public unsafe void InsertText(int position, string text)
         {
-            if (text != null)
+            if (position < -1)
+                throw new ArgumentOutOfRangeException("position", "Position must be greater or equal to zero, or -1.");
+
+            if (position != -1)
             {
-                fixed (byte* bp = Helpers.GetBytes(text, Encoding, zeroTerminated: true))
-                    DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
+                var textLength = TextLength;
+                if (position > textLength)
+                    throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
+
+                position = lines.CharToBytePosition(position);
             }
+
+            fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
+                DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
         }
 
         /// <summary>
@@ -267,6 +310,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="UpdateUI" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="UpdateUIEventArgs" /> that contains the event data.</param>
+        protected virtual void OnUpdateUI(UpdateUIEventArgs e)
+        {
+            EventHandler<UpdateUIEventArgs> handler = Events[updateUIEventKey] as EventHandler<UpdateUIEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Replaces the current selection with the specified text.
         /// </summary>
         /// <param name="text">The text that should replace the current selection.</param>
@@ -276,11 +330,10 @@ namespace ScintillaNET
         /// </remarks>
         public unsafe void ReplaceSelection(string text)
         {
-            if (text != null)
-            {
-                fixed (byte* bp = Helpers.GetBytes(text, Encoding, zeroTerminated: true))
-                    DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
-            }
+            // TODO I don't like how using a null/empty string does nothing
+
+            fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
+                DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
         }
 
         /// <summary>
@@ -322,31 +375,19 @@ namespace ScintillaNET
             NativeMethods.SCNotification scn = (NativeMethods.SCNotification)Marshal.PtrToStructure(m.LParam, typeof(NativeMethods.SCNotification));
             if (scn.nmhdr.code >= NativeMethods.SCN_STYLENEEDED && scn.nmhdr.code <= NativeMethods.SCN_FOCUSOUT)
             {
+                var handler = Events[scNotificationEventKey] as EventHandler<SCNotificationEventArgs>;
+                if (handler != null)
+                    handler(this, new SCNotificationEventArgs(scn));
+
                 switch (scn.nmhdr.code)
                 {
                     case NativeMethods.SCN_MODIFYATTEMPTRO:
                         OnModifyAttempt(EventArgs.Empty);
                         break;
 
-                    //case NativeMethods.SCN_MODIFIED:
-                    //    ScnModified(ref scn);
-                    //    break;
-
-                    //case NativeMethods.SCN_UPDATEUI:
-                    //    ScnUpdateUI(ref scn);
-                    //    break;
-
-                    //case NativeMethods.SCN_FOCUSIN:
-                    //    OnFocusIn(EventArgs.Empty);
-                    //    break;
-
-                    //case NativeMethods.SCN_FOCUSOUT:
-                    //    OnFocusOut(EventArgs.Empty);
-                    //    break;
-
-                    //case NativeMethods.SCN_ZOOM:
-                    //    OnZoomed(EventArgs.Empty);
-                    //    break;
+                    case NativeMethods.SCN_UPDATEUI:
+                        OnUpdateUI(new UpdateUIEventArgs((Update)scn.updated));
+                        break;
 
                     default:
                         // Not our notification
@@ -397,11 +438,11 @@ namespace ScintillaNET
         #region Properties
 
         /// <summary>
-        /// Gets or sets the current caret position.
+        /// Gets or sets the current anchor position.
         /// </summary>
-        /// <returns>The zero-based byte position of the caret.</returns>
+        /// <returns>The zero-based character position of the anchor.</returns>
         /// <remarks>
-        /// Setting the current caret position will create a selection between it and the <see cref="CurrentPosition" />.
+        /// Setting the current anchor position will create a selection between it and the <see cref="CurrentPosition" />.
         /// The caret is not scrolled into view.
         /// </remarks>
         /// <seealso cref="ScrollCaret" />
@@ -411,11 +452,19 @@ namespace ScintillaNET
         {
             get
             {
-                return DirectMessage(NativeMethods.SCI_GETANCHOR).ToInt32();
+                var bytePos = DirectMessage(NativeMethods.SCI_GETANCHOR).ToInt32();
+                return lines.ByteToCharPosition(bytePos);
             }
             set
             {
-                DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(value));
+                var textLength = TextLength;
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", "Value cannot be less than zero.");
+                if (value > textLength)
+                    throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
+
+                var bytePos = lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(bytePos));
             }
         }
 
@@ -527,7 +576,7 @@ namespace ScintillaNET
         /// <summary>
         /// Gets or sets the current caret position.
         /// </summary>
-        /// <returns>The zero-based byte position of the caret.</returns>
+        /// <returns>The zero-based character position of the caret.</returns>
         /// <remarks>
         /// Setting the current caret position will create a selection between it and the current <see cref="AnchorPosition" />.
         /// The caret is not scrolled into view.
@@ -539,11 +588,19 @@ namespace ScintillaNET
         {
             get
             {
-                return DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+                var bytePos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+                return lines.ByteToCharPosition(bytePos);
             }
             set
             {
-                DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(value));
+                var textLength = TextLength;
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", "Value cannot be less than zero.");
+                if (value > textLength)
+                    throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
+
+                var bytePos = lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(bytePos));
             }
         }
 
@@ -618,6 +675,20 @@ namespace ScintillaNET
             set
             {
                 base.ForeColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a collection representing lines of text in the <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>A collection of text lines.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public LineCollection Lines
+        {
+            get
+            {
+                return lines;
             }
         }
 
@@ -697,6 +768,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the range of the horizontal scroll bar.
+        /// </summary>
+        /// <returns>The range in pixels of the horizontal scroll bar. The default is 2000.</returns>
+        /// <remarks>The width will automatically increase as needed when <see cref="ScrollWidthTracking" /> is enabled.</remarks>
+        [DefaultValue(2000)]
+        [Category("Scrolling")]
+        [Description("The range in pixels of the horizontal scroll bar.")]
+        public int ScrollWidth
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETSCROLLWIDTH).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETSCROLLWIDTH, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether the <see cref="ScrollWidth" /> is automatically increased as needed.
         /// </summary>
         /// <returns>
@@ -748,29 +839,34 @@ namespace ScintillaNET
         {
             get
             {
-                var length = DirectMessage(NativeMethods.SCI_GETLENGTH).ToInt32();
-                return GetTextRange(0, length);
+                var length = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
+                var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(0), new IntPtr(length));
+                if (ptr == IntPtr.Zero)
+                    return string.Empty;
+
+                // Assumption is that moving the gap will always be equal to or less expensive
+                // than using one of the APIs which requires an intermediate buffer.
+                var text = new string((sbyte*)ptr, 0, length, Encoding);
+                return text;
             }
             set
             {
-                // The default behavior is for Scintilla to ignore the call to SCI_SETTEXT if the specified text is null.
-                // That's not what .NET developers would expect so we treat null as an empty string.
                 fixed (byte* bp = Helpers.GetBytes(value ?? string.Empty, Encoding, zeroTerminated: true))
                     DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
             }
         }
 
         /// <summary>
-        /// Gets the length of the document text measured in bytes.
+        /// Gets the length of the text in the control.
         /// </summary>
-        /// <returns>The number of bytes in the document.</returns>
+        /// <returns>The number of characters in the document.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TextLength
         {
             get
             {
-                return DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
+                return lines.TextLength;
             }
         }
 
@@ -818,6 +914,36 @@ namespace ScintillaNET
             }
         }
 
+        internal event EventHandler<SCNotificationEventArgs> SCNotification
+        {
+            add
+            {
+                Events.AddHandler(scNotificationEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(scNotificationEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the control UI is updated as a result of changes to text (including styling),
+        /// selection, and/or scroll positions.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the control UI is updated.")]
+        public event EventHandler<UpdateUIEventArgs> UpdateUI
+        {
+            add
+            {
+                Events.AddHandler(updateUIEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(updateUIEventKey, value);
+            }
+        }
+
         #endregion Events
 
         #region Constructors
@@ -838,6 +964,7 @@ namespace ScintillaNET
                      false);
 
             this.borderStyle = BorderStyle.Fixed3D;
+            this.lines = new LineCollection(this);
         }
 
         #endregion Constructors

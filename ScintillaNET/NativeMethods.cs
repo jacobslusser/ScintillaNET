@@ -73,6 +73,24 @@ namespace ScintillaNET
         public const int SC_MARGINOPTION_NONE = 0;
         public const int SC_MARGINOPTION_SUBLINESELECT = 1;
 
+        // Update notification reasons
+        internal const int SC_UPDATE_CONTENT = 0x01;
+        internal const int SC_UPDATE_SELECTION = 0x02;
+        internal const int SC_UPDATE_V_SCROLL = 0x04;
+        internal const int SC_UPDATE_H_SCROLL = 0x08;
+
+        // Modified notification types
+        internal const int SC_MOD_INSERTTEXT = 0x1;
+        internal const int SC_MOD_DELETETEXT = 0x2;
+        internal const int SC_MOD_BEFOREINSERT = 0x400;
+        internal const int SC_MOD_BEFOREDELETE = 0x800;
+        internal const int SC_MOD_INSERTCHECK = 0x100000;
+
+        // Modified flags
+        internal const int SC_PERFORMED_USER = 0x10;
+        internal const int SC_PERFORMED_UNDO = 0x20;
+        internal const int SC_PERFORMED_REDO = 0x40;
+
         // Functions
         public const int SCI_START = 2000;
         public const int SCI_OPTIONAL_START = 3000;

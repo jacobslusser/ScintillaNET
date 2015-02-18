@@ -38,3 +38,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("3.0.0.0")]
 [assembly: AssemblyInformationalVersion("3.0.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
+
+[assembly: InternalsVisibleToAttribute("ScintillaNET.Test")]

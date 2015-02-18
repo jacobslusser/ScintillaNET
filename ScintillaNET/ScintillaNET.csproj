@@ -46,12 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="LineCollection.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Update.cs" />
+    <Compile Include="UpdateUIEventArgs.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
