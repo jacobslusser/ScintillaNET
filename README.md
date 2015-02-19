@@ -18,7 +18,7 @@ This project is a rewrite of the [ScintillaNET project hosted at CodePlex](http:
 
 One of the issues that ScintillaNET has historically suffered from is the fact that the native Scintilla control operates on bytes, not characters. Prior versions of ScintillaNET did not account for this, and when you're dealing with Unicode, [one byte doesn't always equal one character](http://www.joelonsoftware.com/articles/Unicode.html). The result was an API that sometimes expected byte offsets and at other times expected character offsets. Sometimes things would work as expected and other times random failures and out-of-range exceptions would occur.
 
-No more. **One of the major focuses of this rewrite was to give ScintillaNET an understanding of Unicode from the ground up.** Every API now consistently works with character based offsets and ranges just like .NET developers expect. Internally we maintain a mapping of character to byte offsets (and vice versa) and do all the translation for you so you never need to worry about it. No more out-of-range exceptions. No more confusion. No more pain. [It just works](http://en.wikipedia.org/wiki/List_of_Apple_Inc._slogans).
+No more. **One of the major focuses of this rewrite was to give ScintillaNET an understanding of Unicode from the ground up.** Every API now consistently works with character-based offsets and ranges just like .NET developers expect. Internally we maintain a mapping of character to byte offsets (and vice versa) and do all the translation for you so you never need to worry about it. No more out-of-range exceptions. No more confusion. No more pain. [It just works](http://en.wikipedia.org/wiki/List_of_Apple_Inc._slogans).
 
 ### One Library
 
@@ -39,8 +39,10 @@ Another goal of the rewrite was to accept the original Scintilla API for what it
 1. [Basic Text Retrieval and Modification](#basic-text)
   1. [Retrieving Text](#retrieve-text)
   2. [Insert, Append, Delete](#modify-text)
-2. [Zooming](#zooming)
-3. [Using a Custom SciLexer.dll](#scilexer)
+2. [Changing Inserted Text](#insert-check)
+3. [Zooming](#zooming)
+4. [Updating Dependent Controls](#update-ui)
+5. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -71,6 +73,21 @@ scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
 
 *NOTE: It may help to think of a Scintilla control as a `StringBuilder`.*
 
+### <a name="insert-check"></a>Changing Inserted Text
+
+There are numerous events to inform you of when changes have occurred. In addition to the `TextChanged` event provided by almost all Windows Forms controls, Scintilla also provides events for `Insert`, `Delete`, `BeforeInsert`, and `BeforeDelete`. By using these events you can trigger other changes in your application.
+
+These events are all read-only, however. Changes made by a user to the text can be observed, but not modified—with one exception. The `InsertCheck` event occurs before text is inserted (and earlier than the `BeforeInsert` event) and is provided for the express purpose of giving you an option to modify the text being inserted. This can be used to simply cancel/prevent unwanted user input. Or in more advanced situations, it could be used to replace user input.
+
+The following code snippet illustrates how you might handle the `InsertCheck` event to transform user input to HTML encode input:
+
+```cs
+private void scintilla_InsertCheck(object sender, InsertCheckEventArgs e)
+{
+    e.Text = WebUtility.HtmlEncode(e.Text);
+}
+```
+
 ### <a name="zooming"></a>Zooming
 
 Scintilla can increase or decrease the size of the displayed text by a "zoom factor":
@@ -82,6 +99,25 @@ scintilla.Zoom = 15; // "I like big 'text' and I cannot lie..."
 ```
 
 *NOTE: The default key bindings set `CTRL+NUMPLUS` and `CTRL+NUMMINUS` to zoom in and zoom out, respectively.*
+
+### <a name="update-ui"></a>Updating Dependent Controls
+
+A common feature most developers wish to provide with their Scintilla-based IDEs is to indicate where the caret (i.e. cursor) is at all times by perhaps displaying its location in the status bar. The `UpdateUI` event is well suited to this. It is fired any time there is a change to text content or styling, the selection, or scroll positions and provides a way for identifying which of those changes caused the event to fire. This can be used to update any dependent controls or even synchronize the scrolling of one Scintilla control with another.
+
+To display the current caret position and selection range in the status bar, try:
+
+```cs
+private void scintilla_UpdateUI(object sender, UpdateUIEventArgs e)
+{
+    if ((e.Change & UpdateChange.Selection) > 0)
+    {
+        // The caret/selection changed
+        var currentPos = scintilla.CurrentPosition;
+        var anchorPos = scintilla.AnchorPosition;
+        toolStripStatusLabel.Text = "Ch: " + currentPos + " Sel: " + Math.Abs(anchorPos - currentPos);
+    }
+}
+```
 
 ### <a name="scilexer"></a>Using a Custom SciLexer.dll
 

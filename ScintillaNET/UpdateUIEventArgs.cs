@@ -12,8 +12,8 @@ namespace ScintillaNET
         /// <summary>
         /// The UI update that occurred.
         /// </summary>
-        /// <returns>A bitwise combination of <see cref="Update" /> values specifying the UI update that occurred.</returns>
-        public Update Update { get; private set; }
+        /// <returns>A bitwise combination of <see cref="UpdateChange" /> values specifying the UI update that occurred.</returns>
+        public UpdateChange Change { get; private set; }
 
         #endregion Properties
 
@@ -22,10 +22,10 @@ namespace ScintillaNET
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateUIEventArgs" /> class.
         /// </summary>
-        /// <param name="update">A bitwise combination of <see cref="Update" /> values specifying the reason to update the UI.</param>
-        public UpdateUIEventArgs(Update update)
+        /// <param name="change">A bitwise combination of <see cref="UpdateChange" /> values specifying the reason to update the UI.</param>
+        public UpdateUIEventArgs(UpdateChange change)
         {
-            Update = update;
+            Change = change;
         }
 
         #endregion Constructors

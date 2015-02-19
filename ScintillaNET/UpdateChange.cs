@@ -7,7 +7,7 @@ namespace ScintillaNET
     /// </summary>
     /// <remarks>This enumeration has a FlagsAttribute attribute that allows a bitwise combination of its member values.</remarks>
     [Flags]
-    public enum Update
+    public enum UpdateChange
     {
         /// <summary>
         /// Contents, styling or markers have been changed.

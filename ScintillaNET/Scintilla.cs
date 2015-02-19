@@ -31,6 +31,11 @@ namespace ScintillaNET
 
         // Events
         private static readonly object scNotificationEventKey = new object();
+        private static readonly object insertCheckEventKey = new object();
+        private static readonly object beforeInsertEventKey = new object();
+        private static readonly object beforeDeleteEventKey = new object();
+        private static readonly object insertEventKey = new object();
+        private static readonly object deleteEventKey = new object();
         private static readonly object updateUIEventKey = new object();
         private static readonly object modifyAttemptEventKey = new object();
 
@@ -38,6 +43,10 @@ namespace ScintillaNET
         private IntPtr sciPtr;
         private BorderStyle borderStyle;
         private LineCollection lines;
+
+        // Modified event optimization
+        private int? cachedPosition = null;
+        private string cachedText = null;
 
         #endregion Fields
 
@@ -279,6 +288,39 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="BeforeDelete" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="BeforeModificationEventArgs" /> that contains the event data.</param>
+        protected virtual void OnBeforeDelete(BeforeModificationEventArgs e)
+        {
+            var handler = Events[beforeDeleteEventKey] as EventHandler<BeforeModificationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="BeforeInsert" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="BeforeModificationEventArgs" /> that contains the event data.</param>
+        protected virtual void OnBeforeInsert(BeforeModificationEventArgs e)
+        {
+            var handler = Events[beforeInsertEventKey] as EventHandler<BeforeModificationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Delete" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="ModificationEventArgs" /> that contains the event data.</param>
+        protected virtual void OnDelete(ModificationEventArgs e)
+        {
+            var handler = Events[deleteEventKey] as EventHandler<ModificationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the HandleCreated event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
@@ -296,6 +338,28 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(4));
 
             base.OnHandleCreated(e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Insert" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="ModificationEventArgs" /> that contains the event data.</param>
+        protected virtual void OnInsert(ModificationEventArgs e)
+        {
+            var handler = Events[insertEventKey] as EventHandler<ModificationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="InsertCheck" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="InsertCheckEventArgs" /> that contains the event data.</param>
+        protected virtual void OnInsertCheck(InsertCheckEventArgs e)
+        {
+            var handler = Events[insertCheckEventKey] as EventHandler<InsertCheckEventArgs>;
+            if (handler != null)
+                handler(this, e);
         }
 
         /// <summary>
@@ -334,6 +398,71 @@ namespace ScintillaNET
 
             fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
                 DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        private void ScnModified(ref NativeMethods.SCNotification scn)
+        {
+            // The InsertCheck, BeforeInsert, BeforeDelete, Insert, and Delete events can all potentially require
+            // the same conversions: byte to char position, char* to string, etc.... To avoid doing the same work
+            // multiple times we share that data between events.
+
+            if ((scn.modificationType & NativeMethods.SC_MOD_INSERTCHECK) > 0)
+            {
+                var eventArgs = new InsertCheckEventArgs(this, scn.position, scn.length, scn.text);
+                OnInsertCheck(eventArgs);
+
+                cachedPosition = eventArgs.CachedPosition;
+                cachedText = eventArgs.CachedText;
+            }
+
+            const int sourceMask = (NativeMethods.SC_PERFORMED_USER | NativeMethods.SC_PERFORMED_UNDO | NativeMethods.SC_PERFORMED_REDO);
+
+            if ((scn.modificationType & (NativeMethods.SC_MOD_BEFOREDELETE | NativeMethods.SC_MOD_BEFOREINSERT)) > 0)
+            {
+                var source = (ModificationSource)(scn.modificationType & sourceMask);
+                var eventArgs = new BeforeModificationEventArgs(this, source, scn.position, scn.length, scn.text);
+
+                eventArgs.CachedPosition = cachedPosition;
+                eventArgs.CachedText = cachedText;
+
+                if ((scn.modificationType & NativeMethods.SC_MOD_BEFOREINSERT) > 0)
+                {
+                    OnBeforeInsert(eventArgs);
+                }
+                else
+                {
+                    OnBeforeDelete(eventArgs);
+                }
+
+                cachedPosition = eventArgs.CachedPosition;
+                cachedText = eventArgs.CachedText;
+            }
+
+            if ((scn.modificationType & (NativeMethods.SC_MOD_DELETETEXT | NativeMethods.SC_MOD_INSERTTEXT)) > 0)
+            {
+                var source = (ModificationSource)(scn.modificationType & sourceMask);
+                var eventArgs = new ModificationEventArgs(this, source, scn.position, scn.length, scn.text, scn.linesAdded);
+
+                eventArgs.CachedPosition = cachedPosition;
+                eventArgs.CachedText = cachedText;
+
+                if ((scn.modificationType & NativeMethods.SC_MOD_INSERTTEXT) > 0)
+                {
+                    OnInsert(eventArgs);
+                }
+                else
+                {
+                    OnDelete(eventArgs);
+                }
+
+                // Always clear the cache
+                cachedPosition = null;
+                cachedText = null;
+
+                // For backward compatibility.... Of course this means that we'll raise two
+                // TextChanged events for replace (insert/delete) operations, but that's life.
+                OnTextChanged(EventArgs.Empty);
+            }
         }
 
         /// <summary>
@@ -381,12 +510,16 @@ namespace ScintillaNET
 
                 switch (scn.nmhdr.code)
                 {
+                    case NativeMethods.SCN_MODIFIED:
+                        ScnModified(ref scn);
+                        break;
+
                     case NativeMethods.SCN_MODIFYATTEMPTRO:
                         OnModifyAttempt(EventArgs.Empty);
                         break;
 
                     case NativeMethods.SCN_UPDATEUI:
-                        OnUpdateUI(new UpdateUIEventArgs((Update)scn.updated));
+                        OnUpdateUI(new UpdateUIEventArgs((UpdateChange)scn.updated));
                         break;
 
                     default:
@@ -895,6 +1028,91 @@ namespace ScintillaNET
         #endregion Properties
 
         #region Events
+
+        /// <summary>
+        /// Occurs when text is about to be deleted.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs before text is deleted.")]
+        public event EventHandler<BeforeModificationEventArgs> BeforeDelete
+        {
+            add
+            {
+                Events.AddHandler(beforeDeleteEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(beforeDeleteEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when text is about to be inserted.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs before text is inserted.")]
+        public event EventHandler<BeforeModificationEventArgs> BeforeInsert
+        {
+            add
+            {
+                Events.AddHandler(beforeInsertEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(beforeInsertEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when text has been deleted from the document.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when text is deleted.")]
+        public event EventHandler<ModificationEventArgs> Delete
+        {
+            add
+            {
+                Events.AddHandler(deleteEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(deleteEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when text has been inserted into the document.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when text is inserted.")]
+        public event EventHandler<ModificationEventArgs> Insert
+        {
+            add
+            {
+                Events.AddHandler(insertEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(insertEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when text is about to be inserted. The inserted text can be changed.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs before text is inserted. Permits changing the inserted text.")]
+        public event EventHandler<InsertCheckEventArgs> InsertCheck
+        {
+            add
+            {
+                Events.AddHandler(insertCheckEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(insertCheckEventKey, value);
+            }
+        }
 
         /// <summary>
         /// Occurs when a user attempts to change text while the document is in read-only mode.
