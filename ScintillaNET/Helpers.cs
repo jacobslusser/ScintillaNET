@@ -19,6 +19,17 @@ namespace ScintillaNET
                 return alpha / (double)NativeMethods.SC_ALPHA_OPAQUE;
         }
 
+        public static int Clamp(int value, int min, int max)
+        {
+            if (value < min)
+                value = min;
+
+            if (value > max)
+                return max;
+
+            return value;
+        }
+
         public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
         {
             if (string.IsNullOrEmpty(text))
@@ -55,6 +66,20 @@ namespace ScintillaNET
                 return NativeMethods.SC_ALPHA_NOALPHA;
             else
                 return (int)Math.Round(opacity * NativeMethods.SC_ALPHA_OPAQUE, 0);
+        }
+
+        public static void ValidateCollectionIndex(int index, int count)
+        {
+            if (index < 0 || index >= count)
+                throw new ArgumentOutOfRangeException("index", "Index must be non-negative and less than the size of the collection.");
+        }
+
+        public static void ValidateDocumentPosition(int pos, int textLength, string paramName)
+        {
+            if (pos < 0)
+                throw new ArgumentOutOfRangeException(paramName, "Value cannot be less than zero.");
+            if (pos > textLength)
+                throw new ArgumentOutOfRangeException(paramName, "Value cannot exceed document length.");
         }
 
         #endregion Methods

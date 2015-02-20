@@ -9,7 +9,7 @@ using System.Text;
 namespace ScintillaNET
 {
     /// <summary>
-    /// Represents the lines of text in a <see cref="Scintilla" /> control.
+    /// An immutable collection of lines of text in a <see cref="Scintilla" /> control.
     /// </summary>
     public class LineCollection : IEnumerable<Line>
     {
@@ -183,10 +183,6 @@ namespace ScintillaNET
         {
             return this.GetEnumerator();
         }
-
-        
-
-       
 
         /// <summary>
         /// Returns the line index containing the CHARACTER position.
@@ -394,10 +390,7 @@ namespace ScintillaNET
         {
             get
             {
-                if (index < 0 || index >= Count)
-                    throw new ArgumentOutOfRangeException("index", "Index must be non-negative and less than the size of the collection.");
-
-                var data = perLineData[index];
+                Helpers.ValidateCollectionIndex(index, Count);
                 return new Line(scintilla, index);
             }
         }

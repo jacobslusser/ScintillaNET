@@ -42,7 +42,8 @@ Another goal of the rewrite was to accept the original Scintilla API for what it
 2. [Changing Inserted Text](#insert-check)
 3. [Zooming](#zooming)
 4. [Updating Dependent Controls](#update-ui)
-5. [Using a Custom SciLexer.dll](#scilexer)
+5. [Find and Highlight Words](#find-highlight)
+6. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -75,7 +76,7 @@ scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
 
 ### <a name="insert-check"></a>Changing Inserted Text
 
-There are numerous events to inform you of when changes have occurred. In addition to the `TextChanged` event provided by almost all Windows Forms controls, Scintilla also provides events for `Insert`, `Delete`, `BeforeInsert`, and `BeforeDelete`. By using these events you can trigger other changes in your application.
+There are numerous events to inform you of when text has changed. In addition to the `TextChanged` event provided by almost all Windows Forms controls, Scintilla also provides events for `Insert`, `Delete`, `BeforeInsert`, and `BeforeDelete`. By using these events you can trigger other changes in your application.
 
 These events are all read-only, however. Changes made by a user to the text can be observed, but not modified—with one exception. The `InsertCheck` event occurs before text is inserted (and earlier than the `BeforeInsert` event) and is provided for the express purpose of giving you an option to modify the text being inserted. This can be used to simply cancel/prevent unwanted user input. Or in more advanced situations, it could be used to replace user input.
 
@@ -118,6 +119,45 @@ private void scintilla_UpdateUI(object sender, UpdateUIEventArgs e)
     }
 }
 ```
+
+### <a name="find-highlight"></a>Find and Highlight Words
+
+The following example will find all occurrences of the string specified (case-insensitive) and highlight them with a light-green indicator:
+
+```cs
+private void HighlightWord(string text)
+{
+    // Indicators 0-7 could be in use by a lexer
+    // so we'll use indicator 8 to highlight words.
+    const int NUM = 8;
+
+    // Remove all uses of our indicator
+    scintilla.Indicators.Current = NUM;
+    scintilla.Indicators.ClearRange(0, scintilla.TextLength);
+
+    // Update indicator appearance
+    scintilla.Indicators[NUM].Style = IndicatorStyle.StraightBox;
+    scintilla.Indicators[NUM].ForeColor = Color.Green;
+    scintilla.Indicators[NUM].OutlineAlpha = 50;
+    scintilla.Indicators[NUM].Alpha = 30;
+
+    // Search the document
+    scintilla.TargetStart = 0;
+    scintilla.TargetEnd = scintilla.TextLength;
+    scintilla.SearchFlags = SearchFlags.None;
+    while (scintilla.SearchInTarget(text) != -1)
+    {
+        // Mark the search results with the current indicator
+        scintilla.Indicators.FillRange(scintilla.TargetStart, scintilla.TargetEnd - scintilla.TargetStart);
+
+        // Search the remainder of the document
+        scintilla.TargetStart = scintilla.TargetEnd;
+        scintilla.TargetEnd = scintilla.TextLength;
+    }
+}
+```
+
+This example also illustrates the "set-once, run-many" style API that Scintilla is know for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
 
 ### <a name="scilexer"></a>Using a Custom SciLexer.dll
 

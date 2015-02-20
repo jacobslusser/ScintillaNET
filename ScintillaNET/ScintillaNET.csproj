@@ -49,6 +49,9 @@
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="Indicator.cs" />
+    <Compile Include="IndicatorCollection.cs" />
+    <Compile Include="IndicatorStyle.cs" />
     <Compile Include="InsertCheckEventArgs.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineCollection.cs" />
@@ -60,6 +63,10 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SearchFlags.cs" />
+    <Compile Include="Style.cs" />
+    <Compile Include="StyleCase.cs" />
+    <Compile Include="StyleCollection.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
   </ItemGroup>

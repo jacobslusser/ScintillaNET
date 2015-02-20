@@ -43,6 +43,10 @@ namespace ScintillaNET
         private IntPtr sciPtr;
         private BorderStyle borderStyle;
         private LineCollection lines;
+        private StyleCollection styles;
+
+        private int stylingPosition;
+        private int stylingBytePosition;
 
         // Modified event optimization
         private int? cachedPosition = null;
@@ -82,6 +86,14 @@ namespace ScintillaNET
         public void ClearAll()
         {
             DirectMessage(NativeMethods.SCI_CLEARALL);
+        }
+
+        /// <summary>
+        /// Removes all styling from the document and resets the folding state.
+        /// </summary>
+        public void ClearDocumentStyle()
+        {
+            DirectMessage(NativeMethods.SCI_CLEARDOCUMENTSTYLE);
         }
 
         /// <summary>
@@ -474,6 +486,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Searches for the first occurrence of the specified pattern in the target defined by <see cref="TargetStart" /> and <see cref="TargetEnd" />.
+        /// </summary>
+        /// <param name="pattern">The text pattern to search for. The interpretation of the pattern is defined by the <see cref="SearchFlags" />.</param>
+        /// <returns>The zero-based start position of the matched text within the document if successful; otherwise, -1.</returns>
+        /// <remarks>If successful, the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties will be updated to start and end positions of the matched text.</remarks>
+        public unsafe int SearchInTarget(string pattern)
+        {
+            int bytePos = 0;
+            var bytes = Helpers.GetBytes(pattern ?? string.Empty, Encoding, zeroTerminated: false);
+            fixed (byte* bp = bytes)
+                bytePos = DirectMessage(NativeMethods.SCI_SEARCHINTARGET, new IntPtr(bytes.Length), new IntPtr(bp)).ToInt32();
+
+            if (bytePos == -1)
+                return bytePos;
+
+            return lines.ByteToCharPosition(bytePos);
+        }
+
+        /// <summary>
         /// Sets the application-wide default module path of the native Scintilla library.
         /// </summary>
         /// <param name="modulePath">The native Scintilla module path.</param>
@@ -496,6 +527,79 @@ namespace ScintillaNET
         public void SetSavePoint()
         {
             DirectMessage(NativeMethods.SCI_SETSAVEPOINT);
+        }
+
+        /// <summary>
+        /// Styles the specified length of characters.
+        /// </summary>
+        /// <param name="length">The number of characters to style.</param>
+        /// <param name="style">The <see cref="Style" /> definition index to assign each character.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="length" /> or <paramref name="style" /> is less than zero. -or-
+        /// The sum of a preceeding call to <see cref="StartStyling" /> or <see name="SetStyling" /> and <paramref name="length" /> is greater than the document length. -or-
+        /// <paramref name="style" /> is greater than or equal to the number of style definitions.
+        /// </exception>
+        /// <remarks>
+        /// The styling position is advanced by <paramref name="length" /> after each call allowing multiple
+        /// calls to <see cref="SetStyling" /> for a single call to <see cref="StartStyling" />.
+        /// </remarks>
+        /// <seealso cref="StartStyling" />
+        public void SetStyling(int length, int style)
+        {
+            var textLength = TextLength;
+
+            if (length < 0)
+                throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
+            if (stylingPosition + length > textLength)
+                throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
+            if (style < 0 || style >= styles.Count)
+                throw new ArgumentOutOfRangeException("style", "Style must be non-negative and less than the size of the collection.");
+
+            var endPos = stylingPosition + length;
+            var endBytePos = lines.CharToBytePosition(endPos);
+            DirectMessage(NativeMethods.SCI_SETSTYLING, new IntPtr(endBytePos - stylingPosition), new IntPtr(style));
+
+            // Track this for the next call
+            stylingPosition = endPos;
+            stylingBytePosition = endBytePos;
+        }
+
+        /// <summary>
+        /// Prepares for styling by setting the styling <paramref name="position" /> to start at.
+        /// </summary>
+        /// <param name="position">The zero-based character position in the document to start styling.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="position" /> is less than zero. -or-
+        /// <paramref name="position" /> is greater than the document length.
+        /// </exception>
+        /// <remarks>
+        /// After preparing the document for styling, use successive calls to <see cref="SetStyling" />
+        /// to style the document.
+        /// </remarks>
+        /// <seealso cref="SetStyling" />
+        public void StartStyling(int position)
+        {
+            var textLength = TextLength;
+
+            if (position < 0)
+                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
+            if (position > textLength)
+                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
+
+            var pos = lines.CharToBytePosition(position);
+            DirectMessage(NativeMethods.SCI_STARTSTYLING, new IntPtr(pos));
+
+            // Track this so we can validate calls to SetStyling
+            stylingPosition = position;
+            stylingBytePosition = pos;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> to the start and end positions of the selection.
+        /// </summary>
+        public void TargetFromSelection()
+        {
+            DirectMessage(NativeMethods.SCI_TARGETFROMSELECTION);
         }
 
         private void WmReflectNotify(ref Message m)
@@ -812,6 +916,14 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets a collection of objects for working with indicators.
+        /// </summary>
+        /// <returns>A collection of <see cref="Indicator" /> objects.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public IndicatorCollection Indicators { get; private set; }
+
+        /// <summary>
         /// Gets a collection representing lines of text in the <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>A collection of text lines.</returns>
@@ -944,6 +1056,40 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the search flags used when searching text.
+        /// </summary>
+        /// <returns>A bitwise combination of <see cref="SearchFlags" /> values. The default is <see cref="SearchFlags.None" />.</returns>
+        /// <seealso cref="SearchInTarget" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public SearchFlags SearchFlags
+        {
+            get
+            {
+                return (SearchFlags)DirectMessage(NativeMethods.SCI_GETSEARCHFLAGS).ToInt32();
+            }
+            set
+            {
+                var searchFlags = (int)value;
+                DirectMessage(NativeMethods.SCI_SETSEARCHFLAGS, new IntPtr(searchFlags));
+            }
+        }
+
+        /// <summary>
+        /// Gets a collection representing style definitions in a <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>A collection of style definitions.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public StyleCollection Styles
+        {
+            get
+            {
+                return styles;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the width of a tab as a multiple of a space character.
         /// </summary>
         /// <returns>The width of a tab measured in characters. The default is 4.</returns>
@@ -959,6 +1105,75 @@ namespace ScintillaNET
             set
             {
                 DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the end position used when performing a search or replace.
+        /// </summary>
+        /// <returns>The zero-based character position within the document to end a search or replace operation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="value" /> is less than zero. -or-
+        /// <paramref name="value" /> is greater than the document length.
+        /// </exception>
+        /// <seealso cref="TargetStart"/>
+        /// <seealso cref="SearchInTarget" />
+        /// <seealso cref="ReplaceInTarget" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int TargetEnd
+        {
+            get
+            {
+                // The position can become stale. If it's beyond the end of the document
+                // report the end of the document; otherwise, we can't convert it.
+                var bytePos = DirectMessage(NativeMethods.SCI_GETTARGETEND).ToInt32();
+                var byteLength = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
+                if (bytePos >= byteLength)
+                    return TextLength;
+
+                return lines.ByteToCharPosition(bytePos);
+            }
+            set
+            {
+                Helpers.ValidateDocumentPosition(value, TextLength, "value");
+
+                var bytePos = lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(bytePos));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the start position used when performing a search or replace.
+        /// </summary>
+        /// <returns>The zero-based character position within the document to start a search or replace operation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="value" /> is less than zero. -or-
+        /// <paramref name="value" /> is greater than the document length.
+        /// </exception>
+        /// <seealso cref="TargetEnd"/>
+        /// <seealso cref="SearchInTarget" />
+        /// <seealso cref="ReplaceInTarget" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int TargetStart
+        {
+            get
+            {
+                // See above
+                var bytePos = DirectMessage(NativeMethods.SCI_GETTARGETSTART).ToInt32();
+                var byteLength = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
+                if (bytePos >= byteLength)
+                    return TextLength;
+
+                return lines.ByteToCharPosition(bytePos);
+            }
+            set
+            {
+                Helpers.ValidateDocumentPosition(value, TextLength, "value");
+
+                var bytePos = lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(bytePos));
             }
         }
 
@@ -1183,6 +1398,8 @@ namespace ScintillaNET
 
             this.borderStyle = BorderStyle.Fixed3D;
             this.lines = new LineCollection(this);
+            this.styles = new StyleCollection(this);
+            Indicators = new IndicatorCollection(this);
         }
 
         #endregion Constructors

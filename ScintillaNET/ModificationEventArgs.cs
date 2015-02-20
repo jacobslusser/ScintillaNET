@@ -37,6 +37,15 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModificationEventArgs" /> class.
+        /// </summary>
+        /// <param name="scintilla">The <see cref="Scintilla" /> control that generated this event.</param>
+        /// <param name="source">The source of the modification.</param>
+        /// <param name="bytePosition">The zero-based byte position within the document where text was modified.</param>
+        /// <param name="byteLength">The length in bytes of the inserted or deleted text.</param>
+        /// <param name="text">>A pointer to the text inserted or deleted.</param>
+        /// <param name="linesAdded">The number of lines added or removed (delta).</param>
         public ModificationEventArgs(Scintilla scintilla, ModificationSource source, int bytePosition, int byteLength, IntPtr text, int linesAdded) : base(scintilla, source, bytePosition, byteLength, text)
         {
             this.scintilla = scintilla;

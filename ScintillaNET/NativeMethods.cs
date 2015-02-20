@@ -74,22 +74,30 @@ namespace ScintillaNET
         public const int SC_MARGINOPTION_SUBLINESELECT = 1;
 
         // Update notification reasons
-        internal const int SC_UPDATE_CONTENT = 0x01;
-        internal const int SC_UPDATE_SELECTION = 0x02;
-        internal const int SC_UPDATE_V_SCROLL = 0x04;
-        internal const int SC_UPDATE_H_SCROLL = 0x08;
+        public const int SC_UPDATE_CONTENT = 0x01;
+        public const int SC_UPDATE_SELECTION = 0x02;
+        public const int SC_UPDATE_V_SCROLL = 0x04;
+        public const int SC_UPDATE_H_SCROLL = 0x08;
 
         // Modified notification types
-        internal const int SC_MOD_INSERTTEXT = 0x1;
-        internal const int SC_MOD_DELETETEXT = 0x2;
-        internal const int SC_MOD_BEFOREINSERT = 0x400;
-        internal const int SC_MOD_BEFOREDELETE = 0x800;
-        internal const int SC_MOD_INSERTCHECK = 0x100000;
+        public const int SC_MOD_INSERTTEXT = 0x1;
+        public const int SC_MOD_DELETETEXT = 0x2;
+        public const int SC_MOD_BEFOREINSERT = 0x400;
+        public const int SC_MOD_BEFOREDELETE = 0x800;
+        public const int SC_MOD_INSERTCHECK = 0x100000;
 
         // Modified flags
-        internal const int SC_PERFORMED_USER = 0x10;
-        internal const int SC_PERFORMED_UNDO = 0x20;
-        internal const int SC_PERFORMED_REDO = 0x40;
+        public const int SC_PERFORMED_USER = 0x10;
+        public const int SC_PERFORMED_UNDO = 0x20;
+        public const int SC_PERFORMED_REDO = 0x40;
+
+        // Search flags
+        public const int SCFIND_WHOLEWORD = 0x2;
+        public const int SCFIND_MATCHCASE = 0x4;
+        public const int SCFIND_WORDSTART = 0x00100000;
+        public const int SCFIND_REGEXP = 0x00200000;
+        public const int SCFIND_POSIX = 0x00400000;
+        public const int SCFIND_CXX11REGEX = 0x00800000;
 
         // Functions
         public const int SCI_START = 2000;
@@ -813,6 +821,13 @@ namespace ScintillaNET
         public const int SC_WRAPINDENT_FIXED = 0;
         public const int SC_WRAPINDENT_SAME = 1;
         public const int SC_WRAPINDENT_INDENT = 2;
+
+        // Styles constants
+        public const int STYLE_MAX = 255;
+        public const int SC_FONT_SIZE_MULTIPLIER = 100;
+        public const int SC_CASE_MIXED = 0;
+        public const int SC_CASE_UPPER = 1;
+        public const int SC_CASE_LOWER = 2;
 
         // Undo
         public const int UNDO_MAY_COALESCE = 1;
