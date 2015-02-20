@@ -565,6 +565,38 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets a global override to the whitespace background color.
+        /// </summary>
+        /// <param name="use">true to override the whitespace background color; otherwise, false.</param>
+        /// <param name="color">The global whitespace background color.</param>
+        /// <remarks>When not overridden globally, the whitespace background color is determined by the current lexer.</remarks>
+        /// <seealso cref="ViewWhitespace" />
+        /// <seealso cref="SetWhitespaceForeColor" />
+        public void SetWhitespaceBackColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useWhitespaceBackColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETWHITESPACEBACK, useWhitespaceBackColour, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Sets a global override to the whitespace foreground color.
+        /// </summary>
+        /// <param name="use">true to override the whitespace foreground color; otherwise, false.</param>
+        /// <param name="color">The global whitespace foreground color.</param>
+        /// <remarks>When not overridden globally, the whitespace foreground color is determined by the current lexer.</remarks>
+        /// <seealso cref="ViewWhitespace" />
+        /// <seealso cref="SetWhitespaceBackColor" />
+        public void SetWhitespaceForeColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useWhitespaceForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETWHITESPACEFORE, useWhitespaceForeColour, new IntPtr(colour));
+        }
+
+        /// <summary>
         /// Prepares for styling by setting the styling <paramref name="position" /> to start at.
         /// </summary>
         /// <param name="position">The zero-based character position in the document to start styling.</param>
@@ -878,6 +910,44 @@ namespace ScintillaNET
                 // Should always be UTF-8 unless someone has done an end run around us
                 int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
                 return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of whitespace added to the ascent (top) of each line.
+        /// </summary>
+        /// <returns>The extra line ascent. The default is zero.</returns>
+        [DefaultValue(0)]
+        [Category("Whitespace")]
+        [Description("Extra whitespace added to the ascent (top) of each line.")]
+        public int ExtraAscent
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETEXTRAASCENT).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETEXTRAASCENT, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of whitespace added to the descent (bottom) of each line.
+        /// </summary>
+        /// <returns>The extra line descent. The default is zero.</returns>
+        [DefaultValue(0)]
+        [Category("Whitespace")]
+        [Description("Extra whitespace added to the descent (bottom) of each line.")]
+        public int ExtraDescent
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETEXTRADESCENT).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETEXTRADESCENT, new IntPtr(value));
             }
         }
 
@@ -1215,6 +1285,48 @@ namespace ScintillaNET
             get
             {
                 return lines.TextLength;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets how to display whitespace characters.
+        /// </summary>
+        /// <returns>One of the <see cref="WhitespaceMode" /> enumeration values. The default is <see cref="WhitespaceMode.Invisible" />.</returns>
+        /// <seealso cref="SetWhitespaceForeColor" />
+        /// <seealso cref="SetWhitespaceBackColor" />
+        [DefaultValue(WhitespaceMode.Invisible)]
+        [Category("Whitespace")]
+        [Description("Options for displaying whitespace characters.")]
+        public WhitespaceMode ViewWhitespace
+        {
+            get
+            {
+                return (WhitespaceMode)DirectMessage(NativeMethods.SCI_GETVIEWWS);
+            }
+            set
+            {
+                var wsMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETVIEWWS, new IntPtr(wsMode));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the size of the dots used to mark whitespace.
+        /// </summary>
+        /// <returns>The size of the dots used to mark whitespace. The default is 1.</returns>
+        /// <seealso cref="ViewWhitespace" />
+        [DefaultValue(1)]
+        [Category("Whitespace")]
+        [Description("The size of whitespace dots.")]
+        public int WhitespaceSize
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETWHITESPACESIZE).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETWHITESPACESIZE, new IntPtr(value));
             }
         }
 

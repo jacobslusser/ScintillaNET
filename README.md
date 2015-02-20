@@ -43,7 +43,9 @@ Another goal of the rewrite was to accept the original Scintilla API for what it
 3. [Zooming](#zooming)
 4. [Updating Dependent Controls](#update-ui)
 5. [Find and Highlight Words](#find-highlight)
-6. [Using a Custom SciLexer.dll](#scilexer)
+6. [Visible Whitespace](#whitespace)
+7. [Increase Line Spacing](#line-spacing)
+8. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -158,6 +160,27 @@ private void HighlightWord(string text)
 ```
 
 This example also illustrates the "set-once, run-many" style API that Scintilla is know for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
+
+### <a name="whitespace"></a>Visible Whitespace
+
+Scintilla has several properties for controlling the display and color of whitespace (space and tab characters). By default, whitespace is not visible. It can be made visible by setting the `ViewWhitespace` property. Since whitespace can be significant to some programming languages the default behavior is for the current lexer to set the color of whitespace. To override the default behavior the `SetWhitespaceForeColor` and `SetWhitespaceBackColor` methods can be used. To make whitespace visible and always display in an orange color (regardless of the current lexer), try:
+
+```cs
+// Display whitespace in orange
+scintilla.WhitespaceSize = 2;
+scintilla.ViewWhitespace = WhitespaceMode.VisibleAlways;
+scintilla.SetWhitespaceForeColor(true, Color.Orange);
+```
+
+### <a name="line-spacing"></a>Increase Line Spacing
+
+Feeling like your text is a little too cramped? Having a little extra space between lines can sometimes help the readability of code. In some text editors and IDEs you would need to use a different font which has a larger ascent and/or descent (I'm looking at you Visual Studio). In Scintilla you can increase the text ascent and decent independently of the font using the `ExtraAscent` and `ExtraDescent` properties.
+
+```cs
+// Increase line spacing
+scintilla.ExtraAscent = 5;
+scintilla.ExtraDescent = 5;
+```
 
 ### <a name="scilexer"></a>Using a Custom SciLexer.dll
 

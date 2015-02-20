@@ -69,6 +69,7 @@
     <Compile Include="StyleCollection.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
+    <Compile Include="WhitespaceMode.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
