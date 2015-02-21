@@ -34,6 +34,17 @@ Another goal of the rewrite was to accept the original Scintilla API for what it
 
 *NOTE: This is not to say that ScintillaNET cannot add, insert, or remove lines. Those operations, however, are handled as text changes, not line changes.*
 
+## Conventions
+
+ScintillaNET is fully documented, but since there has been such an effort made to keep the ScintillaNET API consist with the native Scintilla API we encourage you to continue using [their documentation](http://www.scintilla.org/scintilladoc.html) to fill in any gaps you find in ours.
+
+Generally speaking, their API will map to ours in the following ways:
+
++ A call that has an associated 'get' and 'set' such as `SCI_GETTEXT` and `SCI_SETTEXT(value)`, will map to a similarly named property such as `Text`.
++ A call that requires a number argument to access an item in a 'collection' such as `SCI_INDICSETSTYLE(indicatorNumber, ...)` or `SCI_STYLEGETSIZE(styleNumber, ...)`, will be accessed through an indexer such as `Indicators[0].Style` or `Styles[0].Size`.
+
+The native Scintilla control has a habit of clamping input values to within acceptable ranges rather than throwing exceptions and so we've kept that behavior in ScintillaNET. For example, the `GotoPosition` method requires a character `position` argument. If that value is less than zero or past the end of the document it will be clamped to either `0` or the `TextLength` rather than throw an `OutOfRangeException`. This tends to result in less exceptions, but the same desired outcome.
+
 ## Recipes
 
 1. [Basic Text Retrieval and Modification](#basic-text)
