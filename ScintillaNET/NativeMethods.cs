@@ -60,6 +60,12 @@ namespace ScintillaNET
         public const int SC_CP_UTF8 = 65001;
         public const int SC_CP_ASCII = 20127;
 
+        // Cursors
+        public const int SC_CURSORNORMAL = -1;
+        public const int SC_CURSORARROW = 2;
+        public const int SC_CURSORWAIT = 4;
+        public const int SC_CURSORREVERSEARROW = 7;
+
         // Margins
         public const int SC_MAX_MARGIN = 4;
 

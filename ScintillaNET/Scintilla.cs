@@ -634,6 +634,23 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_TARGETFROMSELECTION);
         }
 
+        /// <summary>
+        /// Measures the width in pixels of the specified string when rendered in the specified style.
+        /// </summary>
+        /// <param name="style">The index of the <see cref="Style" /> to use when rendering the text to measure.</param>
+        /// <param name="text">The text to measure.</param>
+        /// <returns>The width in pixels.</returns>
+        public unsafe int TextWidth(int style, string text)
+        {
+            style = Helpers.Clamp(style, 0, Styles.Count - 1);
+            var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true);
+
+            fixed (byte* bp = bytes)
+            {
+                return DirectMessage(NativeMethods.SCI_TEXTWIDTH, new IntPtr(style), new IntPtr(bp)).ToInt32();
+            }
+        }
+
         private void WmReflectNotify(ref Message m)
         {
             // A standard Windows notification and a Scintilla notification header are compatible
@@ -1006,6 +1023,16 @@ namespace ScintillaNET
                 return lines;
             }
         }
+
+        /// <summary>
+        /// Gets a collection representing margins in a <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>A collection of margins.</returns>
+        [Category("Collections")]
+        [Description("The margins collection.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public MarginCollection Margins { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the document has been modified (is dirty)
@@ -1512,6 +1539,7 @@ namespace ScintillaNET
             this.lines = new LineCollection(this);
             this.styles = new StyleCollection(this);
             Indicators = new IndicatorCollection(this);
+            Margins = new MarginCollection(this);
         }
 
         #endregion Constructors

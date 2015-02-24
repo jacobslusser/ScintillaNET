@@ -31,6 +31,52 @@ namespace ScintillaNET
         public int Index { get; private set; }
 
         /// <summary>
+        /// Gets or sets the style index used to display a <see cref="MarginType.Text" />
+        /// or <see cref="MarginType.RightText" /> margin.
+        /// </summary>
+        /// <returns>The margin style index.</returns>
+        public int MarginStyle
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_MARGINGETSTYLE, new IntPtr(Index)).ToInt32();
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, scintilla.Styles.Count - 1);
+                scintilla.DirectMessage(NativeMethods.SCI_MARGINSETSTYLES, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the text displayed in the line margin when the margin type is
+        /// <see cref="MarginType.Text" /> or <see cref="MarginType.RightText" />.
+        /// </summary>
+        /// <returns>The text displayed in the line margin.</returns>
+        public unsafe string MarginText
+        {
+            get
+            {
+                var byteLength = scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index)).ToInt32();
+                if (byteLength == 0)
+                    return string.Empty;
+
+                var bytes = new byte[byteLength];
+                fixed (byte* bp = bytes)
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index), new IntPtr(bp));
+
+                return scintilla.Encoding.GetString(bytes);
+            }
+            set
+            {
+                var bytes = Helpers.GetBytes(value ?? string.Empty, scintilla.Encoding, zeroTerminated: true);
+
+                fixed (byte* bp = bytes)
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINSETTEXT, new IntPtr(Index), new IntPtr(bp));
+            }
+        }
+
+        /// <summary>
         /// Gets the zero-based character position in the document where the line begins.
         /// </summary>
         /// <returns>The document position of the first character in the line.</returns>
