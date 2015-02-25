@@ -11,7 +11,28 @@ namespace ScintillaNET
     /// </summary>
     public class Style
     {
+        #region Constants
+
+        /// <summary>
+        /// Default style index. This style is used to define properties that all styles receive when calling <see cref="Scintilla.StyleClearAll" />.
+        /// </summary>
+        public const int Default = NativeMethods.STYLE_DEFAULT;
+
+        /// <summary>
+        /// Line number style index. This style is used for text in line number margins. The background color of this style also
+        /// sets the background color for all margins that do not have any folding mask set.
+        /// </summary>
+        public const int LineNumber = NativeMethods.STYLE_LINENUMBER;
+
+        #endregion Constants
+
+        #region Fields
+
         private readonly Scintilla scintilla;
+
+        #endregion Fields
+
+        #region Properties
 
         /// <summary>
         /// Gets or sets the background color of the style.
@@ -274,15 +295,261 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instances of the <see cref="Style" /> class.
         /// </summary>
         /// <param name="scintilla">The <see cref="Scintilla" /> control that created this style.</param>
         /// <param name="index">The index of this style within the <see cref="StyleCollection" /> that created it.</param>
-        internal Style(Scintilla scintilla, int index)
+        public Style(Scintilla scintilla, int index)
         {
             this.scintilla = scintilla;
             Index = index;
         }
+
+        #endregion Constructors
+
+        #region Python
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Python" /> lexer.
+        /// </summary>
+        public static class Python
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_P_DEFAULT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_P_COMMENTLINE;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_P_NUMBER;
+
+            /// <summary>
+            /// String style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_P_STRING;
+
+            /// <summary>
+            /// Single-quote style index.
+            /// </summary>
+            public const int Character = NativeMethods.SCE_P_CHARACTER;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_P_WORD;
+
+            /// <summary>
+            /// Triple single-quote style index.
+            /// </summary>
+            public const int Triple = NativeMethods.SCE_P_TRIPLE;
+
+            /// <summary>
+            /// Triple double-quote style index.
+            /// </summary>
+            public const int TripleDouble = NativeMethods.SCE_P_TRIPLEDOUBLE;
+
+            /// <summary>
+            /// Class name style index.
+            /// </summary>
+            public const int ClassName = NativeMethods.SCE_P_CLASSNAME;
+
+            /// <summary>
+            /// Function or method name style index.
+            /// </summary>
+            public const int DefName = NativeMethods.SCE_P_DEFNAME;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_P_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_P_IDENTIFIER;
+
+            /// <summary>
+            /// Block comment style index.
+            /// </summary>
+            public const int CommentBlock = NativeMethods.SCE_P_COMMENTBLOCK;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_P_STRINGEOL;
+
+            /// <summary>
+            /// Keyword style 2 index.
+            /// </summary>
+            public const int Word2 = NativeMethods.SCE_P_WORD2;
+
+            /// <summary>
+            /// Decorator style index.
+            /// </summary>
+            public const int Decorator = NativeMethods.SCE_P_DECORATOR;
+        }
+
+        #endregion Python
+
+        #region Cpp
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Cpp" /> lexer.
+        /// </summary>
+        public static class Cpp
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_C_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_C_COMMENT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_C_COMMENTLINE;
+
+            /// <summary>
+            /// Documentation comment style index.
+            /// </summary>
+            public const int CommentDoc = NativeMethods.SCE_C_COMMENTDOC;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_C_NUMBER;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_C_WORD;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_C_STRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int Character = NativeMethods.SCE_C_CHARACTER;
+
+            /// <summary>
+            /// UUID style index.
+            /// </summary>
+            public const int Uuid = NativeMethods.SCE_C_UUID;
+
+            /// <summary>
+            /// Preprocessor style index.
+            /// </summary>
+            public const int Preprocessor = NativeMethods.SCE_C_PREPROCESSOR;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_C_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_C_IDENTIFIER;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_C_STRINGEOL;
+
+            /// <summary>
+            /// Verbatim string style index.
+            /// </summary>
+            public const int Verbatim = NativeMethods.SCE_C_VERBATIM;
+
+            /// <summary>
+            /// Regular expression style index.
+            /// </summary>
+            public const int Regex = NativeMethods.SCE_C_REGEX;
+
+            /// <summary>
+            /// Documentation comment line style index.
+            /// </summary>
+            public const int CommentLineDoc = NativeMethods.SCE_C_COMMENTLINEDOC;
+
+            /// <summary>
+            /// Keyword style 2 index.
+            /// </summary>
+            public const int Word2 = NativeMethods.SCE_C_WORD2;
+
+            /// <summary>
+            /// Comment keyword style index.
+            /// </summary>
+            public const int CommentDocKeyword = NativeMethods.SCE_C_COMMENTDOCKEYWORD;
+
+            /// <summary>
+            /// Comment keyword error style index.
+            /// </summary>
+            public const int CommentDocKeywordError = NativeMethods.SCE_C_COMMENTDOCKEYWORDERROR;
+
+            /// <summary>
+            /// Global class style index.
+            /// </summary>
+            public const int GlobalClass = NativeMethods.SCE_C_GLOBALCLASS;
+
+            /// <summary>
+            /// Raw string style index.
+            /// </summary>
+            public const int StringRaw = NativeMethods.SCE_C_STRINGRAW;
+
+            /// <summary>
+            /// Triple-quoted string style index.
+            /// </summary>
+            public const int TripleVerbatim = NativeMethods.SCE_C_TRIPLEVERBATIM;
+
+            /// <summary>
+            /// Hash-quoted string style index.
+            /// </summary>
+            public const int HashQuotedString = NativeMethods.SCE_C_HASHQUOTEDSTRING;
+
+            /// <summary>
+            /// Preprocessor comment style index.
+            /// </summary>
+            public const int PreprocessorComment = NativeMethods.SCE_C_PREPROCESSORCOMMENT;
+
+            /// <summary>
+            /// Preprocessor documentation comment style index.
+            /// </summary>
+            public const int PreprocessorCommentDoc = NativeMethods.SCE_C_PREPROCESSORCOMMENTDOC;
+
+            /// <summary>
+            /// User-defined literal style index.
+            /// </summary>
+            public const int UserLiteral = NativeMethods.SCE_C_USERLITERAL;
+
+            /// <summary>
+            /// Task marker style index.
+            /// </summary>
+            public const int TaskMarker = NativeMethods.SCE_C_TASKMARKER;
+
+            /// <summary>
+            /// Escape sequence style index.
+            /// </summary>
+            public const int EscapeSequence = NativeMethods.SCE_C_ESCAPESEQUENCE;
+        }
+
+        #endregion Cpp
     }
 }

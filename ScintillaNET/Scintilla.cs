@@ -38,6 +38,7 @@ namespace ScintillaNET
         private static readonly object deleteEventKey = new object();
         private static readonly object updateUIEventKey = new object();
         private static readonly object modifyAttemptEventKey = new object();
+        private static readonly object styleNeededEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -124,6 +125,22 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
         }
 
+        /// <summary>
+        /// Retreives a description of keyword sets supported by the current <see cref="Lexer" />.
+        /// </summary>
+        /// <returns>A String describing each keyword set separated by line breaks for the current lexer.</returns>
+        public unsafe string DescribeKeywordSets()
+        {
+            var length = DirectMessage(NativeMethods.SCI_DESCRIBEKEYWORDSETS).ToInt32();
+            var bytes = new byte[length + 1];
+
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_DESCRIBEKEYWORDSETS, IntPtr.Zero, new IntPtr(bp));
+
+            var str = Encoding.ASCII.GetString(bytes, 0, length);
+            return str;
+        }
+
         internal IntPtr DirectMessage(int msg)
         {
             return DirectMessage(msg, IntPtr.Zero, IntPtr.Zero);
@@ -156,6 +173,16 @@ namespace ScintillaNET
             // Like Win32 SendMessage but directly to Scintilla
             var result = directFunction(sciPtr, msg, wParam, lParam);
             return result;
+        }
+
+        /// <summary>
+        /// Returns the last document position likely to be styled correctly.
+        /// </summary>
+        /// <returns>The zero-based document position of the last styled character.</returns>
+        public int GetEndStyled()
+        {
+            var pos = DirectMessage(NativeMethods.SCI_GETENDSTYLED).ToInt32();
+            return lines.ByteToCharPosition(pos);
         }
 
         private static string GetModulePath()
@@ -386,6 +413,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="StyleNeeded" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnStyleNeeded(EventArgs e)
+        {
+            var handler = Events[styleNeededEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="UpdateUI" /> event.
         /// </summary>
         /// <param name="e">An <see cref="UpdateUIEventArgs" /> that contains the event data.</param>
@@ -502,6 +540,24 @@ namespace ScintillaNET
                 return bytePos;
 
             return lines.ByteToCharPosition(bytePos);
+        }
+
+        /// <summary>
+        /// Updates a keyword set used by the current <see cref="Lexer" />.
+        /// </summary>
+        /// <param name="set">The zero-based index of the keyword set to update.</param>
+        /// <param name="keywords">
+        /// A list of keywords pertaining to the current <see cref="Lexer" /> separated by whitespace (space, tab, '\n', '\r') characters.
+        /// </param>
+        /// <remarks>The keywords specified will be styled according to the current <see cref="Lexer" />.</remarks>
+        /// <seealso cref="DescribeKeywordSets" />
+        public unsafe void SetKeywords(int set, string keywords)
+        {
+            set = Helpers.Clamp(set, 0, NativeMethods.KEYWORDSET_MAX);
+            var bytes = Helpers.GetBytes(keywords ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
+
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_SETKEYWORDS, new IntPtr(set), new IntPtr(bp));
         }
 
         /// <summary>
@@ -627,6 +683,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Resets all style properties to those currently configured for the <see cref="Style.Default" /> style.
+        /// </summary>
+        /// <seealso cref="StyleResetDefault" />
+        public void StyleClearAll()
+        {
+            DirectMessage(NativeMethods.SCI_STYLECLEARALL);
+        }
+
+        /// <summary>
+        /// Resets the <see cref="Style.Default" /> style to its initial state.
+        /// </summary>
+        /// <seealso cref="StyleClearAll" />
+        public void StyleResetDefault()
+        {
+            DirectMessage(NativeMethods.SCI_STYLERESETDEFAULT);
+        }
+
+        /// <summary>
         /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> to the start and end positions of the selection.
         /// </summary>
         public void TargetFromSelection()
@@ -669,6 +743,10 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_MODIFYATTEMPTRO:
                         OnModifyAttempt(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_STYLENEEDED:
+                        OnStyleNeeded(EventArgs.Empty);
                         break;
 
                     case NativeMethods.SCN_UPDATEUI:
@@ -1009,6 +1087,26 @@ namespace ScintillaNET
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IndicatorCollection Indicators { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the current lexer.
+        /// </summary>
+        /// <returns>One of the <see cref="Lexer" /> enumeration values. The default is <see cref="ScintillaNET.Lexer.Container" />.</returns>
+        [DefaultValue(Lexer.Container)]
+        [Category("Lexing")]
+        [Description("The current lexer.")]
+        public Lexer Lexer
+        {
+            get
+            {
+                return (Lexer)DirectMessage(NativeMethods.SCI_GETLEXER);
+            }
+            set
+            {
+                var lexer = (int)value;
+                DirectMessage(NativeMethods.SCI_SETLEXER, new IntPtr(lexer));
+            }
+        }
 
         /// <summary>
         /// Gets a collection representing lines of text in the <see cref="Scintilla" /> control.
@@ -1495,6 +1593,28 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(scNotificationEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the control is about to display or print text and requires styling.
+        /// </summary>
+        /// <remarks>
+        /// This event is only raised when <see cref="Lexer" /> is set to <see cref="ScintillaNET.Lexer.Container" />.
+        /// The last position styled can be determined by calling <see cref="GetEndStyled" />.
+        /// </remarks>
+        /// <seealso cref="GetEndStyled" />
+        [Category("Notifications")]
+        [Description("Occurs when the text needs styling.")]
+        public event EventHandler<EventArgs> StyleNeeded
+        {
+            add
+            {
+                Events.AddHandler(styleNeededEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(styleNeededEventKey, value);
             }
         }
 

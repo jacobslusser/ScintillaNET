@@ -53,6 +53,7 @@
     <Compile Include="IndicatorCollection.cs" />
     <Compile Include="IndicatorStyle.cs" />
     <Compile Include="InsertCheckEventArgs.cs" />
+    <Compile Include="Lexer.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineCollection.cs" />
     <Compile Include="Margin.cs" />

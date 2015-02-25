@@ -46,6 +46,8 @@ namespace ScintillaNET
         // public const int INDIC2_MASK = 0x80;
         // public const int INDICS_MASK = 0xE0;
 
+        public const int KEYWORDSET_MAX = 8;
+
         // Alpha ranges
         public const int SC_ALPHA_TRANSPARENT = 0;
         public const int SC_ALPHA_OPAQUE = 255;
@@ -829,7 +831,16 @@ namespace ScintillaNET
         public const int SC_WRAPINDENT_INDENT = 2;
 
         // Styles constants
+        public const int STYLE_DEFAULT = 32;
+        public const int STYLE_LINENUMBER = 33;
+        public const int STYLE_BRACELIGHT = 34;
+        public const int STYLE_BRACEBAD = 35;
+        public const int STYLE_CONTROLCHAR = 36;
+        public const int STYLE_INDENTGUIDE = 37;
+        public const int STYLE_CALLTIP = 38;
+        public const int STYLE_LASTPREDEFINED = 39;
         public const int STYLE_MAX = 255;
+
         public const int SC_FONT_SIZE_MULTIPLIER = 100;
         public const int SC_CASE_MIXED = 0;
         public const int SC_CASE_UPPER = 1;
@@ -853,6 +864,179 @@ namespace ScintillaNET
         public const int WS_EX_CLIENTEDGE = 0x00000200;
 
         #endregion Constants
+
+        #region Lexer Constants
+
+        // Lexers
+        public const int SCLEX_CONTAINER = 0;
+        public const int SCLEX_NULL = 1;
+        public const int SCLEX_PYTHON = 2;
+        public const int SCLEX_CPP = 3;
+        public const int SCLEX_HTML = 4;
+        public const int SCLEX_XML = 5;
+        public const int SCLEX_PERL = 6;
+        public const int SCLEX_SQL = 7;
+        public const int SCLEX_VB = 8;
+        public const int SCLEX_PROPERTIES = 9;
+        public const int SCLEX_ERRORLIST = 10;
+        public const int SCLEX_MAKEFILE = 11;
+        public const int SCLEX_BATCH = 12;
+        public const int SCLEX_XCODE = 13;
+        public const int SCLEX_LATEX = 14;
+        public const int SCLEX_LUA = 15;
+        public const int SCLEX_DIFF = 16;
+        public const int SCLEX_CONF = 17;
+        public const int SCLEX_PASCAL = 18;
+        public const int SCLEX_AVE = 19;
+        public const int SCLEX_ADA = 20;
+        public const int SCLEX_LISP = 21;
+        public const int SCLEX_RUBY = 22;
+        public const int SCLEX_EIFFEL = 23;
+        public const int SCLEX_EIFFELKW = 24;
+        public const int SCLEX_TCL = 25;
+        public const int SCLEX_NNCRONTAB = 26;
+        public const int SCLEX_BULLANT = 27;
+        public const int SCLEX_VBSCRIPT = 28;
+        public const int SCLEX_BAAN = 31;
+        public const int SCLEX_MATLAB = 32;
+        public const int SCLEX_SCRIPTOL = 33;
+        public const int SCLEX_ASM = 34;
+        public const int SCLEX_CPPNOCASE = 35;
+        public const int SCLEX_FORTRAN = 36;
+        public const int SCLEX_F77 = 37;
+        public const int SCLEX_CSS = 38;
+        public const int SCLEX_POV = 39;
+        public const int SCLEX_LOUT = 40;
+        public const int SCLEX_ESCRIPT = 41;
+        public const int SCLEX_PS = 42;
+        public const int SCLEX_NSIS = 43;
+        public const int SCLEX_MMIXAL = 44;
+        public const int SCLEX_CLW = 45;
+        public const int SCLEX_CLWNOCASE = 46;
+        public const int SCLEX_LOT = 47;
+        public const int SCLEX_YAML = 48;
+        public const int SCLEX_TEX = 49;
+        public const int SCLEX_METAPOST = 50;
+        public const int SCLEX_POWERBASIC = 51;
+        public const int SCLEX_FORTH = 52;
+        public const int SCLEX_ERLANG = 53;
+        public const int SCLEX_OCTAVE = 54;
+        public const int SCLEX_MSSQL = 55;
+        public const int SCLEX_VERILOG = 56;
+        public const int SCLEX_KIX = 57;
+        public const int SCLEX_GUI4CLI = 58;
+        public const int SCLEX_SPECMAN = 59;
+        public const int SCLEX_AU3 = 60;
+        public const int SCLEX_APDL = 61;
+        public const int SCLEX_BASH = 62;
+        public const int SCLEX_ASN1 = 63;
+        public const int SCLEX_VHDL = 64;
+        public const int SCLEX_CAML = 65;
+        public const int SCLEX_BLITZBASIC = 66;
+        public const int SCLEX_PUREBASIC = 67;
+        public const int SCLEX_HASKELL = 68;
+        public const int SCLEX_PHPSCRIPT = 69;
+        public const int SCLEX_TADS3 = 70;
+        public const int SCLEX_REBOL = 71;
+        public const int SCLEX_SMALLTALK = 72;
+        public const int SCLEX_FLAGSHIP = 73;
+        public const int SCLEX_CSOUND = 74;
+        public const int SCLEX_FREEBASIC = 75;
+        public const int SCLEX_INNOSETUP = 76;
+        public const int SCLEX_OPAL = 77;
+        public const int SCLEX_SPICE = 78;
+        public const int SCLEX_D = 79;
+        public const int SCLEX_CMAKE = 80;
+        public const int SCLEX_GAP = 81;
+        public const int SCLEX_PLM = 82;
+        public const int SCLEX_PROGRESS = 83;
+        public const int SCLEX_ABAQUS = 84;
+        public const int SCLEX_ASYMPTOTE = 85;
+        public const int SCLEX_R = 86;
+        public const int SCLEX_MAGIK = 87;
+        public const int SCLEX_POWERSHELL = 88;
+        public const int SCLEX_MYSQL = 89;
+        public const int SCLEX_PO = 90;
+        public const int SCLEX_TAL = 91;
+        public const int SCLEX_COBOL = 92;
+        public const int SCLEX_TACL = 93;
+        public const int SCLEX_SORCUS = 94;
+        public const int SCLEX_POWERPRO = 95;
+        public const int SCLEX_NIMROD = 96;
+        public const int SCLEX_SML = 97;
+        public const int SCLEX_MARKDOWN = 98;
+        public const int SCLEX_TXT2TAGS = 99;
+        public const int SCLEX_A68K = 100;
+        public const int SCLEX_MODULA = 101;
+        public const int SCLEX_COFFEESCRIPT = 102;
+        public const int SCLEX_TCMD = 103;
+        public const int SCLEX_AVS = 104;
+        public const int SCLEX_ECL = 105;
+        public const int SCLEX_OSCRIPT = 106;
+        public const int SCLEX_VISUALPROLOG = 107;
+        public const int SCLEX_LITERATEHASKELL = 108;
+        public const int SCLEX_STTXT = 109;
+        public const int SCLEX_KVIRC = 110;
+        public const int SCLEX_RUST = 111;
+        public const int SCLEX_DMAP = 112;
+        public const int SCLEX_AS = 113;
+        public const int SCLEX_DMIS = 114;
+        public const int SCLEX_REGISTRY = 115;
+        public const int SCLEX_BIBTEX = 116;
+        public const int SCLEX_SREC = 117;
+        public const int SCLEX_IHEX = 118;
+        public const int SCLEX_TEHEX = 119;
+        public const int SCLEX_AUTOMATIC = 1000;
+
+        // Python
+        public const int SCE_P_DEFAULT = 0;
+        public const int SCE_P_COMMENTLINE = 1;
+        public const int SCE_P_NUMBER = 2;
+        public const int SCE_P_STRING = 3;
+        public const int SCE_P_CHARACTER = 4;
+        public const int SCE_P_WORD = 5;
+        public const int SCE_P_TRIPLE = 6;
+        public const int SCE_P_TRIPLEDOUBLE = 7;
+        public const int SCE_P_CLASSNAME = 8;
+        public const int SCE_P_DEFNAME = 9;
+        public const int SCE_P_OPERATOR = 10;
+        public const int SCE_P_IDENTIFIER = 11;
+        public const int SCE_P_COMMENTBLOCK = 12;
+        public const int SCE_P_STRINGEOL = 13;
+        public const int SCE_P_WORD2 = 14;
+        public const int SCE_P_DECORATOR = 15;
+
+        // Cpp
+        public const int SCE_C_DEFAULT = 0;
+        public const int SCE_C_COMMENT = 1;
+        public const int SCE_C_COMMENTLINE = 2;
+        public const int SCE_C_COMMENTDOC = 3;
+        public const int SCE_C_NUMBER = 4;
+        public const int SCE_C_WORD = 5;
+        public const int SCE_C_STRING = 6;
+        public const int SCE_C_CHARACTER = 7;
+        public const int SCE_C_UUID = 8;
+        public const int SCE_C_PREPROCESSOR = 9;
+        public const int SCE_C_OPERATOR = 10;
+        public const int SCE_C_IDENTIFIER = 11;
+        public const int SCE_C_STRINGEOL = 12;
+        public const int SCE_C_VERBATIM = 13;
+        public const int SCE_C_REGEX = 14;
+        public const int SCE_C_COMMENTLINEDOC = 15;
+        public const int SCE_C_WORD2 = 16;
+        public const int SCE_C_COMMENTDOCKEYWORD = 17;
+        public const int SCE_C_COMMENTDOCKEYWORDERROR = 18;
+        public const int SCE_C_GLOBALCLASS = 19;
+        public const int SCE_C_STRINGRAW = 20;
+        public const int SCE_C_TRIPLEVERBATIM = 21;
+        public const int SCE_C_HASHQUOTEDSTRING = 22;
+        public const int SCE_C_PREPROCESSORCOMMENT = 23;
+        public const int SCE_C_PREPROCESSORCOMMENTDOC = 24;
+        public const int SCE_C_USERLITERAL = 25;
+        public const int SCE_C_TASKMARKER = 26;
+        public const int SCE_C_ESCAPESEQUENCE = 27;
+
+        #endregion Lexer Constants
 
         #region Callbacks
 
