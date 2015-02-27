@@ -50,13 +50,18 @@ The native Scintilla control has a habit of clamping input values to within acce
 1. [Basic Text Retrieval and Modification](#basic-text)
   1. [Retrieving Text](#retrieve-text)
   2. [Insert, Append, Delete](#modify-text)
-2. [Changing Inserted Text](#insert-check)
-3. [Zooming](#zooming)
-4. [Updating Dependent Controls](#update-ui)
-5. [Find and Highlight Words](#find-highlight)
-6. [Visible Whitespace](#whitespace)
-7. [Increase Line Spacing](#line-spacing)
-8. [Using a Custom SciLexer.dll](#scilexer)
+2. [Syntax Highlighting](#syntax-highlighting)
+  1. [Selecting a Lexer](#lexer)
+  2. [Defining Styles](#styles)
+  3. [Setting Keywords](#keywords)
+  4. [Complete Recipe](#syntax-highlighting-recipe)
+3. [Changing Inserted Text](#insert-check)
+4. [Zooming](#zooming)
+5. [Updating Dependent Controls](#update-ui)
+6. [Find and Highlight Words](#find-highlight)
+7. [Visible Whitespace](#whitespace)
+8. [Increase Line Spacing](#line-spacing)
+9. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -86,6 +91,134 @@ scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
 ```
 
 *NOTE: It may help to think of a Scintilla control as a `StringBuilder`.*
+
+### <a name="syntax-highlighting"></a>Syntax Highlighting
+
+Far and away the most popular use for Scintilla is to display and edit source code. Out-of-the-box, Scintilla comes with syntax highlighting support for over 100 different languages. Chances are that the language you want to edit is already supported.
+
+#### <a name="lexer"></a>Selecting a Lexer
+
+A language processor is referred to as a 'lexer' in Scintilla. Without going too much into parser theory, it's important to know that a lexer performs [lexical analysis](http://en.wikipedia.org/wiki/Lexical_analysis) of a language, not [syntatic analysis (parsing)](http://en.wikipedia.org/wiki/Parsing). In short, this means that the language support provided by Scintilla is enough to break the text into tokens and provide syntax highlighting, but not interpret what those tokens mean or whether they form an actual program. The distinction is important because developers using Scintilla often want to know how they can highlight incorrect code. Scintilla doesn't do that. If you want more than basic syntax highlighting, you'll need to couple Scintilla with a parser or even a background compiler.
+
+To inform Scintilla what the current language is you must set the `Lexer` property to the appropriate enum value. In some cases multiple languages share the same `Lexer` enumeration value because these language share the same lexical grammar. For example, the `Cpp` lexer not only provides language support for C++, but all for C, C#, Java, JavaScript and others—because they are lexically similar. In our example we want to do C# syntax highlighting so we'll use the `Cpp` lexer.
+
+```cs
+scintilla.Lexer = Lexer.Cpp;
+```
+
+#### <a name="styles"></a>Defining Styles
+
+The process of doing syntax highlighting in Scintilla is referred to as styling. When the text is styled, runs of text are assigned a numeric style definition in the `Styles` collection. For example, keywords may be assigned the style definition `1`, while operators may be assigned the definition `2`. It's entire up to the lexer how this is done. Once done, however, you are then free to determine what style `1` or `2` look like. The lexer assigns the styles, but you define the style appearance. To make it easier to know which styles definitions a lexer will use, the `Style` object contains static constants that coincide with each `Lexer` enumeration value. For example, if we were using the `Cpp` lexer and wanted to set the style for single-line comments (//...) we would use the `Style.Cpp.CommentLine` constant to set the appropriate style in the `Styles` collection:
+
+```cs
+scintilla.Styles[Style.Cpp.CommentLine].Font = "Consolas";
+scintilla.Styles[Style.Cpp.CommentLine].Size = 10;
+scintilla.Styles[Style.Cpp.CommentLine].ForeColor = Color.FromArgb(0, 128, 0); // Green
+```
+
+To set the string style we would:
+
+```cs
+scintilla.Styles[Style.Cpp.String].Font = "Consolas";
+scintilla.Styles[Style.Cpp.String].Size = 10;
+scintilla.Styles[Style.Cpp.String].ForeColor = Color.FromArgb(163, 21, 21); // Red
+```
+
+To set the styles for number tokens we would do the same thing using the `Style.Cpp.Number` constant. For operators, we would use `Style.Cpp.Operator`, and so on.
+
+If you use your imagination you will begin to see how doing this for each possible lexer token could be tedious. There is a lot of repetition. To reduce the amount of code you have to write Scintilla provides a way of setting a single style and then applying its appearance to every style in the collection. The general process is to:
+
+* Reset the `Default` style using `StyleResetDefault`.
+* Configure the `Default` style with all common properties.
+* Use the `StyleClearAll` method to apply the `Default` style to all styles.
+* Set any individual style properties
+
+Using that time saving approach, we can set the appearance of our C# lexer styles like so:
+
+```cs
+// Configuring the default style with properties
+// we have common to every lexer style saves time.
+scintilla.StyleResetDefault();
+scintilla.Styles[Style.Default].Font = "Consolas";
+scintilla.Styles[Style.Default].Size = 10;
+scintilla.StyleClearAll();
+
+// Configure the CPP (C#) lexer styles
+scintilla.Styles[Style.Cpp.Default].ForeColor = Color.Silver;
+scintilla.Styles[Style.Cpp.Comment].ForeColor = Color.FromArgb(0, 128, 0); // Green
+scintilla.Styles[Style.Cpp.CommentLine].ForeColor = Color.FromArgb(0, 128, 0); // Green
+scintilla.Styles[Style.Cpp.CommentLineDoc].ForeColor = Color.FromArgb(128, 128, 128); // Gray
+scintilla.Styles[Style.Cpp.Number].ForeColor = Color.Olive;
+scintilla.Styles[Style.Cpp.Word].ForeColor = Color.Blue;
+scintilla.Styles[Style.Cpp.Word2].ForeColor = Color.Blue;
+scintilla.Styles[Style.Cpp.String].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.Character].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
+scintilla.Styles[Style.Cpp.Operator].ForeColor = Color.Purple;
+scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
+```
+
+#### <a name="keywords"></a>Setting Keywords
+
+The last thing we need to do to provide syntax highlighting is to inform the lexer what the language keywords and identifiers are. Since languages can often add keywords year after year, or because a lexer may sometimes be used for more than one language, it makes sense to make the keyword list configurable.
+
+Since each Scintilla lexer is like a program until itself the number of keyword sets and the definition of each one varies from lexer to lexer. To determine what keyword sets a lexer supports you can call the `DescribeKeywordSets` method. This prints a human readable explanation of how many sets the current `Lexer` supports and what each means:
+
+```cs
+scintilla.Lexer = Lexer.Cpp;
+Console.WriteLine(scintilla.DescribeKeywordSets());
+
+// Outputs:
+// Primary keywords and identifiers
+// Secondary keywords and identifiers
+// Documentation comment keywords
+// Global classes and typedefs
+// Preprocessor definitions
+// Task marker and error marker keywords
+```
+
+Based on the output of `DescribeKeywordSets` I can determine that the first two sets are what I'm interested in for supporting general purpose C# syntax highlighting. To set a set of keywords you call the `SetKeywords` method. What 'primary' and 'secondary' means in the keyword set description is up to a bit of interpretation, but I'll break it down so that primary keywords are C# language keywords and secondary keywords are known .NET types. To set those I would call:
+
+```cs
+scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
+scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
+```
+
+*NOTE: Keywords in a keyword set can be separated by any combination of whitespace (space, tab, '\r', '\n') characters.*
+
+#### <a name="syntax-highlighting-recipe"></a>Complete Recipe
+
+The complete recipe below will give you C# syntax highlighting using colors roughly equivalent to the Visual Studio defaults.
+
+```cs
+// Configuring the default style with properties
+// we have common to every lexer style saves time.
+scintilla.StyleResetDefault();
+scintilla.Styles[Style.Default].Font = "Consolas";
+scintilla.Styles[Style.Default].Size = 10;
+scintilla.StyleClearAll();
+
+// Configure the CPP (C#) lexer styles
+scintilla.Styles[Style.Cpp.Default].ForeColor = Color.Silver;
+scintilla.Styles[Style.Cpp.Comment].ForeColor = Color.FromArgb(0, 128, 0); // Green
+scintilla.Styles[Style.Cpp.CommentLine].ForeColor = Color.FromArgb(0, 128, 0); // Green
+scintilla.Styles[Style.Cpp.CommentLineDoc].ForeColor = Color.FromArgb(128, 128, 128); // Gray
+scintilla.Styles[Style.Cpp.Number].ForeColor = Color.Olive;
+scintilla.Styles[Style.Cpp.Word].ForeColor = Color.Blue;
+scintilla.Styles[Style.Cpp.Word2].ForeColor = Color.Blue;
+scintilla.Styles[Style.Cpp.String].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.Character].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21); // Red
+scintilla.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
+scintilla.Styles[Style.Cpp.Operator].ForeColor = Color.Purple;
+scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
+scintilla.Lexer = Lexer.Cpp;
+
+// Set the keywords
+scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
+scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
+```
 
 ### <a name="insert-check"></a>Changing Inserted Text
 
