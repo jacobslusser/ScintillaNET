@@ -586,6 +586,34 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets a global override to the selection background color.
+        /// </summary>
+        /// <param name="use">true to override the selection background color; otherwise, false.</param>
+        /// <param name="color">The global selection background color.</param>
+        /// <seealso cref="SetSelectionForeColor" />
+        public void SetSelectionBackColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useSelectionForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETSELBACK, useSelectionForeColour, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Sets a global override to the selection foreground color.
+        /// </summary>
+        /// <param name="use">true to override the selection foreground color; otherwise, false.</param>
+        /// <param name="color">The global selection foreground color.</param>
+        /// <seealso cref="SetSelectionBackColor" />
+        public void SetSelectionForeColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useSelectionForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETSELFORE, useSelectionForeColour, new IntPtr(colour));
+        }
+
+        /// <summary>
         /// Styles the specified length of characters.
         /// </summary>
         /// <param name="length">The number of characters to style.</param>
@@ -880,6 +908,136 @@ namespace ScintillaNET
             set
             {
                 base.BackgroundImageLayout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the caret foreground color.
+        /// </summary>
+        /// <returns>The caret foreground color. The default is black.</returns>
+        [DefaultValue(typeof(Color), "Black")]
+        [Category("Caret")]
+        [Description("The caret foreground color.")]
+        public Color CaretForeColor
+        {
+            get
+            {
+                var color = DirectMessage(NativeMethods.SCI_GETCARETFORE).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                var color = ColorTranslator.ToWin32(value);
+                DirectMessage(NativeMethods.SCI_SETCARETFORE, new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the caret line background color.
+        /// </summary>
+        /// <returns>The caret line background color. The default is yellow.</returns>
+        [DefaultValue(typeof(Color), "Yellow")]
+        [Category("Caret")]
+        [Description("The background color of the current line.")]
+        public Color CaretLineBackColor
+        {
+            get
+            {
+                var color = DirectMessage(NativeMethods.SCI_GETCARETLINEBACK).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                var color = ColorTranslator.ToWin32(value);
+                DirectMessage(NativeMethods.SCI_SETCARETLINEBACK, new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the caret line is visible (highlighted).
+        /// </summary>
+        /// <returns>true if the caret line is visible; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Caret")]
+        [Description("Determines whether to highlight the current caret line.")]
+        public bool CaretLineVisible
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETCARETLINEVISIBLE) != IntPtr.Zero);
+            }
+            set
+            {
+                var visible = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETCARETLINEVISIBLE, visible);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the caret blink rate in milliseconds.
+        /// </summary>
+        /// <returns>The caret blink rate measured in milliseconds. The default is 530.</returns>
+        /// <remarks>A value of 0 will stop the caret blinking.</remarks>
+        [DefaultValue(530)]
+        [Category("Caret")]
+        [Description("The caret blink rate in milliseconds.")]
+        public int CaretPeriod
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETCARETPERIOD).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETCARETPERIOD, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the caret display style.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.CaretStyle" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.CaretStyle.Line" />.
+        /// </returns>
+        [DefaultValue(CaretStyle.Line)]
+        [Category("Caret")]
+        [Description("The caret display style.")]
+        public CaretStyle CaretStyle
+        {
+            get
+            {
+                return (CaretStyle)DirectMessage(NativeMethods.SCI_GETCARETSTYLE).ToInt32();
+            }
+            set
+            {
+                var style = (int)value;
+                DirectMessage(NativeMethods.SCI_SETCARETSTYLE, new IntPtr(style));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the width in pixels of the caret.
+        /// </summary>
+        /// <returns>The width of the caret in pixels. The default is 1 pixel.</returns>
+        /// <remarks>
+        /// The caret width can only be set to a value of 0, 1, 2 or 3 pixels and is only effective
+        /// when the <see cref="CaretStyle" /> property is set to <see cref="ScintillaNET.CaretStyle.Line" />.
+        /// </remarks>
+        [DefaultValue(1)]
+        [Category("Caret")]
+        [Description("The width of the caret line measured in pixels (between 0 and 3).")]
+        public int CaretWidth
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETCARETWIDTH).ToInt32();
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, 3);
+                DirectMessage(NativeMethods.SCI_SETCARETWIDTH, new IntPtr(value));
             }
         }
 
@@ -1520,6 +1678,7 @@ namespace ScintillaNET
             }
             set
             {
+                value = Helpers.ClampMin(value, 0);
                 DirectMessage(NativeMethods.SCI_SETWRAPSTARTINDENT, new IntPtr(value));
             }
         }
