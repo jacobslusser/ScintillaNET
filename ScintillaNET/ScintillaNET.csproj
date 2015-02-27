@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeforeModificationEventArgs.cs" />
+    <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Indicator.cs" />
@@ -76,6 +77,10 @@
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="WhitespaceMode.cs" />
+    <Compile Include="WrapIndentMode.cs" />
+    <Compile Include="WrapMode.cs" />
+    <Compile Include="WrapVisualFlagLocation.cs" />
+    <Compile Include="WrapVisualFlags.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

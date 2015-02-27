@@ -1456,6 +1456,122 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the line wrapping indent mode.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.WrapIndentMode" /> enumeration values. 
+        /// The default is <see cref="ScintillaNET.WrapIndentMode.Fixed" />.
+        /// </returns>
+        [DefaultValue(WrapIndentMode.Fixed)]
+        [Category("Line Wrapping")]
+        [Description("Determines how wrapped sublines are indented.")]
+        public WrapIndentMode WrapIndentMode
+        {
+            get
+            {
+                return (WrapIndentMode)DirectMessage(NativeMethods.SCI_GETWRAPINDENTMODE);
+            }
+            set
+            {
+                var wrapIndentMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETWRAPINDENTMODE, new IntPtr(wrapIndentMode));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the line wrapping mode.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.WrapMode" /> enumeration values. 
+        /// The default is <see cref="ScintillaNET.WrapMode.None" />.
+        /// </returns>
+        [DefaultValue(WrapMode.None)]
+        [Category("Line Wrapping")]
+        [Description("The line wrapping strategy.")]
+        public WrapMode WrapMode
+        {
+            get
+            {
+                return (WrapMode)DirectMessage(NativeMethods.SCI_GETWRAPMODE);
+            }
+            set
+            {
+                var wrapMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETWRAPMODE, new IntPtr(wrapMode));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the indented size in pixels of wrapped sublines.
+        /// </summary>
+        /// <returns>The indented size of wrapped sublines measured in pixels. The default is 0.</returns>
+        /// <remarks>
+        /// Setting <see cref="WrapVisualFlags" /> to <see cref="ScintillaNET.WrapVisualFlags.Start" /> will add an
+        /// additional 1 pixel to the value specified.
+        /// </remarks>
+        [DefaultValue(0)]
+        [Category("Line Wrapping")]
+        [Description("The amount of pixels to indent wrapped sublines.")]
+        public int WrapStartIndent
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETWRAPSTARTINDENT).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETWRAPSTARTINDENT, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the wrap visual flags.
+        /// </summary>
+        /// <returns>
+        /// A bitwise combination of the <see cref="ScintillaNET.WrapVisualFlags" /> enumeration.
+        /// The default is <see cref="ScintillaNET.WrapVisualFlags.None" />.
+        /// </returns>
+        [DefaultValue(WrapVisualFlags.None)]
+        [Category("Line Wrapping")]
+        [Description("The visual indicator displayed on a wrapped line.")]
+        [TypeConverter(typeof(FlagsEnumTypeConverter.FlagsEnumConverter))]
+        public WrapVisualFlags WrapVisualFlags
+        {
+            get
+            {
+                return (WrapVisualFlags)DirectMessage(NativeMethods.SCI_GETWRAPVISUALFLAGS);
+            }
+            set
+            {
+                int wrapVisualFlags = (int)value;
+                DirectMessage(NativeMethods.SCI_SETWRAPVISUALFLAGS, new IntPtr(wrapVisualFlags));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets additional location options when displaying wrap visual flags.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.WrapVisualFlagLocation" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.WrapVisualFlagLocation.Default" />.
+        /// </returns>
+        [DefaultValue(WrapVisualFlagLocation.Default)]
+        [Category("Line Wrapping")]
+        [Description("The location of wrap visual flags in relation to the line text.")]
+        public WrapVisualFlagLocation WrapVisualFlagLocation
+        {
+            get
+            {
+                return (WrapVisualFlagLocation)DirectMessage(NativeMethods.SCI_GETWRAPVISUALFLAGSLOCATION);
+            }
+            set
+            {
+                var location = (int)value;
+                DirectMessage(NativeMethods.SCI_SETWRAPVISUALFLAGSLOCATION, new IntPtr(location));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the zoom factor.
         /// </summary>
         /// <returns>The zoom factor measured in points.</returns>

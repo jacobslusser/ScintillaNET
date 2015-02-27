@@ -121,6 +121,18 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the number of display lines this line would occupy when wrapping is enabled.
+        /// </summary>
+        /// <returns>The number of display lines needed to wrap the current document line.</returns>
+        public int WrapCount
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_WRAPCOUNT, new IntPtr(Index)).ToInt32();
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Line" /> class.
         /// </summary>
         /// <param name="scintilla">The <see cref="Scintilla" /> control that created this line.</param>
