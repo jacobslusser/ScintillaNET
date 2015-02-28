@@ -55,13 +55,14 @@ The native Scintilla control has a habit of clamping input values to within acce
   2. [Defining Styles](#styles)
   3. [Setting Keywords](#keywords)
   4. [Complete Recipe](#syntax-highlighting-recipe)
-3. [Changing Inserted Text](#insert-check)
-4. [Zooming](#zooming)
-5. [Updating Dependent Controls](#update-ui)
-6. [Find and Highlight Words](#find-highlight)
-7. [Visible Whitespace](#whitespace)
-8. [Increase Line Spacing](#line-spacing)
-9. [Using a Custom SciLexer.dll](#scilexer)
+3. [Intercepting Inserted Text](#insert-check)
+4. [Displaying Line Numbers](#line-numbers)
+5. [Zooming](#zooming)
+6. [Updating Dependent Controls](#update-ui)
+7. [Find and Highlight Words](#find-highlight)
+8. [View Whitespace](#whitespace)
+9. [Increase Line Spacing](#line-spacing)
+10. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -220,7 +221,7 @@ scintilla.SetKeywords(0, "abstract as base break case catch checked continue def
 scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
 ```
 
-### <a name="insert-check"></a>Changing Inserted Text
+### <a name="insert-check"></a>Intercepting Inserted Text
 
 There are numerous events to inform you of when text has changed. In addition to the `TextChanged` event provided by almost all Windows Forms controls, Scintilla also provides events for `Insert`, `Delete`, `BeforeInsert`, and `BeforeDelete`. By using these events you can trigger other changes in your application.
 
@@ -234,6 +235,38 @@ private void scintilla_InsertCheck(object sender, InsertCheckEventArgs e)
     e.Text = WebUtility.HtmlEncode(e.Text);
 }
 ```
+
+### <a name="line-numbers"></a>Displaying Line Numbers
+
+Someone new to Scintilla might wonder why displaying line numbers gets its own recipe when one would assume it's as simple as flipping a single Boolean property. Well it's not. The subject of line numbers touches on the much larger subject of margins. In Scintilla there can be up to five margins (0 through 4) on the left edge of the control, of which, line numbers is just one of those. By convention Scintilla sets the `Margin.Type` property of margin 0 to `MarginType.Number`, making it the de facto line number margin. Any margin can display line numbers though if its `Type` property is set to `MarginType.Number`. Scintilla also hides line numbers by default by setting the `Width` of margin 0 to zero. To display the default line number margin, increase its width:
+
+```cs
+scintilla.Margins[0].Width = 16;
+```
+
+You'll quickly find, however, that once you reach lines numbers in the 100's range the width of your line number margin is no longer sufficient. Scintilla doesn't automatically increase or decrease the width of a margin—including a line number margin. Why? It goes back to the fact that a margin could display line numbers or it could display something else entirely where dynamically growing and shrinking would be an undesirable trait.
+
+The line number margin can be made to grow or shrink dynamically, it just requires a little extra code your part. In the recipe below we handle the `TextChanged` event so we can know when the number of lines changes. (*There are several other events we could use to determine the content has changed, but `TextChanged` will do just fine.*) Then we measure the width of the last line number in the document (or equivalent number of characters) using the `TextWidth` method. Finally, set the `Width` of the line number margin. Some caching of the calculation is thrown in for good measure since the number of lines will change far less than the `TextChanged` event will fire.
+
+```cs
+private int maxLineNumberCharLength;
+private void scintilla_TextChanged(object sender, EventArgs e)
+{
+    // Did the number of characters in the line number display change?
+    // i.e. nnn VS nn, or nnnn VS nn, etc...
+    var maxLineNumberCharLength = scintilla.Lines.Count.ToString().Length;
+    if (maxLineNumberCharLength == this.maxLineNumberCharLength)
+        return;
+
+    // Calculate the width required to display the last line number
+    // and include some padding for good measure.
+    const int padding = 2;
+    scintilla.Margins[0].Width = scintilla.TextWidth(Style.LineNumber, new string('9', maxLineNumberCharLength + 1)) + padding;
+    this.maxLineNumberCharLength = maxLineNumberCharLength;
+}
+```
+
+*NOTE: The color of the text displayed in a line number margin can be controlled via the `Style.LineNumber` style definition.*
 
 ### <a name="zooming"></a>Zooming
 
@@ -305,7 +338,9 @@ private void HighlightWord(string text)
 
 This example also illustrates the "set-once, run-many" style API that Scintilla is know for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
 
-### <a name="whitespace"></a>Visible Whitespace
+*NOTE: Indicators and styles can be used simultaneously.*
+
+### <a name="whitespace"></a>View Whitespace
 
 Scintilla has several properties for controlling the display and color of whitespace (space and tab characters). By default, whitespace is not visible. It can be made visible by setting the `ViewWhitespace` property. Since whitespace can be significant to some programming languages the default behavior is for the current lexer to set the color of whitespace. To override the default behavior the `SetWhitespaceForeColor` and `SetWhitespaceBackColor` methods can be used. To make whitespace visible and always display in an orange color (regardless of the current lexer), try:
 
