@@ -382,6 +382,18 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Navigates the caret to the document position specified.
+        /// </summary>
+        /// <param name="position">The zero-based document character position to navigate to.</param>
+        /// <remarks>Any selection is discarded.</remarks>
+        public void GotoPosition(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+            DirectMessage(NativeMethods.SCI_GOTOPOS, new IntPtr(position));
+        }
+
+        /// <summary>
         /// Inserts text at the specified position.
         /// </summary>
         /// <param name="position">The zero-based character position to insert the text. Specify -1 to use the current caret position.</param>
@@ -407,6 +419,20 @@ namespace ScintillaNET
 
             fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
                 DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Scrolls the display the number of lines and columns specified.
+        /// </summary>
+        /// <param name="lines">The number of lines to scroll.</param>
+        /// <param name="columns">The number of columns to scroll.</param>
+        /// <remarks>
+        /// Negative values scroll in the opposite direction.
+        /// A column is the width in pixels of a space character in the <see cref="Style.Default" /> style.
+        /// </remarks>
+        public void LineScroll(int lines, int columns)
+        {
+            DirectMessage(NativeMethods.SCI_LINESCROLL, new IntPtr(columns), new IntPtr(lines));
         }
 
         /// <summary>
@@ -671,6 +697,28 @@ namespace ScintillaNET
         public void ScrollCaret()
         {
             DirectMessage(NativeMethods.SCI_SCROLLCARET);
+        }
+
+        /// <summary>
+        /// Scrolls the specified range into view.
+        /// </summary>
+        /// <param name="start">The zero-based document start position to scroll to.</param>
+        /// <param name="end">
+        /// The zero-based document end position to scroll to if doing so does not cause the <paramref name="start" />
+        /// position to scroll out of view.
+        /// </param>
+        /// <remarks>This may be used to make a search match visible.</remarks>
+        public void ScrollRange(int start, int end)
+        {
+            var textLength = TextLength;
+            start = Helpers.Clamp(start, 0, textLength);
+            end = Helpers.Clamp(end, 0, textLength);
+
+            // Convert to byte positions
+            start = Lines.CharToBytePosition(start);
+            end = Lines.CharToBytePosition(end);
+
+            DirectMessage(NativeMethods.SCI_SCROLLRANGE, new IntPtr(end), new IntPtr(start));
         }
 
         /// <summary>
@@ -1526,6 +1574,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the first visible line on screen.
+        /// </summary>
+        /// <returns>The zero-based index of the first visible screen line.</returns>
+        /// <remarks>The value is a visible line, not a document line.</remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int FirstVisibleLine
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETFIRSTVISIBLELINE).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETFIRSTVISIBLELINE, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Not supported.
         /// </summary>
         [Browsable(false)]
@@ -1580,6 +1648,27 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the size of indentation in terms of space characters.
+        /// </summary>
+        /// <returns>The indentation size measured in characters. The default is 0.</returns>
+        /// <remarks> A value of 0 will make the indent width the same as the tab width.</remarks>
+        [DefaultValue(0)]
+        [Category("Indentation")]
+        [Description("The indentation size in characters or 0 to make it the same as the tab width.")]
+        public int IndentWidth
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETINDENT).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETINDENT, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets a collection of objects for working with indicators.
         /// </summary>
         /// <returns>A collection of <see cref="Indicator" /> objects.</returns>
@@ -1616,6 +1705,23 @@ namespace ScintillaNET
         public LineCollection Lines { get; private set; }
 
         /// <summary>
+        /// Gets the number of lines that can be shown on screen given a constant
+        /// line height and the space available.
+        /// </summary>
+        /// <returns>
+        /// The number of screen lines which could be displayed (including any partial lines).
+        /// </returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int LinesOnScreen
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_LINESONSCREEN).ToInt32();
+            }
+        }
+
+        /// <summary>
         /// Gets a collection representing margins in a <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>A collection of margins.</returns>
@@ -1645,6 +1751,26 @@ namespace ScintillaNET
             get
             {
                 return (DirectMessage(NativeMethods.SCI_GETMODIFY) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to write over text rather to insert it.
+        /// </summary>
+        /// <return>true to write over text; otherwise, false. The default is false.</return>
+        [DefaultValue(false)]
+        [Category("Behavior")]
+        [Description("Puts the caret into overtype mode.")]
+        public bool Overtype
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETOVERTYPE) != IntPtr.Zero);
+            }
+            set
+            {
+                var overtype = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETOVERTYPE, overtype);
             }
         }
 
@@ -1788,6 +1914,26 @@ namespace ScintillaNET
             {
                 var searchFlags = (int)value;
                 DirectMessage(NativeMethods.SCI_SETSEARCHFLAGS, new IntPtr(searchFlags));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to fill past the end of a line with the selection background color.
+        /// </summary>
+        /// <returns>true to fill past the end of the line; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Selection")]
+        [Description("Determines whether a selection should fill past the end of the line.")]
+        public bool SelectionEolFilled
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETSELEOLFILLED) != IntPtr.Zero);
+            }
+            set
+            {
+                var eolFilled = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETSELEOLFILLED, eolFilled);
             }
         }
 
@@ -1953,6 +2099,26 @@ namespace ScintillaNET
                     // Seems like something we should do automatically.
                     DirectMessage(NativeMethods.SCI_EMPTYUNDOBUFFER);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use a mixture of tabs and spaces for indentation or purely spaces.
+        /// </summary>
+        /// <returns>true to use tab characters; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Indentation")]
+        [Description("Determines whether indentation allows tab characters or purely space characters.")]
+        public bool UseTabs
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETUSETABS) != IntPtr.Zero);
+            }
+            set
+            {
+                var useTabs = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETUSETABS, useTabs);
             }
         }
 

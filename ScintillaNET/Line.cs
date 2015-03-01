@@ -13,6 +13,15 @@ namespace ScintillaNET
         private readonly Scintilla scintilla;
 
         /// <summary>
+        /// Navigates the caret to the start of the line.
+        /// </summary>
+        /// <remarks>Any selection is discarded.</remarks>
+        public void Goto()
+        {
+            scintilla.DirectMessage(NativeMethods.SCI_GOTOLINE, new IntPtr(Index));
+        }
+
+        /// <summary>
         /// Adds the specified <see cref="Marker" /> to the line.
         /// </summary>
         /// <param name="marker">The zero-based index of the marker to add to the line.</param>
