@@ -81,6 +81,50 @@ namespace ScintillaNET
         public const int SC_MARGINOPTION_NONE = 0;
         public const int SC_MARGINOPTION_SUBLINESELECT = 1;
 
+        // Markers
+        public const int MARKER_MAX = 31;
+        public const int SC_MARK_CIRCLE = 0;
+        public const int SC_MARK_ROUNDRECT = 1;
+        public const int SC_MARK_ARROW = 2;
+        public const int SC_MARK_SMALLRECT = 3;
+        public const int SC_MARK_SHORTARROW = 4;
+        public const int SC_MARK_EMPTY = 5;
+        public const int SC_MARK_ARROWDOWN = 6;
+        public const int SC_MARK_MINUS = 7;
+        public const int SC_MARK_PLUS = 8;
+        public const int SC_MARK_VLINE = 9;
+        public const int SC_MARK_LCORNER = 10;
+        public const int SC_MARK_TCORNER = 11;
+        public const int SC_MARK_BOXPLUS = 12;
+        public const int SC_MARK_BOXPLUSCONNECTED = 13;
+        public const int SC_MARK_BOXMINUS = 14;
+        public const int SC_MARK_BOXMINUSCONNECTED = 15;
+        public const int SC_MARK_LCORNERCURVE = 16;
+        public const int SC_MARK_TCORNERCURVE = 17;
+        public const int SC_MARK_CIRCLEPLUS = 18;
+        public const int SC_MARK_CIRCLEPLUSCONNECTED = 19;
+        public const int SC_MARK_CIRCLEMINUS = 20;
+        public const int SC_MARK_CIRCLEMINUSCONNECTED = 21;
+        public const int SC_MARK_BACKGROUND = 22;
+        public const int SC_MARK_DOTDOTDOT = 23;
+        public const int SC_MARK_ARROWS = 24;
+        public const int SC_MARK_PIXMAP = 25;
+        public const int SC_MARK_FULLRECT = 26;
+        public const int SC_MARK_LEFTRECT = 27;
+        public const int SC_MARK_AVAILABLE = 28;
+        public const int SC_MARK_UNDERLINE = 29;
+        public const int SC_MARK_RGBAIMAGE = 30;
+        public const int SC_MARK_BOOKMARK = 31;
+        public const int SC_MARK_CHARACTER = 10000;
+        public const int SC_MARKNUM_FOLDEREND = 25;
+        public const int SC_MARKNUM_FOLDEROPENMID = 26;
+        public const int SC_MARKNUM_FOLDERMIDTAIL = 27;
+        public const int SC_MARKNUM_FOLDERTAIL = 28;
+        public const int SC_MARKNUM_FOLDERSUB = 29;
+        public const int SC_MARKNUM_FOLDER = 30;
+        public const int SC_MARKNUM_FOLDEROPEN = 31;
+        public const uint SC_MASK_FOLDERS = 0xFE000000;
+
         // Update notification reasons
         public const int SC_UPDATE_CONTENT = 0x01;
         public const int SC_UPDATE_SELECTION = 0x02;

@@ -63,6 +63,10 @@
     <Compile Include="MarginCursor.cs" />
     <Compile Include="MarginOptions.cs" />
     <Compile Include="MarginType.cs" />
+    <Compile Include="Marker.cs" />
+    <Compile Include="MarkerCollection.cs" />
+    <Compile Include="MarkerHandle.cs" />
+    <Compile Include="MarkerSymbol.cs" />
     <Compile Include="ModificationEventArgs.cs" />
     <Compile Include="ModificationSource.cs" />
     <Compile Include="NativeMethods.cs" />

@@ -43,8 +43,6 @@ namespace ScintillaNET
         // The goods
         private IntPtr sciPtr;
         private BorderStyle borderStyle;
-        private LineCollection lines;
-        private StyleCollection styles;
 
         private int stylingPosition;
         private int stylingBytePosition;
@@ -120,8 +118,8 @@ namespace ScintillaNET
                 throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
 
             // Convert to byte position/length
-            var byteStartPos = lines.CharToBytePosition(position);
-            var byteEndPos = lines.CharToBytePosition(position + length);
+            var byteStartPos = Lines.CharToBytePosition(position);
+            var byteEndPos = Lines.CharToBytePosition(position + length);
             DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
         }
 
@@ -182,7 +180,7 @@ namespace ScintillaNET
         public int GetEndStyled()
         {
             var pos = DirectMessage(NativeMethods.SCI_GETENDSTYLED).ToInt32();
-            return lines.ByteToCharPosition(pos);
+            return Lines.ByteToCharPosition(pos);
         }
 
         private static string GetModulePath()
@@ -276,8 +274,8 @@ namespace ScintillaNET
                 throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
 
             // Convert to byte position/length
-            var byteStartPos = lines.CharToBytePosition(position);
-            var byteEndPos = lines.CharToBytePosition(position + length);
+            var byteStartPos = Lines.CharToBytePosition(position);
+            var byteEndPos = Lines.CharToBytePosition(position + length);
             var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
             if (ptr == IntPtr.Zero)
                 return string.Empty;
@@ -319,11 +317,40 @@ namespace ScintillaNET
                 if (position > textLength)
                     throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
 
-                position = lines.CharToBytePosition(position);
+                position = Lines.CharToBytePosition(position);
             }
 
             fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
                 DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Removes the specified marker from all lines.
+        /// </summary>
+        /// <param name="marker">The zero-based <see cref="Marker" /> index to remove from all lines, or -1 to remove all markers from all lines.</param>
+        public void MarkerDeleteAll(int marker)
+        {
+            marker = Helpers.Clamp(marker, -1, Markers.Count - 1);
+            DirectMessage(NativeMethods.SCI_MARKERDELETEALL, new IntPtr(marker));
+        }
+
+        /// <summary>
+        /// Searches the document for the marker handle and deletes the marker if found.
+        /// </summary>
+        /// <param name="markerHandle">The <see cref="MarkerHandle" /> created by a previous call to <see cref="Line.MarkerAdd" /> of the marker to delete.</param>
+        public void MarkerDeleteHandle(MarkerHandle markerHandle)
+        {
+            DirectMessage(NativeMethods.SCI_MARKERDELETEHANDLE, markerHandle.Value);
+        }
+
+        /// <summary>
+        /// Searches the document for the marker handle and returns the line number containing the marker if found.
+        /// </summary>
+        /// <param name="markerHandle">The <see cref="MarkerHandle" /> created by a previous call to <see cref="Line.MarkerAdd" /> of the marker to search for.</param>
+        /// <returns>If found, the zero-based line index containing the marker; otherwise, -1.</returns>
+        public int MarkerLineFromHandle(MarkerHandle markerHandle)
+        {
+            return DirectMessage(NativeMethods.SCI_MARKERLINEFROMHANDLE, markerHandle.Value).ToInt32();
         }
 
         /// <summary>
@@ -539,7 +566,7 @@ namespace ScintillaNET
             if (bytePos == -1)
                 return bytePos;
 
-            return lines.ByteToCharPosition(bytePos);
+            return Lines.ByteToCharPosition(bytePos);
         }
 
         /// <summary>
@@ -636,11 +663,11 @@ namespace ScintillaNET
                 throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
             if (stylingPosition + length > textLength)
                 throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
-            if (style < 0 || style >= styles.Count)
+            if (style < 0 || style >= Styles.Count)
                 throw new ArgumentOutOfRangeException("style", "Style must be non-negative and less than the size of the collection.");
 
             var endPos = stylingPosition + length;
-            var endBytePos = lines.CharToBytePosition(endPos);
+            var endBytePos = Lines.CharToBytePosition(endPos);
             DirectMessage(NativeMethods.SCI_SETSTYLING, new IntPtr(endBytePos - stylingPosition), new IntPtr(style));
 
             // Track this for the next call
@@ -702,7 +729,7 @@ namespace ScintillaNET
             if (position > textLength)
                 throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
 
-            var pos = lines.CharToBytePosition(position);
+            var pos = Lines.CharToBytePosition(position);
             DirectMessage(NativeMethods.SCI_STARTSTYLING, new IntPtr(pos));
 
             // Track this so we can validate calls to SetStyling
@@ -845,7 +872,7 @@ namespace ScintillaNET
             get
             {
                 var bytePos = DirectMessage(NativeMethods.SCI_GETANCHOR).ToInt32();
-                return lines.ByteToCharPosition(bytePos);
+                return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
@@ -855,7 +882,7 @@ namespace ScintillaNET
                 if (value > textLength)
                     throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
 
-                var bytePos = lines.CharToBytePosition(value);
+                var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(bytePos));
             }
         }
@@ -1111,7 +1138,7 @@ namespace ScintillaNET
             get
             {
                 var bytePos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
-                return lines.ByteToCharPosition(bytePos);
+                return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
@@ -1121,7 +1148,7 @@ namespace ScintillaNET
                 if (value > textLength)
                     throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
 
-                var bytePos = lines.CharToBytePosition(value);
+                var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(bytePos));
             }
         }
@@ -1272,13 +1299,7 @@ namespace ScintillaNET
         /// <returns>A collection of text lines.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public LineCollection Lines
-        {
-            get
-            {
-                return lines;
-            }
-        }
+        public LineCollection Lines { get; private set; }
 
         /// <summary>
         /// Gets a collection representing margins in a <see cref="Scintilla" /> control.
@@ -1289,6 +1310,14 @@ namespace ScintillaNET
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public MarginCollection Margins { get; private set; }
+
+        /// <summary>
+        /// Gets a collection representing markers in a <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>A collection of markers.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public MarkerCollection Markers { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the document has been modified (is dirty)
@@ -1411,7 +1440,7 @@ namespace ScintillaNET
         /// <summary>
         /// Gets or sets the search flags used when searching text.
         /// </summary>
-        /// <returns>A bitwise combination of <see cref="SearchFlags" /> values. The default is <see cref="SearchFlags.None" />.</returns>
+        /// <returns>A bitwise combination of <see cref="ScintillaNET.SearchFlags" /> values. The default is <see cref="ScintillaNET.SearchFlags.None" />.</returns>
         /// <seealso cref="SearchInTarget" />
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1434,13 +1463,7 @@ namespace ScintillaNET
         /// <returns>A collection of style definitions.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public StyleCollection Styles
-        {
-            get
-            {
-                return styles;
-            }
-        }
+        public StyleCollection Styles { get; private set; }
 
         /// <summary>
         /// Gets or sets the width of a tab as a multiple of a space character.
@@ -1485,13 +1508,13 @@ namespace ScintillaNET
                 if (bytePos >= byteLength)
                     return TextLength;
 
-                return lines.ByteToCharPosition(bytePos);
+                return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
                 Helpers.ValidateDocumentPosition(value, TextLength, "value");
 
-                var bytePos = lines.CharToBytePosition(value);
+                var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(bytePos));
             }
         }
@@ -1519,13 +1542,13 @@ namespace ScintillaNET
                 if (bytePos >= byteLength)
                     return TextLength;
 
-                return lines.ByteToCharPosition(bytePos);
+                return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
                 Helpers.ValidateDocumentPosition(value, TextLength, "value");
 
-                var bytePos = lines.CharToBytePosition(value);
+                var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(bytePos));
             }
         }
@@ -1567,7 +1590,7 @@ namespace ScintillaNET
         {
             get
             {
-                return lines.TextLength;
+                return Lines.TextLength;
             }
         }
 
@@ -1931,10 +1954,12 @@ namespace ScintillaNET
                      false);
 
             this.borderStyle = BorderStyle.Fixed3D;
-            this.lines = new LineCollection(this);
-            this.styles = new StyleCollection(this);
+
+            Lines = new LineCollection(this);
+            Styles = new StyleCollection(this);
             Indicators = new IndicatorCollection(this);
             Margins = new MarginCollection(this);
+            Markers = new MarkerCollection(this);
         }
 
         #endregion Constructors

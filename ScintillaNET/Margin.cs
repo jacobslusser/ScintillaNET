@@ -89,6 +89,30 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets a mask indicating which markers this margin can display.
+        /// </summary>
+        /// <returns>
+        /// An unsigned 32-bit value with each bit cooresponding to one of the 32 zero-based <see cref="Margin" /> indexes.
+        /// The default is 0x1FFFFFF, which is every marker except folder markers (i.e. 0 through 24).
+        /// </returns>
+        /// <remarks>
+        /// For example, the mask for marker index 10 is 1 shifted left 10 times (1 &lt;&lt; 10).
+        /// <see cref="Marker.MaskFolders" /> is a useful constant for working with just folder margin indexes.
+        /// </remarks>
+        public uint Mask
+        {
+            get
+            {
+                return unchecked((uint)scintilla.DirectMessage(NativeMethods.SCI_GETMARGINMASKN, new IntPtr(Index)).ToInt32());
+            }
+            set
+            {
+                var mask = unchecked((int)value);
+                scintilla.DirectMessage(NativeMethods.SCI_SETMARGINMASKN, new IntPtr(Index), new IntPtr(mask));
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Margin" /> class.
         /// </summary>
         /// <param name="scintilla">The <see cref="Scintilla" /> control that created this margin.</param>

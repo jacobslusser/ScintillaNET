@@ -41,9 +41,9 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets the number of margins.
+        /// Gets the number of margins in the <see cref="MarginCollection" />.
         /// </summary>
-        /// <returns>The number of margins in the <see cref="MarginCollection" />.</returns>
+        /// <returns>This property always returns 5.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int Count
