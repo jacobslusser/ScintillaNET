@@ -39,6 +39,8 @@ namespace ScintillaNET
         private static readonly object updateUIEventKey = new object();
         private static readonly object modifyAttemptEventKey = new object();
         private static readonly object styleNeededEventKey = new object();
+        private static readonly object savePointReachedEventKey = new object();
+        private static readonly object savePointLeftEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -77,6 +79,16 @@ namespace ScintillaNET
             var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
             fixed (byte* bp = bytes)
                 DirectMessage(NativeMethods.SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Marks the beginning of a set of actions that should be treated as a single undo action.
+        /// </summary>
+        /// <remarks>A call to <see cref="BeginUndoAction" /> should be followed by a call to <see cref="EndUndoAction" />.</remarks>
+        /// <seealso cref="EndUndoAction" />
+        public void BeginUndoAction()
+        {
+            DirectMessage(NativeMethods.SCI_BEGINUNDOACTION);
         }
 
         /// <summary>
@@ -171,6 +183,24 @@ namespace ScintillaNET
             // Like Win32 SendMessage but directly to Scintilla
             var result = directFunction(sciPtr, msg, wParam, lParam);
             return result;
+        }
+
+        /// <summary>
+        /// Clears any undo or redo history.
+        /// </summary>
+        /// <remarks>This will also cause <see cref="SetSavePoint" /> to be called but will not raise the <see cref="SavePointReached" /> event.</remarks>
+        public void EmptyUndoBuffer()
+        {
+            DirectMessage(NativeMethods.SCI_EMPTYUNDOBUFFER);
+        }
+
+        /// <summary>
+        /// Marks the end of a set of actions that should be treated as a single undo action.
+        /// </summary>
+        /// <seealso cref="BeginUndoAction" />
+        public void EndUndoAction()
+        {
+            DirectMessage(NativeMethods.SCI_ENDUNDOACTION);
         }
 
         /// <summary>
@@ -440,6 +470,28 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="SavePointLeft" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnSavePointLeft(EventArgs e)
+        {
+            var handler = Events[savePointLeftEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="SavePointReached" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnSavePointReached(EventArgs e)
+        {
+            var handler = Events[savePointReachedEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="StyleNeeded" /> event.
         /// </summary>
         /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
@@ -459,6 +511,14 @@ namespace ScintillaNET
             EventHandler<UpdateUIEventArgs> handler = Events[updateUIEventKey] as EventHandler<UpdateUIEventArgs>;
             if (handler != null)
                 handler(this, e);
+        }
+
+        /// <summary>
+        /// Redoes the effect of an <see cref="Undo" /> operation.
+        /// </summary>
+        public void Redo()
+        {
+            DirectMessage(NativeMethods.SCI_REDO);
         }
 
         /// <summary>
@@ -780,6 +840,14 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Undoes the previous action.
+        /// </summary>
+        public void Undo()
+        {
+            DirectMessage(NativeMethods.SCI_UNDO);
+        }
+
         private void WmReflectNotify(ref Message m)
         {
             // A standard Windows notification and a Scintilla notification header are compatible
@@ -802,6 +870,14 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_STYLENEEDED:
                         OnStyleNeeded(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_SAVEPOINTLEFT:
+                        OnSavePointLeft(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_SAVEPOINTREACHED:
+                        OnSavePointReached(EventArgs.Empty);
                         break;
 
                     case NativeMethods.SCN_UPDATEUI:
@@ -935,6 +1011,34 @@ namespace ScintillaNET
             set
             {
                 base.BackgroundImageLayout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether there is an undo action to redo.
+        /// </summary>
+        /// <returns>true when there is something to redo; otherwise, false.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool CanRedo
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_CANREDO) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether there is an action to undo.
+        /// </summary>
+        /// <returns>true when there is something to undo; otherwise, false.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool CanUndo
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_CANUNDO) != IntPtr.Zero);
             }
         }
 
@@ -1595,6 +1699,34 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether to collect undo and redo information.
+        /// </summary>
+        /// <returns>true to collect undo and redo information; otherwise, false. The default is true.</returns>
+        /// <remarks>Disabling undo collection will also empty the undo buffer. See <see cref="EmptyUndoBuffer" />.</remarks>
+        [DefaultValue(true)]
+        [Category("Behavior")]
+        [Description("Determines whether to collect undo and redo information.")]
+        public bool UndoCollection
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETUNDOCOLLECTION) != IntPtr.Zero);
+            }
+            set
+            {
+                var collectUndo = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETUNDOCOLLECTION, collectUndo);
+                if (!value)
+                {
+                    // Scintilla documentation makes it clear that if you fail to empty the undo buffer
+                    // when you disable collection the buffer could become unsynchronized with the document.
+                    // Seems like something we should do automatically.
+                    DirectMessage(NativeMethods.SCI_EMPTYUNDOBUFFER);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets how to display whitespace characters.
         /// </summary>
         /// <returns>One of the <see cref="WhitespaceMode" /> enumeration values. The default is <see cref="WhitespaceMode.Invisible" />.</returns>
@@ -1891,6 +2023,46 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(scNotificationEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the document becomes 'dirty'.
+        /// </summary>
+        /// <remarks>The document 'dirty' state can be checked with the <see cref="Modified" /> property and reset by calling <see cref="SetSavePoint" />.</remarks>
+        /// <seealso cref="SetSavePoint" />
+        /// <seealso cref="SavePointReached" />
+        [Category("Notifications")]
+        [Description("Occurs when a save point is left and the document becomes dirty.")]
+        public event EventHandler<EventArgs> SavePointLeft
+        {
+            add
+            {
+                Events.AddHandler(savePointLeftEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(savePointLeftEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the document 'dirty' flag is reset.
+        /// </summary>
+        /// <remarks>The document 'dirty' state can be reset by calling <see cref="SetSavePoint" /> or undoing an action that modified the document.</remarks>
+        /// <seealso cref="SetSavePoint" />
+        /// <seealso cref="SavePointLeft" />
+        [Category("Notifications")]
+        [Description("Occurs when a save point is reached and the document is no longer dirty.")]
+        public event EventHandler<EventArgs> SavePointReached
+        {
+            add
+            {
+                Events.AddHandler(savePointReachedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(savePointReachedEventKey, value);
             }
         }
 
