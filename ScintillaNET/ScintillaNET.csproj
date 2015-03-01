@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
+    <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />

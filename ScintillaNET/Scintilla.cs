@@ -92,6 +92,14 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Removes the selected text from the document.
+        /// </summary>
+        public void Clear()
+        {
+            DirectMessage(NativeMethods.SCI_CLEAR);
+        }
+
+        /// <summary>
         /// Deletes all document text, unless the document is read-only.
         /// </summary>
         public void ClearAll()
@@ -105,6 +113,53 @@ namespace ScintillaNET
         public void ClearDocumentStyle()
         {
             DirectMessage(NativeMethods.SCI_CLEARDOCUMENTSTYLE);
+        }
+
+        /// <summary>
+        /// Copies the selected text from the document and places it on the clipboard.
+        /// </summary>
+        public void Copy()
+        {
+            DirectMessage(NativeMethods.SCI_COPY);
+        }
+
+        /// <summary>
+        /// Copies the selected text from the document and places it on the clipboard.
+        /// If the selection is empty the current line is copied.
+        /// </summary>
+        /// <remarks>
+        /// If the selection is empty and the current line copied, an extra "MSDEVLineSelect" marker is added to the
+        /// clipboard which is then used in <see cref="Paste" /> to paste the whole line before the current line.
+        /// </remarks>
+        public void CopyAllowLine()
+        {
+            DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+        }
+
+        /// <summary>
+        /// Copies the specified range of text to the clipboard.
+        /// </summary>
+        /// <param name="start">The zero-based character position in the document to start copying.</param>
+        /// <param name="length">The zero-based character position (exclusive) in the document to stop copying.</param>
+        public void CopyRange(int start, int end)
+        {
+            var textLength = TextLength;
+            start = Helpers.Clamp(start, 0, textLength);
+            end = Helpers.Clamp(end, 0, textLength);
+
+            // Convert to byte positions
+            start = Lines.CharToBytePosition(start);
+            end = Lines.CharToBytePosition(end);
+
+            DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(start), new IntPtr(end));
+        }
+
+        /// <summary>
+        /// Cuts the selected text from the document and places it on the clipboard.
+        /// </summary>
+        public void Cut()
+        {
+            DirectMessage(NativeMethods.SCI_CUT);
         }
 
         /// <summary>
@@ -511,6 +566,14 @@ namespace ScintillaNET
             EventHandler<UpdateUIEventArgs> handler = Events[updateUIEventKey] as EventHandler<UpdateUIEventArgs>;
             if (handler != null)
                 handler(this, e);
+        }
+
+        /// <summary>
+        /// Pastes the contents of the clipboard into the current selection.
+        /// </summary>
+        public void Paste()
+        {
+            DirectMessage(NativeMethods.SCI_PASTE);
         }
 
         /// <summary>
@@ -1015,6 +1078,21 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets a value indicating whether there is text on the clipboard that can be pasted into the document.
+        /// </summary>
+        /// <returns>true when there is text on the clipboard to paste; otherwise, false.</returns>
+        /// <remarks>The document cannot be <see cref="ReadOnly" />  and the selection cannot contain protected text.</remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool CanPaste
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_CANPASTE) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether there is an undo action to redo.
         /// </summary>
         /// <returns>true when there is something to redo; otherwise, false.</returns>
@@ -1081,6 +1159,29 @@ namespace ScintillaNET
             {
                 var color = ColorTranslator.ToWin32(value);
                 DirectMessage(NativeMethods.SCI_SETCARETLINEBACK, new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the alpha transparency of the <see cref="CaretLineBackColor" />.
+        /// </summary>
+        /// <returns>
+        /// The alpha transparency ranging from 0 (completely transparent) to 255 (completely opaque).
+        /// The value 256 will disable alpha transparency. The default is 256.
+        /// </returns>
+        [DefaultValue(256)]
+        [Category("Caret")]
+        [Description("The transparency of the current line background color.")]
+        public int CaretLineBackColorAlpha
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETCARETLINEBACKALPHA).ToInt32();
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, NativeMethods.SC_ALPHA_NOALPHA);
+                DirectMessage(NativeMethods.SCI_SETCARETLINEBACKALPHA, new IntPtr(value));
             }
         }
 
@@ -1298,6 +1399,95 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether vertical scrolling ends at the last line or can scroll past.
+        /// </summary>
+        /// <returns>true if the maximum vertical scroll position ends at the last line; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Scrolling")]
+        [Description("Determines whether the maximum vertical scroll position ends at the last line or can scroll past.")]
+        public bool EndAtLastLine
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETENDATLASTLINE) != IntPtr.Zero);
+            }
+            set
+            {
+                var endAtLastLine = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETENDATLASTLINE, endAtLastLine);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the background color to use when indicating long lines with
+        /// <see cref="ScintillaNET.EdgeMode.Background" />.
+        /// </summary>
+        /// <returns>The background Color. The default is Silver.</returns>
+        [DefaultValue(typeof(Color), "Silver")]
+        [Category("Long Lines")]
+        [Description("The background color to use when indicating long lines.")]
+        public Color EdgeColor
+        {
+            get
+            {
+                var color = DirectMessage(NativeMethods.SCI_GETEDGECOLOUR).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                var color = ColorTranslator.ToWin32(value);
+                DirectMessage(NativeMethods.SCI_SETEDGECOLOUR, new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the column number at which to begin indicating long lines.
+        /// </summary>
+        /// <returns>The number of columns in a long line. The default is 0.</returns>
+        /// <remarks>
+        /// When using <see cref="ScintillaNET.EdgeMode.Line"/>, a column is defined as the width of a space character in the <see cref="Style.Default" /> style.
+        /// When using <see cref="ScintillaNET.EdgeMode.Background" /> a column is equal to a character (including tabs).
+        /// </remarks>
+        [DefaultValue(0)]
+        [Category("Long Lines")]
+        [Description("The number of columns at which to display long line indicators.")]
+        public int EdgeColumn
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETEDGECOLUMN).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETEDGECOLUMN, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the mode for indicating long lines.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.EdgeMode" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.EdgeMode.None" />.
+        /// </returns>
+        [DefaultValue(EdgeMode.None)]
+        [Category("Long Lines")]
+        [Description("Determines how long lines are indicated.")]
+        public EdgeMode EdgeMode
+        {
+            get
+            {
+                return (EdgeMode)DirectMessage(NativeMethods.SCI_GETEDGEMODE);
+            }
+            set
+            {
+                var edgeMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETEDGEMODE, new IntPtr(edgeMode));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the amount of whitespace added to the ascent (top) of each line.
         /// </summary>
         /// <returns>The extra line ascent. The default is zero.</returns>
@@ -1366,6 +1556,26 @@ namespace ScintillaNET
             set
             {
                 base.ForeColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to display the horizontal scroll bar.
+        /// </summary>
+        /// <returns>true to display the horizontal scroll bar when needed; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Scrolling")]
+        [Description("Determines whether to show the horizontal scroll bar if needed.")]
+        public bool HScrollBar
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETHSCROLLBAR) != IntPtr.Zero);
+            }
+            set
+            {
+                var visible = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETHSCROLLBAR, visible);
             }
         }
 
@@ -1452,6 +1662,26 @@ namespace ScintillaNET
             set
             {
                 base.Padding = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether line breaks in pasted text are convereted to the documents <see cref="EolMode" />.
+        /// </summary>
+        /// <returns>true to convert line breaks in pasted text; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Behavior")]
+        [Description("Whether line breaks in pasted text are converted to match the document EOL mode.")]
+        public bool PasteConvertEndings
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETPASTECONVERTENDINGS) != IntPtr.Zero);
+            }
+            set
+            {
+                var convert = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETPASTECONVERTENDINGS, convert);
             }
         }
 
@@ -1749,6 +1979,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether to display the vertical scroll bar.
+        /// </summary>
+        /// <returns>true to display the vertical scroll bar when needed; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Scrolling")]
+        [Description("Determines whether to show the vertical scroll bar when needed.")]
+        public bool VScrollBar
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETVSCROLLBAR) != IntPtr.Zero);
+            }
+            set
+            {
+                var visible = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETVSCROLLBAR, visible);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the size of the dots used to mark whitespace.
         /// </summary>
         /// <returns>The size of the dots used to mark whitespace. The default is 1.</returns>
@@ -1882,6 +2132,25 @@ namespace ScintillaNET
             {
                 var location = (int)value;
                 DirectMessage(NativeMethods.SCI_SETWRAPVISUALFLAGSLOCATION, new IntPtr(location));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the horizontal scroll offset.
+        /// </summary>
+        /// <returns>The horizontal scroll offset in pixels.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int XOffset
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETXOFFSET).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETXOFFSET, new IntPtr(value));
             }
         }
 
