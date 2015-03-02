@@ -41,6 +41,7 @@ namespace ScintillaNET
         private static readonly object styleNeededEventKey = new object();
         private static readonly object savePointReachedEventKey = new object();
         private static readonly object savePointLeftEventKey = new object();
+        private static readonly object marginClickEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -422,6 +423,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Returns the line that contains the document position specified.
+        /// </summary>
+        /// <param name="position">The zero-based document character position.</param>
+        /// <returns>The zero-based document line index containing the character <paramref name="position" />.</returns>
+        public int LineFromPosition(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            return Lines.LineFromCharPosition(position);
+        }
+
+        /// <summary>
         /// Scrolls the display the number of lines and columns specified.
         /// </summary>
         /// <param name="lines">The number of lines to scroll.</param>
@@ -540,6 +552,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="MarginClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="MarginClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnMarginClick(MarginClickEventArgs e)
+        {
+            var handler = Events[marginClickEventKey] as EventHandler<MarginClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="ModifyAttempt" /> event.
         /// </summary>
         /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
@@ -624,6 +647,20 @@ namespace ScintillaNET
 
             fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
                 DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        private void ScnMarginClick(ref NativeMethods.SCNotification scn)
+        {
+            var keys = Keys.None;
+            if ((scn.modifiers & NativeMethods.SCI_SHIFT) > 0)
+                keys |= Keys.Shift;
+            if ((scn.modifiers & NativeMethods.SCI_CTRL) > 0)
+                keys |= Keys.Control;
+            if ((scn.modifiers & NativeMethods.SCI_ALT) > 0)
+                keys |= Keys.Alt;
+
+            var eventArgs = new MarginClickEventArgs(this, keys, scn.position, scn.margin);
+            OnMarginClick(eventArgs);
         }
 
         private void ScnModified(ref NativeMethods.SCNotification scn)
@@ -989,6 +1026,10 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_SAVEPOINTREACHED:
                         OnSavePointReached(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_MARGINCLICK:
+                        ScnMarginClick(ref scn);
                         break;
 
                     case NativeMethods.SCN_UPDATEUI:
@@ -2428,6 +2469,24 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(insertCheckEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the mouse was clicked inside a margin that was marked as sensitive.
+        /// </summary>
+        /// <remarks>The <see cref="Margin.Sensitive" /> property must be set for a margin to raise this event.</remarks>
+        [Category("Notifications")]
+        [Description("Occurs when the mouse is clicked in a sensitive margin.")]
+        public event EventHandler<MarginClickEventArgs> MarginClick
+        {
+            add
+            {
+                Events.AddHandler(marginClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(marginClickEventKey, value);
             }
         }
 

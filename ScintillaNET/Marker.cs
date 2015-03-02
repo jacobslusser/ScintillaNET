@@ -15,6 +15,11 @@ namespace ScintillaNET
         private readonly Scintilla scintilla;
 
         /// <summary>
+        /// An unsigned 32-bit mask of all <see cref="Margin" /> indexes where each bit cooresponds to a margin index.
+        /// </summary>
+        public const uint MaskAll = unchecked((uint)-1);
+
+        /// <summary>
         /// An unsigned 32-bit mask of folder <see cref="Margin" /> indexes (25 through 31) where each bit cooresponds to a margin index.
         /// </summary>
         /// <seealso cref="Margin.Mask" />
