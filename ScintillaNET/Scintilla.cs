@@ -2055,10 +2055,6 @@ namespace ScintillaNET
         /// Gets or sets the end position used when performing a search or replace.
         /// </summary>
         /// <returns>The zero-based character position within the document to end a search or replace operation.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="value" /> is less than zero. -or-
-        /// <paramref name="value" /> is greater than the document length.
-        /// </exception>
         /// <seealso cref="TargetStart"/>
         /// <seealso cref="SearchInTarget" />
         /// <seealso cref="ReplaceInTarget" />
@@ -2079,7 +2075,7 @@ namespace ScintillaNET
             }
             set
             {
-                Helpers.ValidateDocumentPosition(value, TextLength, "value");
+                value = Helpers.Clamp(value, 0, TextLength);
 
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(bytePos));
@@ -2090,10 +2086,6 @@ namespace ScintillaNET
         /// Gets or sets the start position used when performing a search or replace.
         /// </summary>
         /// <returns>The zero-based character position within the document to start a search or replace operation.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="value" /> is less than zero. -or-
-        /// <paramref name="value" /> is greater than the document length.
-        /// </exception>
         /// <seealso cref="TargetEnd"/>
         /// <seealso cref="SearchInTarget" />
         /// <seealso cref="ReplaceInTarget" />
@@ -2113,7 +2105,7 @@ namespace ScintillaNET
             }
             set
             {
-                Helpers.ValidateDocumentPosition(value, TextLength, "value");
+                value = Helpers.Clamp(value, 0, TextLength);
 
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(bytePos));

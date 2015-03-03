@@ -382,15 +382,11 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="index">The zero-based index of the <see cref="Line" /> to get.</param>
         /// <returns>The <see cref="Line" /> at the specified index.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="index" /> is less than zero. -or-
-        /// <paramref name="index" /> is equal to or greater than <see cref="Count" />.
-        /// </exception>
         public Line this[int index]
         {
             get
             {
-                Helpers.ValidateCollectionIndex(index, Count);
+                index = Helpers.Clamp(index, 0, Count - 1);
                 return new Line(scintilla, index);
             }
         }

@@ -104,7 +104,11 @@ namespace ScintillaNET
         /// <summary>
         /// Gets or sets the style of the annotation text.
         /// </summary>
-        /// <returns>The zero-based index of the annotation text <see cref="Style" />.</returns>
+        /// <returns>
+        /// The zero-based index of the annotation text <see cref="Style" /> or 256 when <see cref="AnnotationStyles" />
+        /// has been used to set individual character styles.
+        /// </returns>
+        /// <seealso cref="AnnotationStyles" />
         public int AnnotationStyle
         {
             get
@@ -113,9 +117,59 @@ namespace ScintillaNET
             }
             set
             {
-                // TODO Consider how to support SCI_ANNOTATIONSETSTYLEOFFSET
                 value = Helpers.Clamp(value, 0, scintilla.Styles.Count - 1);
                 scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONSETSTYLE, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets an array of style indexes corresponding to each charcter in the <see cref="AnnotationText" />
+        /// so that each character may be individually styled.
+        /// </summary>
+        /// <returns>
+        /// An array of <see cref="Style" /> indexes corresponding with each annotation text character or an uninitialized
+        /// array when <see cref="AnnotationStyle" /> has been used to set a single style for all characters.
+        /// </returns>
+        /// <remarks>
+        /// <see cref="AnnotationText" /> must be set prior to setting this property.
+        /// The <paramref name="value" /> specified should have a length equal to the <see cref="AnnotationText" /> length to properly style all characters.
+        /// </remarks>
+        /// <seealso cref="AnnotationStyle" />
+        public unsafe byte[] AnnotationStyles
+        {
+            get
+            {
+                var length = scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
+                    return new byte[0];
+
+                var text = new byte[length + 1];
+                var styles = new byte[length + 1];
+
+                fixed (byte* textPtr = text)
+                fixed (byte* stylePtr = styles)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index), new IntPtr(textPtr));
+                    scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETSTYLES, new IntPtr(Index), new IntPtr(stylePtr));
+
+                    return Helpers.ByteToCharStyles(stylePtr, textPtr, length, scintilla.Encoding);
+                }
+            }
+            set
+            {
+                var length = scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
+                    return;
+
+                var text = new byte[length + 1];
+                fixed (byte* textPtr = text)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index), new IntPtr(textPtr));
+
+                    var styles = Helpers.CharToByteStyles(value ?? new byte[0], textPtr, length, scintilla.Encoding);
+                    fixed (byte* stylePtr = styles)
+                        scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONSETSTYLES, new IntPtr(Index), new IntPtr(stylePtr));
+                }
             }
         }
 
@@ -141,10 +195,8 @@ namespace ScintillaNET
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    value = null;
-
-                if (value == null)
                 {
+                    // Scintilla docs suggest that setting to NULL rather than an empty string will free memory
                     scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index), IntPtr.Zero);
                 }
                 else
@@ -187,10 +239,13 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets or sets the style index used to display a <see cref="MarginType.Text" />
-        /// or <see cref="MarginType.RightText" /> margin.
+        /// Gets or sets the style of the margin text in a <see cref="MarginType.Text" /> or <see cref="MarginType.RightText" /> margin.
         /// </summary>
-        /// <returns>The margin style index.</returns>
+        /// <returns>
+        /// The zero-based index of the margin text <see cref="Style" /> or 256 when <see cref="MarginStyles" />
+        /// has been used to set individual character styles.
+        /// </returns>
+        /// <seealso cref="MarginStyles" />
         public int MarginStyle
         {
             get
@@ -200,7 +255,58 @@ namespace ScintillaNET
             set
             {
                 value = Helpers.Clamp(value, 0, scintilla.Styles.Count - 1);
-                scintilla.DirectMessage(NativeMethods.SCI_MARGINSETSTYLES, new IntPtr(Index), new IntPtr(value));
+                scintilla.DirectMessage(NativeMethods.SCI_MARGINSETSTYLE, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets an array of style indexes corresponding to each charcter in the <see cref="MarginText" />
+        /// so that each character may be individually styled.
+        /// </summary>
+        /// <returns>
+        /// An array of <see cref="Style" /> indexes corresponding with each margin text character or an uninitialized
+        /// array when <see cref="MarginStyle" /> has been used to set a single style for all characters.
+        /// </returns>
+        /// <remarks>
+        /// <see cref="MarginText" /> must be set prior to setting this property.
+        /// The <paramref name="value" /> specified should have a length equal to the <see cref="MarginText" /> length to properly style all characters.
+        /// </remarks>
+        /// <seealso cref="MarginStyle" />
+        public unsafe byte[] MarginStyles
+        {
+            get
+            {
+                var length = scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
+                    return new byte[0];
+
+                var text = new byte[length + 1];
+                var styles = new byte[length + 1];
+
+                fixed (byte* textPtr = text)
+                fixed (byte* stylePtr = styles)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index), new IntPtr(textPtr));
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINGETSTYLES, new IntPtr(Index), new IntPtr(stylePtr));
+
+                    return Helpers.ByteToCharStyles(stylePtr, textPtr, length, scintilla.Encoding);
+                }
+            }
+            set
+            {
+                var length = scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
+                    return;
+
+                var text = new byte[length + 1];
+                fixed (byte* textPtr = text)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index), new IntPtr(textPtr));
+
+                    var styles = Helpers.CharToByteStyles(value ?? new byte[0], textPtr, length, scintilla.Encoding);
+                    fixed (byte* stylePtr = styles)
+                        scintilla.DirectMessage(NativeMethods.SCI_MARGINSETSTYLES, new IntPtr(Index), new IntPtr(stylePtr));
+                }
             }
         }
 
@@ -209,26 +315,35 @@ namespace ScintillaNET
         /// <see cref="MarginType.Text" /> or <see cref="MarginType.RightText" />.
         /// </summary>
         /// <returns>The text displayed in the line margin.</returns>
+        /// <remarks>The margin text cannot contain any Unicode characters or it will not render correctly.</remarks>
         public unsafe string MarginText
         {
             get
             {
-                var byteLength = scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index)).ToInt32();
-                if (byteLength == 0)
+                var length = scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
                     return string.Empty;
 
-                var bytes = new byte[byteLength];
+                var bytes = new byte[length + 1];
                 fixed (byte* bp = bytes)
+                {
                     scintilla.DirectMessage(NativeMethods.SCI_MARGINGETTEXT, new IntPtr(Index), new IntPtr(bp));
-
-                return scintilla.Encoding.GetString(bytes);
+                    return Helpers.GetString(new IntPtr(bp), length, scintilla.Encoding);
+                }
             }
             set
             {
-                var bytes = Helpers.GetBytes(value ?? string.Empty, scintilla.Encoding, zeroTerminated: true);
-
-                fixed (byte* bp = bytes)
-                    scintilla.DirectMessage(NativeMethods.SCI_MARGINSETTEXT, new IntPtr(Index), new IntPtr(bp));
+                if (string.IsNullOrEmpty(value))
+                {
+                    // Scintilla docs suggest that setting to NULL rather than an empty string will free memory
+                    scintilla.DirectMessage(NativeMethods.SCI_MARGINSETTEXT, new IntPtr(Index), IntPtr.Zero);
+                }
+                else
+                {
+                    var bytes = Helpers.GetBytes(value, scintilla.Encoding, zeroTerminated: true);
+                    fixed (byte* bp = bytes)
+                        scintilla.DirectMessage(NativeMethods.SCI_MARGINSETTEXT, new IntPtr(Index), new IntPtr(bp));
+                }
             }
         }
 

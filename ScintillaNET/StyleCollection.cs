@@ -53,7 +53,7 @@ namespace ScintillaNET
         {
             get
             {
-                Helpers.ValidateCollectionIndex(index, Count);
+                index = Helpers.Clamp(index, 0, Count - 1);
                 return new Style(scintilla, index);
             }
         }
