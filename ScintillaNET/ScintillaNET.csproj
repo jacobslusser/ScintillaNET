@@ -62,6 +62,7 @@
     <Compile Include="Line.cs" />
     <Compile Include="LineCollection.cs" />
     <Compile Include="Margin.cs" />
+    <Compile Include="MarginClickEventArgs.cs" />
     <Compile Include="MarginCollection.cs" />
     <Compile Include="MarginCursor.cs" />
     <Compile Include="MarginOptions.cs" />

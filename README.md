@@ -62,7 +62,8 @@ The native Scintilla control has a habit of clamping input values to within acce
 7. [Find and Highlight Words](#find-highlight)
 8. [View Whitespace](#whitespace)
 9. [Increase Line Spacing](#line-spacing)
-10. [Using a Custom SciLexer.dll](#scilexer)
+10. [Bookmark Lines](#bookmarks)
+11. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -359,6 +360,80 @@ Feeling like your text is a little too cramped? Having a little extra space betw
 // Increase line spacing
 scintilla.ExtraAscent = 5;
 scintilla.ExtraDescent = 5;
+```
+
+### <a name="bookmarks"></a>Bookmark Lines
+
+This recipe shows how markers can be used to indicate bookmarked lines and iterate through them. Markers are symbols displayed in the left margins and are typically used for things like showing breakpoints, search results, the current line of execution, or in this case, bookmarks.
+
+In the `Form.Load` event we'll prepare a margin to be used for our bookmarks and we'll configure one of the markers to use the `Bookmark` symbol:
+
+```cs
+private const int BOOKMARK_MARGIN = 1; // Conventionally the symbol margin
+private const int BOOKMARK_MARKER = 3; // Arbitrary. Any valid index would work.
+
+private void MainForm_Load(object sender, EventArgs e)
+{
+    var margin = scintilla.Margins[BOOKMARK_MARGIN];
+    margin.Width = 16;
+    margin.Sensitive = true;
+    margin.Type = MarginType.Symbol;
+    margin.Mask = Marker.MaskAll;
+    margin.Cursor = MarginCursor.Arrow;
+
+    var marker = scintilla.Markers[BOOKMARK_MARKER];
+    marker.Symbol = MarkerSymbol.Bookmark;
+    marker.SetBackColor(Color.DeepSkyBlue);
+    marker.SetForeColor(Color.Black);
+}
+```
+
+The margin is flagged as `Sensitive` so we can receive mouse click notifications from it (and because this margin can sometimes get emotional). The margin `Mask` is a way of restricting which marker symbols can appear in the margin. For the purposes of this example we'll configure it so that all marker symbols assigned to any given line will be displayed.
+
+By handling the `MarginClick` event we can toggle a bookmark marker for each line:
+
+```cs
+private void scintilla_MarginClick(object sender, MarginClickEventArgs e)
+{
+    if (e.Margin == BOOKMARK_MARGIN)
+    {
+        // Do we have a marker for this line?
+        const uint mask = (1 << BOOKMARK_MARKER);
+        var line = scintilla.Lines[scintilla.LineFromPosition(e.Position)];
+        if ((line.MarkerGet() & mask) > 0)
+        {
+            // Remove existing bookmark
+            line.MarkerDelete(BOOKMARK_MARKER);
+        }
+        else
+        {
+            // Add bookmark
+            line.MarkerAdd(BOOKMARK_MARKER);
+        }
+    }
+}
+```
+
+The code above makes use of the `MarkerGet` method to get a bitmask indicating which markers are set for the current line. This mask is a 32-bit value where each bit corresponds to one of the 32 marker indexes. If marker `0` were set, bit `0` would be set. If marker `1` where set, bit `1` would be set and so on. To determine if our maker has been set for a line we would want to check if the `1 << 3` bit is set which is what the statement `(line.MarkerGet() & mask) > 0` does.
+
+At this point, if you run the code you should be able to add and remove pretty blue bookmarks from document lines. To let a user jump between bookmarks we'll add 'Next' and 'Previous' buttons and wire-up their click events like this:
+
+```cs
+private void buttonPrevious_Click(object sender, EventArgs e)
+{
+    var line = scintilla.LineFromPosition(scintilla.CurrentPosition);
+    var prevLine = scintilla.Lines[--line].MarkerPrevious(1 << BOOKMARK_MARKER);
+    if (prevLine != -1)
+        scintilla.Lines[prevLine].Goto();
+}
+
+private void buttonNext_Click(object sender, EventArgs e)
+{
+    var line = scintilla.LineFromPosition(scintilla.CurrentPosition);
+    var nextLine = scintilla.Lines[++line].MarkerNext(1 << BOOKMARK_MARKER);
+    if (nextLine != -1)
+        scintilla.Lines[nextLine].Goto();
+}
 ```
 
 ### <a name="scilexer"></a>Using a Custom SciLexer.dll

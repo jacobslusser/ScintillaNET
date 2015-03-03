@@ -19,6 +19,22 @@ namespace ScintillaNET
         public const int ANNOTATION_BOXED = 2;
         public const int ANNOTATION_INDENTED = 3;
 
+        // Keys
+        public const int SCMOD_NORM = 0;
+        public const int SCMOD_SHIFT = 1;
+        public const int SCMOD_CTRL = 2;
+        public const int SCMOD_ALT = 4;
+        public const int SCMOD_SUPER = 8;
+        public const int SCMOD_META = 16;
+
+        public const int SCI_NORM = 0;
+        public const int SCI_SHIFT = SCMOD_SHIFT;
+        public const int SCI_CTRL = SCMOD_CTRL;
+        public const int SCI_ALT = SCMOD_ALT;
+        public const int SCI_META = SCMOD_META;
+        public const int SCI_CSHIFT = (SCI_CTRL | SCI_SHIFT);
+        public const int SCI_ASHIFT = (SCI_ALT | SCI_SHIFT);
+
         // Caret styles
         public const int CARETSTYLE_INVISIBLE = 0;
         public const int CARETSTYLE_LINE = 1;
