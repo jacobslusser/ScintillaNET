@@ -41,6 +41,7 @@ namespace ScintillaNET
         private static readonly object styleNeededEventKey = new object();
         private static readonly object savePointReachedEventKey = new object();
         private static readonly object savePointLeftEventKey = new object();
+        private static readonly object changeAnnotationEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -67,6 +68,14 @@ namespace ScintillaNET
             var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
             fixed (byte* bp = bytes)
                 DirectMessage(NativeMethods.SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Removes the annotation text for every <see cref="Line" /> in the document.
+        /// </summary>
+        public void AnnotationClearAll()
+        {
+            DirectMessage(NativeMethods.SCI_ANNOTATIONCLEARALL);
         }
 
         /// <summary>
@@ -487,6 +496,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="ChangeAnnotation" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="ChangeAnnotationEventArgs" /> that contains the event data.</param>
+        protected virtual void OnChangeAnnotation(ChangeAnnotationEventArgs e)
+        {
+            var handler = Events[changeAnnotationEventKey] as EventHandler<ChangeAnnotationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="Delete" /> event.
         /// </summary>
         /// <param name="e">A <see cref="ModificationEventArgs" /> that contains the event data.</param>
@@ -688,6 +708,12 @@ namespace ScintillaNET
                 // For backward compatibility.... Of course this means that we'll raise two
                 // TextChanged events for replace (insert/delete) operations, but that's life.
                 OnTextChanged(EventArgs.Empty);
+            }
+
+            if ((scn.modificationType & NativeMethods.SC_MOD_CHANGEANNOTATION) > 0)
+            {
+                var eventArgs = new ChangeAnnotationEventArgs(scn.line);
+                OnChangeAnnotation(eventArgs);
             }
         }
 
@@ -1071,6 +1097,26 @@ namespace ScintillaNET
 
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(bytePos));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the display of annotations.
+        /// </summary>
+        /// <returns>One of the <see cref="Annotation" /> enumeration values. The default is <see cref="Annotation.Hidden" />.</returns>
+        [DefaultValue(Annotation.Hidden)]
+        [Category("Appearance")]
+        [Description("Display and location of annotations.")]
+        public Annotation AnnotationVisible
+        {
+            get
+            {
+                return (Annotation)DirectMessage(NativeMethods.SCI_ANNOTATIONGETVISIBLE).ToInt32();
+            }
+            set
+            {
+                var visible = (int)value;
+                DirectMessage(NativeMethods.SCI_ANNOTATIONSETVISIBLE, new IntPtr(visible));
             }
         }
 
@@ -2377,6 +2423,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(beforeInsertEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when an annotation has changed.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when an annotation has changed.")]
+        public event EventHandler<ChangeAnnotationEventArgs> ChangeAnnotation
+        {
+            add
+            {
+                Events.AddHandler(changeAnnotationEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(changeAnnotationEventKey, value);
             }
         }
 

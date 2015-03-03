@@ -13,6 +13,12 @@ namespace ScintillaNET
         private const string DLL_NAME_KERNEL32 = "kernel32.dll";
         private const string DLL_NAME_USER32 = "user32.dll";
 
+        // Annotations
+        public const int ANNOTATION_HIDDEN = 0;
+        public const int ANNOTATION_STANDARD = 1;
+        public const int ANNOTATION_BOXED = 2;
+        public const int ANNOTATION_INDENTED = 3;
+
         // Caret styles
         public const int CARETSTYLE_INVISIBLE = 0;
         public const int CARETSTYLE_LINE = 1;
@@ -136,6 +142,7 @@ namespace ScintillaNET
         public const int SC_MOD_DELETETEXT = 0x2;
         public const int SC_MOD_BEFOREINSERT = 0x400;
         public const int SC_MOD_BEFOREDELETE = 0x800;
+        public const int SC_MOD_CHANGEANNOTATION = 0x20000;
         public const int SC_MOD_INSERTCHECK = 0x100000;
 
         // Modified flags

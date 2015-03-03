@@ -46,8 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annotation.cs" />
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
+    <Compile Include="ChangeAnnotationEventArgs.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="GapBuffer.cs" />

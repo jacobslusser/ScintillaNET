@@ -90,14 +90,81 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the number of annotation lines of text.
+        /// </summary>
+        /// <returns>The number of annotation lines.</returns>
+        public int AnnotationLines
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETLINES, new IntPtr(Index)).ToInt32();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the style of the annotation text.
+        /// </summary>
+        /// <returns>The zero-based index of the annotation text <see cref="Style" />.</returns>
+        public int AnnotationStyle
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETSTYLE, new IntPtr(Index)).ToInt32();
+            }
+            set
+            {
+                // TODO Consider how to support SCI_ANNOTATIONSETSTYLEOFFSET
+                value = Helpers.Clamp(value, 0, scintilla.Styles.Count - 1);
+                scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONSETSTYLE, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the line annotation text.
+        /// </summary>
+        /// <returns>A String representing the line annotation text.</returns>
+        public unsafe string AnnotationText
+        {
+            get
+            {
+                var length = scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index)).ToInt32();
+                if (length == 0)
+                    return string.Empty;
+
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index), new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, scintilla.Encoding);
+                }
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                    value = null;
+
+                if (value == null)
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONGETTEXT, new IntPtr(Index), IntPtr.Zero);
+                }
+                else
+                {
+                    var bytes = Helpers.GetBytes(value, scintilla.Encoding, zeroTerminated: true);
+                    fixed (byte* bp = bytes)
+                        scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONSETTEXT, new IntPtr(Index), new IntPtr(bp));
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the zero-based character position in the document where the line ends (exclusive).
         /// </summary>
-        /// <returns>The equivalent of <see cref="StartPosition" /> + <see cref="TextLength" />.</returns>
+        /// <returns>The equivalent of <see cref="Position" /> + <see cref="Length" />.</returns>
         public int EndPosition
         {
             get
             {
-                return StartPosition + TextLength;
+                return Position + Length;
             }
         }
 
@@ -106,6 +173,18 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The zero-based line index within the <see cref="LineCollection" /> that created it.</returns>
         public int Index { get; private set; }
+
+        /// <summary>
+        /// Gets the length of the line.
+        /// </summary>
+        /// <returns>The number of characters in the line including any end of line characters.</returns>
+        public int Length
+        {
+            get
+            {
+                return scintilla.Lines.CharLineLength(Index);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the style index used to display a <see cref="MarginType.Text" />
@@ -157,7 +236,7 @@ namespace ScintillaNET
         /// Gets the zero-based character position in the document where the line begins.
         /// </summary>
         /// <returns>The document position of the first character in the line.</returns>
-        public int StartPosition
+        public int Position
         {
             get
             {
@@ -182,18 +261,6 @@ namespace ScintillaNET
 
                 var text = new string((sbyte*)ptr, 0, length.ToInt32(), scintilla.Encoding);
                 return text;
-            }
-        }
-
-        /// <summary>
-        /// Gets the length of the line.
-        /// </summary>
-        /// <returns>The number of characters in the line including any end of line characters.</returns>
-        public int TextLength
-        {
-            get
-            {
-                return scintilla.Lines.CharLineLength(Index);
             }
         }
 
