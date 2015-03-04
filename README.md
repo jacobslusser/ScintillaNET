@@ -63,7 +63,12 @@ The native Scintilla control has a habit of clamping input values to within acce
 8. [View Whitespace](#whitespace)
 9. [Increase Line Spacing](#line-spacing)
 10. [Bookmark Lines](#bookmarks)
-11. [Using a Custom SciLexer.dll](#scilexer)
+11. [Documents](#documents)
+  1. [Understanding Document Reference Counts](#reference-counting)
+  2. [Multiple Views of one Document](#multiple-views)
+  3. [Multiple Documents for one View](#multiple-documents)
+  3. [Background Loading](#loader)
+12. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -165,7 +170,7 @@ scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
 
 The last thing we need to do to provide syntax highlighting is to inform the lexer what the language keywords and identifiers are. Since languages can often add keywords year after year, or because a lexer may sometimes be used for more than one language, it makes sense to make the keyword list configurable.
 
-Since each Scintilla lexer is like a program until itself the number of keyword sets and the definition of each one varies from lexer to lexer. To determine what keyword sets a lexer supports you can call the `DescribeKeywordSets` method. This prints a human readable explanation of how many sets the current `Lexer` supports and what each means:
+Since each Scintilla lexer is like a program until itself the number of keyword sets and the definition of each one vary from lexer to lexer. To determine what keyword sets a lexer supports you can call the `DescribeKeywordSets` method. This prints a human readable explanation of how many sets the current `Lexer` supports and what each means:
 
 ```cs
 scintilla.Lexer = Lexer.Cpp;
@@ -337,7 +342,7 @@ private void HighlightWord(string text)
 }
 ```
 
-This example also illustrates the "set-once, run-many" style API that Scintilla is know for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
+This example also illustrates the "set-once, run-many" style API that Scintilla is known for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
 
 *NOTE: Indicators and styles can be used simultaneously.*
 
@@ -436,9 +441,160 @@ private void buttonNext_Click(object sender, EventArgs e)
 }
 ```
 
+### <a name="documents"></a>Documents
+
+*This is an advanced topic.*
+
+Scintilla has limited support for document-control separation, allowing more than one Scintilla control to access the same document (e.g. splitter windows), one control to access multiple documents (tabs), or for loading a document outside of a Scintilla control.
+
+To work with documents requires a firm understanding of how document reference counting works. As has been said before, one of the project goals of the new ScintillaNET was to not shield users from the core Scintilla API and working with `Document` instances, `ILoader` instances, and reference counting is a prime example of that. It requires diligent programming to prevent memory leaks.
+
+#### <a name="reference-counting"></a> Understanding Document Reference Counts
+
+One of the things we must get straight right away is to understand that every `Document` in Scintilla contains a reference count. When a new document is created the reference count is 1. When a document is associated with a Scintilla control or the `Scintilla.AddRefDocument` method is used, that reference count increases. When a document is removed from a Scintilla control or the `Scintilla.ReleaseDocument` method is used, that count is decreased. When the reference count reaches 0 the document will be released and the memory freed. Conversely, if the document count never reaches 0 memory leaks will occur.
+
+So making sure a document reference count reaches 0 is good, however, allowing that to happen when the document is currently in use by a Scintilla control is bad. Don't do that. The universe will implode.
+
+With that out of the way...
+
+#### <a name="multiple-views"></a>Multiple Views of one Document
+
+To share the same document between two Scintilla controls, set their `Document` properties to the same value:
+
+```cs
+scintilla2.Document = scintilla1.Document;
+```
+
+The `scintilla2` control will now show the same contents as the `scintilla1` control (and vice versa). To break the connection we can force `scintilla2` to drop the current document reference and create a new one by setting the `Document` property to `Document.Empty`:
+
+```cs
+scintilla2.Document = Document.Empty;
+```
+
+This type of document sharing is relatively free from having to track reference counts. Each time a document is associated with more than one Scintilla control, the document reference count is increased. Each time it is dissociated that reference count is decreased—including when a Scintilla control is disposed. If that was the last association to that document, the reference count of the document would reach 0 and the memory freed.
+
+*NOTE: The `Document.Empty` constant is not an empty document; it is the absence of one (i.e. null).*
+
+#### <a name="multiple-documents"></a>Multiple Documents for one View
+
+Most modern text editors and IDEs support the ability to have multiple tabs open at once. One way to accomplish that would be to have multiple Scintilla controls, each with their own document. To conserve resources, however, you could choose to have only one Scintilla control and select multiple documents in and out of it. Your tabs would then simply be a way to switch between those documents, not display separate controls. This is how [Notepad++](http://notepad-plus-plus.org/) handles multiple documents.
+
+As previously explained, each time a `Document` is unassociated with a Scintilla control its reference count decreases by one. So, if we want to select a new blank document into a Scintilla control, *but not delete the current one*, we need to increase the reference count of the current document *before* we select the new one:
+
+```cs
+private void NewDocument()
+{
+    var document = scintilla.Document;
+    scintilla.AddRefDocument(document);
+
+    // Replace the current document with a new one
+    scintilla.Document = Document.Empty;
+}
+```
+
+Said another way, calling `AddRefDocument` will increase the current document reference count from 1 to 2. When the `Document` property is set, the current document is unassociated with the control and its cout is decreased from 2 to 1. Had we not prematurely increased the reference count, it would have gone from 1 to 0 and the document would have been deleted and not available for us to select back into the Scintilla control at a later time.
+
+To switch the current document with an existing one (i.e. switch tabs) works almost the same way. We first increase the current document reference count from 1 to 2 so that when its unassociated with the Scintilla control it would drop from 2 to 1 and not be deleted. When the next (existing) document is selected into the Scintilla control its count will increase from 1 to 2, so we call `ReleaseDocument` after making the association to drop it back to 1 and make Scintilla the sole owner:
+
+```cs
+private void SwitchDocument(Document nextDocument)
+{
+    var prevDocument = scintilla.Document;
+    scintilla.AddRefDocument(prevDocument);
+
+    // Replace the current document and make Scintilla the owner
+    scintilla.Document = nextDocument;
+    scintilla.ReleaseDocument(nextDocument);
+}
+```
+
+At any time you can use the `AddRefDocument` and `ReleaseDocument` methods to make these kind of adjustments so long as you're mindful of the reference count.
+
+#### <a name="loader"></a>Background Loading
+
+A `Document` can be loaded in a background thread using an `ILoader` instance. The `ILoader` interface contains only three methods: `AddData`, `ConvertToDocument`, and `Release`. To add text to the document call `AddData`. Once done, call `ConvertToDocument` to get the `Document` handle.
+
+I find the `ConvertToDocument` method to have a misleading name. Internally an `ILoader` instance contains a new `Document` instance. The `ConvertToDocument` method simply returns that internal instance. No 'conversion' is taking place.
+
+Once it's understood that the `ILoader` is a wrapper around a `Document` it should be obvious that we need to keep track of its internal document reference count just as we would any other document. When the `ILoader` is created, the internal document has a reference count of 1 (as do all new documents). If for any reason we need to get rid of this document because there was an error loading in the data or we want to cancel the process we would need to decrease that internal document reference count or incur a memory leak.
+
+That is the whole purpose for the `ILoader.Release` method—to decrease the reference count of the internal document. That also explains why we shouldn't call `Release` on the `ILoader` once we've successfully called `ConvertToDocument`. That would decrease the reference count of the document we just got access to.
+
+This is best explained with an example. The method below will use the `ILoader` instance specified to load characters data from a file at the specified path and return the completed document:
+
+```cs
+private async Task<Document> LoadFileAsync(ILoader loader, string path, CancellationToken cancellationToken)
+{
+    try
+    {
+        using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true))
+        using (var reader = new StreamReader(file))
+        {
+            var count = 0;
+            var buffer = new char[4096];
+            while ((count = await reader.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
+            {
+                // Check for cancellation
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // Add the data to the document
+                if (!loader.AddData(buffer, count))
+                    throw new IOException("The data could not be added to the loader.");
+            }
+
+            return loader.ConvertToDocument();
+        }
+    }
+    catch
+    {
+        loader.Release();
+        throw;
+    }
+}
+```
+
+Data is added through the `AddData` method. This is done on a background thread and is the whole point of using the `ILoader`. If `AddData` returns `false` it means Scintilla encountered an error (out of memory) and we should stop loading. If that or any other error occurs—including cancellation—we're careful to make sure we call `ILoader.Release` in our catch block to drop the reference count of the internal document from 1 to 0 so that it will be deleted.
+
+To use our new `LoadFileAsync` method, we might do something like this:
+
+```cs
+private async void button_Click(object sender, EventArgs e)
+{
+    try
+    {
+        var loader = scintilla.CreateLoader(256);
+        if (loader == null)
+            throw new ApplicationException("Unable to create loader.");
+
+        var cts = new CancellationTokenSource();
+        var document = await LoadFileAsync(loader, @"your_file_path.txt", cts.Token);
+        scintilla.Document = document;
+
+        // Every document starts with a reference count of 1. Assigning it to Scintilla increased that to 2.
+        // To let Scintilla control the life of the document, we'll drop it back down to 1.
+        scintilla.ReleaseDocument(document);
+    }
+    catch (OperationCanceledException)
+    {
+    }
+    catch(Exception)
+    {
+        MessageBox.Show(this, "There was an error loading the file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
+```
+
+An `ILoader` is created by calling `Scintilla.CreateLoader`. The length argument of `256` is arbitrary and is meant to be a hint to Scintilla on how much memory it should allocate. If the loader exceeds the initial allocation, it will automatically allocate more so you don't need to be exact.
+
+As noted in the code comments (and ad nauseam above), we must decrease the document reference count once selected into the Scintilla control because the document is born with a reference count of 1. That increased from 1 to 2 when associated with the control. If we're not sure we're going to take ownership back any time soon, it's probably best to make Scintilla the sole owner so we drop it back from 2 to 1.
+
+*NOTE: While `AddData` is meant to be called from a background thread, `Scintilla.CreateLoader`, `Scintilla.Document`, `Scintilla.ReleaseDocument`, etc... are not. Any interaction with Scintilla should always be done on the UI thread.*
+
 ### <a name="scilexer"></a>Using a Custom SciLexer.dll
 
-This is an advanced topic. On rare occasions you may wish to provide your own build of the SciLexer DLL used by ScintillaNET instead of the one we embed for you. By default ScintillaNET will use the embedded one but you can override the default behavior by calling `SetModulePath` prior to instantiating any Scintilla controls:
+*This is an advanced topic.*
+
+On rare occasions you may wish to provide your own build of the SciLexer DLL used by ScintillaNET instead of the one we embed for you. By default ScintillaNET will use the embedded one but you can override the default behavior by calling `SetModulePath` prior to instantiating any Scintilla controls:
 
 ```cs
 // Call prior to creating any controls
@@ -449,7 +605,9 @@ var scintilla = new Scintilla();
 var version = scintilla.GetVersionInfo();
 ```
 
-The path provide can be an absolute or relative path to SciLexer.dll.
+The path provided can be an absolute or relative path to SciLexer.dll.
+
+It goes without saying that the SciLexer DLL embedded with ScintillaNET has been tested with ScintillaNET; yours has not. You run a compatibility risk running a nonstandard DLL.
 
 ## License
 

@@ -50,10 +50,12 @@
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
     <Compile Include="ChangeAnnotationEventArgs.cs" />
+    <Compile Include="Document.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="ILoader.cs" />
     <Compile Include="Indicator.cs" />
     <Compile Include="IndicatorCollection.cs" />
     <Compile Include="IndicatorStyle.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Lexer.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineCollection.cs" />
+    <Compile Include="Loader.cs" />
     <Compile Include="Margin.cs" />
     <Compile Include="MarginClickEventArgs.cs" />
     <Compile Include="MarginCollection.cs" />

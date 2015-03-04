@@ -60,6 +60,16 @@ namespace ScintillaNET
         #region Methods
 
         /// <summary>
+        /// Increases the reference count of the specified document by 1.
+        /// </summary>
+        /// <param name="document">The document reference count to increase.</param>
+        public void AddRefDocument(Document document)
+        {
+            var ptr = document.Value;
+            DirectMessage(NativeMethods.SCI_ADDREFDOCUMENT, IntPtr.Zero, ptr);
+        }
+
+        /// <summary>
         /// Inserts the specified text at the current caret position.
         /// </summary>
         /// <param name="text">The text to insert at the current caret position.</param>
@@ -162,6 +172,32 @@ namespace ScintillaNET
             end = Lines.CharToBytePosition(end);
 
             DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(start), new IntPtr(end));
+        }
+
+        /// <summary>
+        /// Create a new, empty document.
+        /// </summary>
+        /// <returns>A new <see cref="Document" /> with a reference count of 1.</returns>
+        /// <remarks>You are responsible for ensuring the reference count eventually reaches 0 or memory leaks will occur.</remarks>
+        public Document CreateDocument()
+        {
+            var ptr = DirectMessage(NativeMethods.SCI_CREATEDOCUMENT);
+            return new Document { Value = ptr };
+        }
+
+        /// <summary>
+        /// Creates an <see cref="ILoader" /> object capable of loading a <see cref="Document" /> on a background (non-UI) thread.
+        /// </summary>
+        /// <param name="length">The initial number of characters to allocate.</param>
+        /// <returns>A new <see cref="ILoader" /> object, or null if the loader could not be created.</returns>
+        public ILoader CreateLoader(int length)
+        {
+            length = Helpers.ClampMin(length, 0);
+            var ptr = DirectMessage(NativeMethods.SCI_CREATELOADER, new IntPtr(length));
+            if (ptr == IntPtr.Zero)
+                return null;
+
+            return new Loader(ptr, Encoding);
         }
 
         /// <summary>
@@ -651,6 +687,19 @@ namespace ScintillaNET
         public void Redo()
         {
             DirectMessage(NativeMethods.SCI_REDO);
+        }
+
+        /// <summary>
+        /// Decreases the reference count of the specified document by 1.
+        /// </summary>
+        /// <param name="document">
+        /// The document reference count to decrease.
+        /// When a document's reference count reaches 0 it is destroyed and any associated memory released.
+        /// </param>
+        public void ReleaseDocument(Document document)
+        {
+            var ptr = document.Value;
+            DirectMessage(NativeMethods.SCI_RELEASEDOCUMENT, IntPtr.Zero, ptr);
         }
 
         /// <summary>
@@ -1520,6 +1569,31 @@ namespace ScintillaNET
                 // properties it's okay, but if we need them this is the place to start fixing things.
 
                 return new Size(200, 100);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current document used by the control.
+        /// </summary>
+        /// <returns>The current <see cref="Document" />.</returns>
+        /// <remarks>
+        /// Setting this property is equivalent to calling <see cref="ReleaseDocument" /> on the current document, and
+        /// calling <see cref="CreateDocument" /> if the new <paramref name="value" /> is <see cref="Document.Empty" /> or
+        /// <see cref="AddRefDocument" /> if the new <paramref name="value" /> is not <see cref="Document.Empty" />.
+        /// </remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Document Document
+        {
+            get
+            {
+                var ptr = DirectMessage(NativeMethods.SCI_GETDOCPOINTER);
+                return new Document { Value = ptr };
+            }
+            set
+            {
+                var ptr = value.Value;
+                DirectMessage(NativeMethods.SCI_SETDOCPOINTER, IntPtr.Zero, ptr);
             }
         }
 

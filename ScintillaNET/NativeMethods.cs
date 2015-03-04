@@ -166,6 +166,11 @@ namespace ScintillaNET
         public const int SC_PERFORMED_UNDO = 0x20;
         public const int SC_PERFORMED_REDO = 0x40;
 
+        // Status codes
+        public const int SC_STATUS_OK = 0;
+        public const int SC_STATUS_FAILURE = 1;
+        public const int SC_STATUS_BADALLOC = 2;
+
         // Search flags
         public const int SCFIND_WHOLEWORD = 0x2;
         public const int SCFIND_MATCHCASE = 0x4;
@@ -1125,6 +1130,27 @@ namespace ScintillaNET
         #endregion Functions
 
         #region Structures
+
+        // http://www.openrce.org/articles/full_view/23
+        // It's worth noting that this structure represents the ILoader class virtual function
+        // table (vtable), not the ILoader interface defined in ILexer.h. In this case they are
+        // identical because the ILoader class contains only functions.
+        [StructLayout(LayoutKind.Sequential)]
+        public unsafe struct ILoaderVTable
+        {
+            public ReleaseDelegate Release;
+            public AddDataDelegate AddData;
+            public ConvertToDocumentDelegate ConvertToDocument;
+
+            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            public delegate int ReleaseDelegate(IntPtr self);
+
+            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            public delegate int AddDataDelegate(IntPtr self, byte* data, int length);
+
+            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            public delegate IntPtr ConvertToDocumentDelegate(IntPtr self);
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Sci_NotifyHeader

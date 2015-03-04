@@ -93,6 +93,22 @@ namespace ScintillaNET
             return buffer;
         }
 
+        public static unsafe byte[] GetBytes(char[] text, int length, Encoding encoding, bool zeroTerminated)
+        {
+            fixed (char* cp = text)
+            {
+                var count = encoding.GetByteCount(cp, length);
+                var buffer = new byte[count + (zeroTerminated ? 1 : 0)];
+                fixed (byte* bp = buffer)
+                    encoding.GetBytes(cp, length, bp, buffer.Length);
+
+                if (zeroTerminated)
+                    buffer[buffer.Length - 1] = 0;
+
+                return buffer;
+            }
+        }
+
         public static unsafe string GetString(IntPtr bytes, int length, Encoding encoding)
         {
             var ptr = (sbyte*)bytes;
