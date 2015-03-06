@@ -55,20 +55,21 @@ The native Scintilla control has a habit of clamping input values to within acce
   2. [Defining Styles](#styles)
   3. [Setting Keywords](#keywords)
   4. [Complete Recipe](#syntax-highlighting-recipe)
-3. [Intercepting Inserted Text](#insert-check)
-4. [Displaying Line Numbers](#line-numbers)
-5. [Zooming](#zooming)
-6. [Updating Dependent Controls](#update-ui)
-7. [Find and Highlight Words](#find-highlight)
-8. [View Whitespace](#whitespace)
-9. [Increase Line Spacing](#line-spacing)
-10. [Bookmark Lines](#bookmarks)
-11. [Documents](#documents)
+3. [Basic Autocompletion](#autocompletion)
+4. [Intercepting Inserted Text](#insert-check)
+5. [Displaying Line Numbers](#line-numbers)
+6. [Zooming](#zooming)
+7. [Updating Dependent Controls](#update-ui)
+8. [Find and Highlight Words](#find-highlight)
+9. [View Whitespace](#whitespace)
+10. [Increase Line Spacing](#line-spacing)
+11. [Bookmark Lines](#bookmarks)
+12. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-12. [Using a Custom SciLexer.dll](#scilexer)
+13. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -226,6 +227,34 @@ scintilla.Lexer = Lexer.Cpp;
 scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
 scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
 ```
+
+### <a name="autocompletion"></a>Basic Autocompletion
+
+You are responsible for triggering autocompletion, Scintilla won't do it for your. This confuses a lot of developers who believe it should be automatic. But don't worry, it's not difficult.
+
+The easiest way is to monitor the `CharAdded` event—which is triggered each time a character is inserted into the document. Your application logic may then determine if the word being keyed in is a language keyword, an identifier name, or something else, and provide the appropriate list of possible autocompletion words. That's up to you.
+
+At its simplest, this is how it works:
+
+```cs
+private void scintilla_CharAdded(object sender, CharAddedEventArgs e)
+{
+    // Find the word start
+    var currentPos = scintilla.CurrentPosition;
+    var wordStartPos = scintilla.WordStartPosition(currentPos, true);
+
+    // Display the autocompletion list
+    var lenEntered = currentPos - wordStartPos;
+    if (lenEntered > 0)
+    {
+        scintilla.AutoCShow(lenEntered, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
+    }
+}
+```
+
+When you display an autocompletion list you tell Scintilla how many characters of the word being completed have already been entered. By doing this, Scintilla will narrow down the list of possible completion words and, when the user selects one of those words with the tab or enter key, automatically complete the *rest* of the word and not insert the *entire* word. That's what the code using `WordStartPosition` is doing—figuring out how many characters of the current word have already been entered.
+
+The `if (lenEntered > 0)` check is a way of making sure the user is entering a word and not just typing whitespace. If `wordStartPos` was the same as `currentPos` it would mean our caret is in the middle of whitespace, not a word. Another way to do that would be to check the `CharAddedEventArgs.Char` property.
 
 ### <a name="insert-check"></a>Intercepting Inserted Text
 
