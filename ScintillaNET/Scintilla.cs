@@ -43,6 +43,10 @@ namespace ScintillaNET
         private static readonly object savePointLeftEventKey = new object();
         private static readonly object changeAnnotationEventKey = new object();
         private static readonly object marginClickEventKey = new object();
+        private static readonly object charAddedEventKey = new object();
+        private static readonly object autoCSelectionEventKey = new object();
+        private static readonly object autoCCancelledEventKey = new object();
+        private static readonly object autoCCharDeletedEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -102,6 +106,84 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Cancels any displayed autocompletion list.
+        /// </summary>
+        /// <seealso cref="AutoCStops" />
+        public void AutoCCancel()
+        {
+            DirectMessage(NativeMethods.SCI_AUTOCCANCEL);
+        }
+
+        /// <summary>
+        /// Triggers completion of the current autocompletion word.
+        /// </summary>
+        public void AutoCComplete()
+        {
+            DirectMessage(NativeMethods.SCI_AUTOCCOMPLETE);
+        }
+
+        /// <summary>
+        /// Selects an item in the autocompletion list.
+        /// </summary>
+        /// <param name="select">
+        /// The autocompletion word to select.
+        /// If found, the word in the autocompletion list is selected and the index can be obtained by calling <see cref="AutoCCurrent" />.
+        /// If not found, the behavior is determined by <see cref="AutoCAutoHide" />.
+        /// </param>
+        /// <remarks>
+        /// Comparisons are performed according to the <see cref="AutoCIgnoreCase" /> property
+        /// and will match the first word starting with <paramref name="select" />.
+        /// </remarks>
+        /// <seealso cref="AutoCCurrent" />
+        /// <seealso cref="AutoCAutoHide" />
+        /// <seealso cref="AutoCIgnoreCase" />
+        public unsafe void AutoCSelect(string select)
+        {
+            var bytes = Helpers.GetBytes(select, Encoding, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_AUTOCSELECT, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Displays an auto completion list.
+        /// </summary>
+        /// <param name="lenEntered">The number of characters already entered to match on.</param>
+        /// <param name="list">A list of autocompletion words separated by the <see cref="AutoCSeparator" /> character.</param>
+        public unsafe void AutoCShow(int lenEntered, string list)
+        {
+            if (string.IsNullOrEmpty(list))
+                return;
+
+            lenEntered = Helpers.ClampMin(lenEntered, 0);
+            if (lenEntered > 0)
+            {
+                // Convert to bytes by counting back the specified number of characters
+                var endPos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+                var startPos = endPos;
+                for (int i = 0; i < lenEntered; i++)
+                    startPos = DirectMessage(NativeMethods.SCI_POSITIONBEFORE, new IntPtr(startPos)).ToInt32();
+
+                lenEntered = (endPos - startPos);
+            }
+
+            var bytes = Helpers.GetBytes(list, Encoding, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_AUTOCSHOW, new IntPtr(lenEntered), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Specifies the characters that will automatically cancel autocompletion without the need to call <see cref="AutoCCancel" />.
+        /// </summary>
+        /// <param name="chars">A String of the characters that will cancel autocompletion. The default is empty.</param>
+        /// <remarks>Characters specified should be limited to printable ASCII characters.</remarks>
+        public unsafe void AutoCStops(string chars)
+        {
+            var bytes = Helpers.GetBytes(chars ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_AUTOCSTOPS, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        /// <summary>
         /// Marks the beginning of a set of actions that should be treated as a single undo action.
         /// </summary>
         /// <remarks>A call to <see cref="BeginUndoAction" /> should be followed by a call to <see cref="EndUndoAction" />.</remarks>
@@ -133,6 +215,14 @@ namespace ScintillaNET
         public void ClearDocumentStyle()
         {
             DirectMessage(NativeMethods.SCI_CLEARDOCUMENTSTYLE);
+        }
+
+        /// <summary>
+        /// Removes all images registered for autocompletion lists.
+        /// </summary>
+        public void ClearRegisteredImages()
+        {
+            DirectMessage(NativeMethods.SCI_CLEARREGISTEREDIMAGES);
         }
 
         /// <summary>
@@ -522,6 +612,39 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="AutoCCancelled" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnAutoCCancelled(EventArgs e)
+        {
+            var handler = Events[autoCCancelledEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="AutoCCharDeleted" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        protected virtual void OnAutoCCharDeleted(EventArgs e)
+        {
+            var handler = Events[autoCCharDeletedEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="AutoCSelection" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="AutoCSelectionEventArgs" /> that contains the event data.</param>
+        protected virtual void OnAutoCSelection(AutoCSelectionEventArgs e)
+        {
+            var handler = Events[autoCSelectionEventKey] as EventHandler<AutoCSelectionEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="BeforeDelete" /> event.
         /// </summary>
         /// <param name="e">A <see cref="BeforeModificationEventArgs" /> that contains the event data.</param>
@@ -550,6 +673,17 @@ namespace ScintillaNET
         protected virtual void OnChangeAnnotation(ChangeAnnotationEventArgs e)
         {
             var handler = Events[changeAnnotationEventKey] as EventHandler<ChangeAnnotationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="CharAdded" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="CharAddedEventArgs" /> that contains the event data.</param>
+        protected virtual void OnCharAdded(CharAddedEventArgs e)
+        {
+            var handler = Events[charAddedEventKey] as EventHandler<CharAddedEventArgs>;
             if (handler != null)
                 handler(this, e);
         }
@@ -687,6 +821,31 @@ namespace ScintillaNET
         public void Redo()
         {
             DirectMessage(NativeMethods.SCI_REDO);
+        }
+
+        /// <summary>
+        /// Maps the specified image to a type identifer for use in an autocompletion list.
+        /// </summary>
+        /// <param name="type">The numeric identifier for this image.</param>
+        /// <param name="image">The Bitmap to use in an autocompletion list.</param>
+        /// <remarks>
+        /// The <paramref name="image" /> registered can be referenced by its <paramref name="type" /> identifer in an autocompletion
+        /// list by suffixing a word with the <see cref="AutoCTypeSeparator" /> character and the <paramref name="type" /> value. e.g.
+        /// "int?2 long?3 short?1" etc....
+        /// </remarks>
+        /// <seealso cref="AutoCTypeSeparator" />
+        public unsafe void RegisterRgbaImage(int type, Bitmap image)
+        {
+            // TODO Clamp type?
+            if (image == null)
+                return;
+
+            DirectMessage(NativeMethods.SCI_RGBAIMAGESETWIDTH, new IntPtr(image.Width));
+            DirectMessage(NativeMethods.SCI_RGBAIMAGESETHEIGHT, new IntPtr(image.Height));
+
+            var bytes = Helpers.BitmapToArgb(image);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_REGISTERRGBAIMAGE, new IntPtr(type), new IntPtr(bp));
         }
 
         /// <summary>
@@ -1111,6 +1270,22 @@ namespace ScintillaNET
                         OnUpdateUI(new UpdateUIEventArgs((UpdateChange)scn.updated));
                         break;
 
+                    case NativeMethods.SCN_CHARADDED:
+                        OnCharAdded(new CharAddedEventArgs(scn.ch));
+                        break;
+
+                    case NativeMethods.SCN_AUTOCSELECTION:
+                        OnAutoCSelection(new AutoCSelectionEventArgs(this, scn.position, scn.text));
+                        break;
+
+                    case NativeMethods.SCN_AUTOCCANCELLED:
+                        OnAutoCCancelled(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_AUTOCCHARDELETED:
+                        OnAutoCCharDeleted(EventArgs.Empty);
+                        break;
+
                     default:
                         // Not our notification
                         base.WndProc(ref m);
@@ -1135,6 +1310,44 @@ namespace ScintillaNET
                     base.WndProc(ref m);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Returns the position where a word ends, searching forward from the position specified.
+        /// </summary>
+        /// <param name="position">The zero-based document position to start searching from.</param>
+        /// <param name="onlyWordCharacters">
+        /// true to stop searching at the first non-word character regardless of whether the search started at a word or non-word character.
+        /// false to use the first character in the search as a word or non-word indicator and then search for that word or non-word boundary.
+        /// </param>
+        /// <returns>The zero-based document postion of the word boundary.</returns>
+        /// <seealso cref="WordStartPosition" />
+        public int WordEndPosition(int position, bool onlyWordCharacters)
+        {
+            var onlyWordChars = (onlyWordCharacters ? new IntPtr(1) : IntPtr.Zero);
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+            position = DirectMessage(NativeMethods.SCI_WORDENDPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
+            return Lines.ByteToCharPosition(position);
+        }
+
+        /// <summary>
+        /// Returns the position where a word starts, searching backward from the position specified.
+        /// </summary>
+        /// <param name="position">The zero-based document position to start searching from.</param>
+        /// <param name="onlyWordCharacters">
+        /// true to stop searching at the first non-word character regardless of whether the search started at a word or non-word character.
+        /// false to use the first character in the search as a word or non-word indicator and then search for that word or non-word boundary.
+        /// </param>
+        /// <returns>The zero-based document postion of the word boundary.</returns>
+        /// <seealso cref="WordEndPosition" />
+        public int WordStartPosition(int position, bool onlyWordCharacters)
+        {
+            var onlyWordChars = (onlyWordCharacters ? new IntPtr(1) : IntPtr.Zero);
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+            position = DirectMessage(NativeMethods.SCI_WORDSTARTPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
+            return Lines.ByteToCharPosition(position);
         }
 
         /// <summary>
@@ -1207,6 +1420,281 @@ namespace ScintillaNET
             {
                 var visible = (int)value;
                 DirectMessage(NativeMethods.SCI_ANNOTATIONSETVISIBLE, new IntPtr(visible));
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether there is an autocompletion list displayed.
+        /// </summary>
+        /// <returns>true if there is an active autocompletion list; otherwise, false.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool AutoCActive
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCACTIVE) != IntPtr.Zero;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to automatically cancel autocompletion when there are no viable matches.
+        /// </summary>
+        /// <returns>
+        /// true to automatically cancel autocompletion when there is no possible match; otherwise, false.
+        /// The default is true.
+        /// </returns>
+        [DefaultValue(true)]
+        [Category("Autocompletion")]
+        [Description("Whether to automatically cancel autocompletion when no match is possible.")]
+        public bool AutoCAutoHide
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETAUTOHIDE) != IntPtr.Zero;
+            }
+            set
+            {
+                var autoHide = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_AUTOCSETAUTOHIDE, autoHide);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to cancel an autocompletion if the caret moves from its initial location,
+        /// or is allowed to move to the word start.
+        /// </summary>
+        /// <returns>
+        /// true to cancel autocompletion when the caret moves.
+        /// false to allow the caret to move to the beginning of the word without cancelling autocompletion.
+        /// </returns>
+        [DefaultValue(true)]
+        [Category("Autocompletion")]
+        [Description("Whether to cancel an autocompletion if the caret moves from its initial location, or is allowed to move to the word start.")]
+        public bool AutoCCancelAtStart
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETCANCELATSTART) != IntPtr.Zero;
+            }
+            set
+            {
+                var cancel = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_AUTOCSETCANCELATSTART, cancel);
+            }
+        }
+
+        /// <summary>
+        /// Gets the index of the current autocompletion list selection.
+        /// </summary>
+        /// <returns>The zero-based index of the current autocompletion selection.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int AutoCCurrent
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETCURRENT).ToInt32();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to automatically select an item when it is the only one in an autocompletion list.
+        /// </summary>
+        /// <returns>
+        /// true to automatically choose the only autocompletion item and not display the list; otherwise, false.
+        /// The default is false.
+        /// </returns>
+        [DefaultValue(false)]
+        [Category("Autocompletion")]
+        [Description("Whether to automatically choose an autocompletion item when it is the only one in the list.")]
+        public bool AutoCChooseSingle
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETCHOOSESINGLE) != IntPtr.Zero;
+            }
+            set
+            {
+                var chooseSingle = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_AUTOCSETCHOOSESINGLE, chooseSingle);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to delete any word characters following the caret after an autocompletion.
+        /// </summary>
+        /// <returns>
+        /// true to delete any word characters following the caret after autocompletion; otherwise, false.
+        /// The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Autocompletion")]
+        [Description("Whether to delete any existing word characters following the caret after autocompletion.")]
+        public bool AutoCDropRestOfWord
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETDROPRESTOFWORD) != IntPtr.Zero;
+            }
+            set
+            {
+                var dropRestOfWord = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_AUTOCSETDROPRESTOFWORD, dropRestOfWord);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether matching characters to an autocompletion list is case-insensitive.
+        /// </summary>
+        /// <returns>true to use case-insensitive matching; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Autocompletion")]
+        [Description("Whether autocompletion word matching can ignore case.")]
+        public bool AutoCIgnoreCase
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETIGNORECASE) != IntPtr.Zero;
+            }
+            set
+            {
+                var ignoreCase = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_AUTOCSETIGNORECASE, ignoreCase);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum height of the autocompletion list measured in rows.
+        /// </summary>
+        /// <returns>The max number of rows to display in an autocompletion window. The default is 5.</returns>
+        /// <remarks>If there are more items in the list than max rows, a vertical scrollbar is shown.</remarks>
+        [DefaultValue(5)]
+        [Category("Autocompletion")]
+        [Description("The maximum number of rows to display in an autocompletion list.")]
+        public int AutoCMaxHeight
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETMAXHEIGHT).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_AUTOCSETMAXHEIGHT, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the width in characters of the autocompletion list.
+        /// </summary>
+        /// <returns>
+        /// The width of the autocompletion list expressed in characters, or 0 to automatically set the width
+        /// to the longest item. The default is 0.
+        /// </returns>
+        /// <remarks>Any items that cannot be fully displayed will be indicated with ellipsis.</remarks>
+        [DefaultValue(0)]
+        [Category("Autocompletion")]
+        [Description("The width of the autocompletion list measured in characters.")]
+        public int AutoCMaxWidth
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_AUTOCGETMAXWIDTH).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_AUTOCSETMAXWIDTH, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the autocompletion list sort order to expect when calling <see cref="AutoCShow" />.
+        /// </summary>
+        /// <returns>One of the <see cref="Order" /> enumeration values. The default is <see cref="Order.Presorted" />.</returns>
+        [DefaultValue(Order.Presorted)]
+        [Category("Autocompletion")]
+        [Description("The order of words in an autocompletion list.")]
+        public Order AutoCOrder
+        {
+            get
+            {
+                return (Order)DirectMessage(NativeMethods.SCI_AUTOCGETORDER).ToInt32();
+            }
+            set
+            {
+                var order = (int)value;
+                DirectMessage(NativeMethods.SCI_AUTOCSETORDER, new IntPtr(order));
+            }
+        }
+
+        /// <summary>
+        /// Gets the document position at the time <see cref="AutoCShow" /> was called.
+        /// </summary>
+        /// <returns>The zero-based document position at the time <see cref="AutoCShow" /> was called.</returns>
+        /// <seealso cref="AutoCShow" />
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int AutoCPosStart
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_AUTOCPOSSTART).ToInt32();
+                pos = Lines.ByteToCharPosition(pos);
+
+                return pos;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the delimiter character used to separate words in an autocompletion list.
+        /// </summary>
+        /// <returns>The separator character used when calling <see cref="AutoCShow" />. The default is the space character.</returns>
+        /// <remarks>The <paramref name="value" /> specified should be limited to printable ASCII characters.</remarks>
+        [DefaultValue(' ')]
+        [Category("Autocompletion")]
+        [Description("The autocompletion list word delimiter. The default is a space character.")]
+        public Char AutoCSeparator
+        {
+            get
+            {
+                var separator = DirectMessage(NativeMethods.SCI_AUTOCGETSEPARATOR).ToInt32();
+                return (Char)separator;
+            }
+            set
+            {
+                // The autocompletion separator character is stored as a byte within Scintilla,
+                // not a character. Thus it's possible for a user to supply a character that does
+                // not fit within a single byte. The likelyhood of this, however, seems so remote that
+                // I'm willing to risk a possible conversion error to provide a better user experience.
+                var separator = (byte)value;
+                DirectMessage(NativeMethods.SCI_AUTOCSETSEPARATOR, new IntPtr(separator));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the delimiter character used to separate words and image type identifiers in an autocompletion list.
+        /// </summary>
+        /// <returns>The separator character used to reference an image registered with <see cref="RegisterRgbaImage" />. The default is '?'.</returns>
+        /// <remarks>The <paramref name="value" /> specified should be limited to printable ASCII characters.</remarks>
+        [DefaultValue('?')]
+        [Category("Autocompletion")]
+        [Description("The autocompletion list image type delimiter.")]
+        public Char AutoCTypeSeparator
+        {
+            get
+            {
+                var separatorCharacter = DirectMessage(NativeMethods.SCI_AUTOCGETTYPESEPARATOR).ToInt32();
+                return (Char)separatorCharacter;
+            }
+            set
+            {
+                // The autocompletion type separator character is stored as a byte within Scintilla,
+                // not a character. Thus it's possible for a user to supply a character that does
+                // not fit within a single byte. The likelyhood of this, however, seems so remote that
+                // I'm willing to risk a possible conversion error to provide a better user experience.
+                var separatorCharacter = (byte)value;
+                DirectMessage(NativeMethods.SCI_AUTOCSETTYPESEPARATOR, new IntPtr(separatorCharacter));
             }
         }
 
@@ -1578,8 +2066,8 @@ namespace ScintillaNET
         /// <returns>The current <see cref="Document" />.</returns>
         /// <remarks>
         /// Setting this property is equivalent to calling <see cref="ReleaseDocument" /> on the current document, and
-        /// calling <see cref="CreateDocument" /> if the new <paramref name="value" /> is <see cref="Document.Empty" /> or
-        /// <see cref="AddRefDocument" /> if the new <paramref name="value" /> is not <see cref="Document.Empty" />.
+        /// calling <see cref="CreateDocument" /> if the new <paramref name="value" /> is <see cref="ScintillaNET.Document.Empty" /> or
+        /// <see cref="AddRefDocument" /> if the new <paramref name="value" /> is not <see cref="ScintillaNET.Document.Empty" />.
         /// </remarks>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1916,7 +2404,7 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets or sets whether to write over text rather to insert it.
+        /// Gets or sets whether to write over text rather than insert it.
         /// </summary>
         /// <return>true to write over text; otherwise, false. The default is false.</return>
         [DefaultValue(false)]
@@ -2337,6 +2825,40 @@ namespace ScintillaNET
             }
         }
 
+        /*
+        /// <summary>
+        /// Gets or sets the characters considered 'word' characters when using any word-based logic.
+        /// </summary>
+        /// <returns>A String of word characters.</returns>
+        public unsafe string WordChars
+        {
+            get
+            {
+                var length = DirectMessage(NativeMethods.SCI_GETWORDCHARS, IntPtr.Zero, IntPtr.Zero).ToInt32();
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding.UTF8);
+                }
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, IntPtr.Zero);
+                    return;
+                }
+
+                // Scintilla stores each of the characters specified in a char array which it then
+                // uses as a lookup for word matching logic. Thus, any multibyte chars wouldn't work.
+                var bytes = Helpers.GetBytes(value, Encoding.ASCII, zeroTerminated: true);
+                fixed (byte* bp = bytes)
+                    DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
+            }
+        }
+        */
+
         /// <summary>
         /// Gets or sets the line wrapping indent mode.
         /// </summary>
@@ -2500,6 +3022,58 @@ namespace ScintillaNET
         #region Events
 
         /// <summary>
+        /// Occurs when an autocompletion list is cancelled.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when an autocompletion list is cancelled.")]
+        public event EventHandler<EventArgs> AutoCCancelled
+        {
+            add
+            {
+                Events.AddHandler(autoCCancelledEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(autoCCancelledEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user deletes a character while an autocompletion list is active.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user deletes a character while an autocompletion list is active.")]
+        public event EventHandler<EventArgs> AutoCCharDeleted
+        {
+            add
+            {
+                Events.AddHandler(autoCCharDeletedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(autoCCharDeletedEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when a user has selected an item in an autocompletion list.
+        /// </summary>
+        /// <remarks>Automatic insertion can be cancelled by calling <see cref="AutoCCancel" /> from the event handler.</remarks>
+        [Category("Notifications")]
+        [Description("Occurs when a user has selected an item in an autocompletion list.")]
+        public event EventHandler<AutoCSelectionEventArgs> AutoCSelection
+        {
+            add
+            {
+                Events.AddHandler(autoCSelectionEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(autoCSelectionEventKey, value);
+            }
+        }
+
+        /// <summary>
         /// Occurs when text is about to be deleted.
         /// </summary>
         [Category("Notifications")]
@@ -2547,6 +3121,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(changeAnnotationEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user enters a text character.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user types a character.")]
+        public event EventHandler<CharAddedEventArgs> CharAdded
+        {
+            add
+            {
+                Events.AddHandler(charAddedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(charAddedEventKey, value);
             }
         }
 

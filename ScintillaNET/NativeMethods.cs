@@ -147,6 +147,10 @@ namespace ScintillaNET
         public const int SC_MARKNUM_FOLDEROPEN = 31;
         public const uint SC_MASK_FOLDERS = 0xFE000000;
 
+        public const int SC_ORDER_PRESORTED = 0;
+        public const int SC_ORDER_PERFORMSORT = 1;
+        public const int SC_ORDER_CUSTOM = 2;
+
         // Update notification reasons
         public const int SC_UPDATE_CONTENT = 0x01;
         public const int SC_UPDATE_SELECTION = 0x02;

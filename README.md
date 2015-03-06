@@ -41,7 +41,7 @@ ScintillaNET is fully documented, but since there has been such an effort made t
 Generally speaking, their API will map to ours in the following ways:
 
 + A call that has an associated 'get' and 'set' such as `SCI_GETTEXT` and `SCI_SETTEXT(value)`, will map to a similarly named property such as `Text`.
-+ A call that requires a number argument to access an item in a 'collection' such as `SCI_INDICSETSTYLE(indicatorNumber, ...)` or `SCI_STYLEGETSIZE(styleNumber, ...)`, will be accessed through an indexer such as `Indicators[0].Style` or `Styles[0].Size`.
++ A call that requires a number argument to access an item in a 'collection' such as `SCI_INDICSETFORE(indicatorNumber, ...)` or `SCI_STYLEGETSIZE(styleNumber, ...)`, will be accessed through an indexer such as `Indicators[0].ForeColor` or `Styles[0].Size`.
 
 The native Scintilla control has a habit of clamping input values to within acceptable ranges rather than throwing exceptions and so we've kept that behavior in ScintillaNET. For example, the `GotoPosition` method requires a character `position` argument. If that value is less than zero or past the end of the document it will be clamped to either `0` or the `TextLength` rather than throw an `OutOfRangeException`. This tends to result in less exceptions, but the same desired outcome.
 

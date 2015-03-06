@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotation.cs" />
+    <Compile Include="AutoCSelectionEventArgs.cs" />
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
     <Compile Include="ChangeAnnotationEventArgs.cs" />
+    <Compile Include="CharAddedEventArgs.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="ModificationEventArgs.cs" />
     <Compile Include="ModificationSource.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="Order.cs" />
     <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
       <SubType>Component</SubType>
