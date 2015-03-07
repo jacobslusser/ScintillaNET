@@ -82,7 +82,6 @@ namespace ScintillaNET
 
         // Encodings
         public const int SC_CP_UTF8 = 65001;
-        public const int SC_CP_ASCII = 20127;
 
         // Cursors
         public const int SC_CURSORNORMAL = -1;

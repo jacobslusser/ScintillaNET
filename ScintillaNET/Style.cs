@@ -24,6 +24,12 @@ namespace ScintillaNET
         /// </summary>
         public const int LineNumber = NativeMethods.STYLE_LINENUMBER;
 
+        /// <summary>
+        /// The call tip style index. Only font name, size, foreground color, background color, and character set attributes
+        /// can be used when displaying a call tip.
+        /// </summary>
+        public const int CallTip = NativeMethods.STYLE_CALLTIP;
+
         #endregion Constants
 
         #region Fields

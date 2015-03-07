@@ -201,6 +201,80 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Cancels the display of a call tip window.
+        /// </summary>
+        public void CallTipCancel()
+        {
+            DirectMessage(NativeMethods.SCI_CALLTIPCANCEL);
+        }
+
+        /// <summary>
+        /// Sets the color of highlighted text in a call tip.
+        /// </summary>
+        /// <param name="color">The new highlight text Color. The default is dark blue.</param>
+        public void CallTipSetForeHlt(Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            DirectMessage(NativeMethods.SCI_CALLTIPSETFOREHLT, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Sets the specified range of the call tip text to display in a highlighted style.
+        /// </summary>
+        /// <param name="hlStart">The zero-based index in the call tip text to start highlighting.</param>
+        /// <param name="hlEnd">The zero-based index in the call tip text to stop highlighting (exclusive).</param>
+        public void CallTipSetHlt(int hlStart, int hlEnd)
+        {
+            // Call tips are ASCII only so (fortunately) we don't need to adjust these positions
+            DirectMessage(NativeMethods.SCI_CALLTIPSETHLT, new IntPtr(hlStart), new IntPtr(hlEnd));
+        }
+
+        /// <summary>
+        /// Determines whether to display a call tip above or below text.
+        /// </summary>
+        /// <param name="above">true to display above text; otherwise, false. The default is false.</param>
+        public void CallTipSetPosition(bool above)
+        {
+            var val = (above ? new IntPtr(1) : IntPtr.Zero);
+            DirectMessage(NativeMethods.SCI_CALLTIPSETPOSITION, val);
+        }
+
+        /// <summary>
+        /// Displays a call tip window.
+        /// </summary>
+        /// <param name="posStart">The zero-based document position where the call tip window should be aligned.</param>
+        /// <param name="definition">The call tip text.</param>
+        /// <remarks>
+        /// A call tip <paramref name="definition" /> should be limited to printable ASCII characters,
+        /// line feed '\n' characters, and tab '\t' characters. Any other characters will likely display incorrectly.
+        /// </remarks>
+        public unsafe void CallTipShow(int posStart, string definition)
+        {
+            posStart = Helpers.Clamp(posStart, 0, TextLength);
+            if (definition == null)
+                return;
+
+            posStart = Lines.CharToBytePosition(posStart);
+            var bytes = Helpers.GetBytes(definition, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_CALLTIPSHOW, new IntPtr(posStart), new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Sets the call tip tab size in pixels.
+        /// </summary>
+        /// <param name="tabSize">The width in pixels of a tab '\t' character in a call tip. Specifying 0 disables special treatment of tabs.</param>
+        public void CallTipTabSize(int tabSize)
+        {
+            // To support the STYLE_CALLTIP style we call SCI_CALLTIPUSESTYLE when the control is created. At
+            // this point we're only adjusting the tab size. This breaks a bit with Scintilla convention, but
+            // that's okay because the Scintilla convention is lame.
+
+            tabSize = Helpers.ClampMin(tabSize, 0);
+            DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(tabSize));
+        }
+
+        /// <summary>
         /// Removes the selected text from the document.
         /// </summary>
         public void Clear()
@@ -310,26 +384,16 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="position">The zero-based character position to start deleting.</param>
         /// <param name="length">The number of characters to delete.</param>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="position" /> or <paramref name="length" /> is less than zero. -or-
-        /// The sum of <paramref name="position" /> and <paramref name="length" /> is greater than the document length.
-        /// </exception>
         public void DeleteRange(int position, int length)
         {
             var textLength = TextLength;
-
-            if (position < 0)
-                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
-            if (position > textLength)
-                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
-            if (length < 0)
-                throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
-            if (position + length > textLength)
-                throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
+            position = Helpers.Clamp(position, 0, textLength);
+            length = Helpers.Clamp(length, 0, textLength - position);
 
             // Convert to byte position/length
             var byteStartPos = Lines.CharToBytePosition(position);
             var byteEndPos = Lines.CharToBytePosition(position + length);
+
             DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
         }
 
@@ -484,26 +548,16 @@ namespace ScintillaNET
         /// <param name="position">The zero-based starting character position of the range to get.</param>
         /// <param name="length">The number of characters to get.</param>
         /// <returns>A string representing the text range.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="position" /> or <paramref name="length" /> is less than zero. -or-
-        /// The sum of <paramref name="position" /> and <paramref name="length" /> is greater than the document length.
-        /// </exception>
         public unsafe string GetTextRange(int position, int length)
         {
             var textLength = TextLength;
-
-            if (position < 0)
-                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
-            if (position > textLength)
-                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
-            if (length < 0)
-                throw new ArgumentOutOfRangeException("length", "Length cannot be less than zero.");
-            if (position + length > textLength)
-                throw new ArgumentOutOfRangeException("length", "Position and length must refer to a range within the document.");
+            position = Helpers.Clamp(position, 0, textLength);
+            length = Helpers.Clamp(length, 0, textLength - position);
 
             // Convert to byte position/length
             var byteStartPos = Lines.CharToBytePosition(position);
             var byteEndPos = Lines.CharToBytePosition(position + length);
+
             var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
             if (ptr == IntPtr.Zero)
                 return string.Empty;
@@ -744,6 +798,9 @@ namespace ScintillaNET
 
             // The default tab width of 8 is crazy big
             DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(4));
+
+            // Enable support for the call tip style and tabs
+            DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
 
             base.OnHandleCreated(e);
         }
@@ -1182,10 +1239,6 @@ namespace ScintillaNET
         /// Prepares for styling by setting the styling <paramref name="position" /> to start at.
         /// </summary>
         /// <param name="position">The zero-based character position in the document to start styling.</param>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="position" /> is less than zero. -or-
-        /// <paramref name="position" /> is greater than the document length.
-        /// </exception>
         /// <remarks>
         /// After preparing the document for styling, use successive calls to <see cref="SetStyling" />
         /// to style the document.
@@ -1193,13 +1246,7 @@ namespace ScintillaNET
         /// <seealso cref="SetStyling" />
         public void StartStyling(int position)
         {
-            var textLength = TextLength;
-
-            if (position < 0)
-                throw new ArgumentOutOfRangeException("position", "Position cannot be less than zero.");
-            if (position > textLength)
-                throw new ArgumentOutOfRangeException("position", "Position cannot exceed document length.");
-
+            position = Helpers.Clamp(position, 0, TextLength);
             var pos = Lines.CharToBytePosition(position);
             DirectMessage(NativeMethods.SCI_STARTSTYLING, new IntPtr(pos));
 
@@ -1429,12 +1476,7 @@ namespace ScintillaNET
             }
             set
             {
-                var textLength = TextLength;
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException("value", "Value cannot be less than zero.");
-                if (value > textLength)
-                    throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
-
+                value = Helpers.Clamp(value, 0, TextLength);
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(bytePos));
             }
@@ -1786,6 +1828,46 @@ namespace ScintillaNET
             }
         }
 
+        /*
+        /// <summary>
+        /// Gets or sets the current position of a call tip.
+        /// </summary>
+        /// <returns>The zero-based document position indicated when <see cref="CallTipShow" /> was called to display a call tip.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int CallTipPosStart
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_CALLTIPPOSSTART).ToInt32();
+                if (pos < 0)
+                    return pos;
+
+                return Lines.ByteToCharPosition(pos);
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, TextLength);
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_CALLTIPSETPOSSTART, new IntPtr(value));
+            }
+        }
+        */
+
+        /// <summary>
+        /// Gets a value indicating whether there is a call tip window displayed.
+        /// </summary>
+        /// <returns>true if there is an active call tip window; otherwise, false.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool CallTipActive
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_CALLTIPACTIVE) != IntPtr.Zero;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether there is text on the clipboard that can be pasted into the document.
         /// </summary>
@@ -2056,12 +2138,7 @@ namespace ScintillaNET
             }
             set
             {
-                var textLength = TextLength;
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException("value", "Value cannot be less than zero.");
-                if (value > textLength)
-                    throw new ArgumentOutOfRangeException("value", "Value cannot exceed document length.");
-
+                value = Helpers.Clamp(value, 0, TextLength);
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(bytePos));
             }
