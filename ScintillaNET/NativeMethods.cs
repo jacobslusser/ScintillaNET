@@ -175,6 +175,9 @@ namespace ScintillaNET
         public const int SC_STATUS_FAILURE = 1;
         public const int SC_STATUS_BADALLOC = 2;
 
+        // Dwell
+        public const int SC_TIME_FOREVER = 10000000;
+
         // Search flags
         public const int SCFIND_WHOLEWORD = 0x2;
         public const int SCFIND_MATCHCASE = 0x4;

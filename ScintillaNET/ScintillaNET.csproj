@@ -53,6 +53,7 @@
     <Compile Include="ChangeAnnotationEventArgs.cs" />
     <Compile Include="CharAddedEventArgs.cs" />
     <Compile Include="Document.cs" />
+    <Compile Include="DwellEventArgs.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="GapBuffer.cs" />

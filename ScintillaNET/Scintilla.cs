@@ -47,6 +47,8 @@ namespace ScintillaNET
         private static readonly object autoCSelectionEventKey = new object();
         private static readonly object autoCCancelledEventKey = new object();
         private static readonly object autoCCharDeletedEventKey = new object();
+        private static readonly object dwellStartEventKey = new object();
+        private static readonly object dwellEndEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -58,6 +60,11 @@ namespace ScintillaNET
         // Modified event optimization
         private int? cachedPosition = null;
         private string cachedText = null;
+
+        /// <summary>
+        /// A constant used to specify an infinite mouse dwell wait time.
+        /// </summary>
+        public const int TimeForever = NativeMethods.SC_TIME_FOREVER;
 
         #endregion Fields
 
@@ -700,6 +707,28 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="DwellEnd" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="DwellEventArgs" /> that contains the event data.</param>
+        protected virtual void OnDwellEnd(DwellEventArgs e)
+        {
+            var handler = Events[dwellEndEventKey] as EventHandler<DwellEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="DwellStart" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="DwellEventArgs" /> that contains the event data.</param>
+        protected virtual void OnDwellStart(DwellEventArgs e)
+        {
+            var handler = Events[dwellStartEventKey] as EventHandler<DwellEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the HandleCreated event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
@@ -1284,6 +1313,14 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_AUTOCCHARDELETED:
                         OnAutoCCharDeleted(EventArgs.Empty);
+                        break;
+
+                    case NativeMethods.SCN_DWELLSTART:
+                        OnDwellStart(new DwellEventArgs(this, scn.position, scn.x, scn.y));
+                        break;
+
+                    case NativeMethods.SCN_DWELLEND:
+                        OnDwellEnd(new DwellEventArgs(this, scn.position, scn.x, scn.y));
                         break;
 
                     default:
@@ -2404,6 +2441,29 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the time in milliseconds the mouse must linger to generate a <see cref="DwellStart" /> event.
+        /// </summary>
+        /// <returns>
+        /// The time in milliseconds the mouse must linger to generate a <see cref="DwelStart" /> event
+        /// or <see cref="Scintilla.TimeForever" /> if dwell events are disabled.
+        /// .</returns>
+        [DefaultValue(TimeForever)]
+        [Category("Behavior")]
+        [Description("The time in milliseconds the mouse must linger to generate a dwell start event. A value of 10000000 disables dwell events.")]
+        public int MouseDwellTime
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETMOUSEDWELLTIME).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETMOUSEDWELLTIME, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to write over text rather than insert it.
         /// </summary>
         /// <return>true to write over text; otherwise, false. The default is false.</return>
@@ -3155,6 +3215,40 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(deleteEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the mouse moves or another activity such as a key press ends a <see cref="DwellStart" /> event.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the mouse moves from its dwell start position.")]
+        public event EventHandler<DwellEventArgs> DwellEnd
+        {
+            add
+            {
+                Events.AddHandler(dwellEndEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(dwellEndEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the mouse is kept in one position (hovers) for the <see cref="MouseDwellTime" />.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the mouse is kept in one position (hovers) for a period of time.")]
+        public event EventHandler<DwellEventArgs> DwellStart
+        {
+            add
+            {
+                Events.AddHandler(dwellStartEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(dwellStartEventKey, value);
             }
         }
 
