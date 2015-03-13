@@ -1204,6 +1204,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties
+        /// </summary>
+        /// <param name="start">The zero-based character position within the document to start a search or replace operation.</param>
+        /// <param name="end">The zero-based character position within the document to end a search or replace operation.</param>
+        /// <seealso cref="TargetStart" />
+        /// <seealso cref="TargetEnd" />
+        public void SetTargetRange(int start, int end)
+        {
+            var textLength = TextLength;
+            start = Helpers.Clamp(start, 0, textLength);
+            end = Helpers.Clamp(end, 0, textLength);
+
+            start = Lines.CharToBytePosition(start);
+            end = Lines.CharToBytePosition(end);
+
+            DirectMessage(NativeMethods.SCI_SETTARGETRANGE, new IntPtr(start), new IntPtr(end));
+        }
+
+        /// <summary>
         /// Sets a global override to the whitespace background color.
         /// </summary>
         /// <param name="use">true to override the whitespace background color; otherwise, false.</param>
@@ -2808,6 +2827,37 @@ namespace ScintillaNET
 
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(bytePos));
+            }
+        }
+
+        /// <summary>
+        /// Gets the current target text.
+        /// </summary>
+        /// <returns>A String representing the text between <see cref="TargetStart" /> and <see cref="TargetEnd" />.</returns>
+        /// <remarks>Targets which have a start position equal or greater to the end position will return an empty String.</remarks>
+        /// <seealso cref="TargetStart" />
+        /// <seealso cref="TargetEnd" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public unsafe string TargetText
+        {
+            get
+            {
+                // I'm unsure whether it's better to use the actual SCI_GETTARGETTEXT call which creates a intermediate buffer or
+                // implement our own equivalent using SCI_GETTARGETSTART, SCI_GETTARGETEND, and SCI_GETRANGEPOINTER. For now we'll
+                // stick SCI_GETTARGETTEXT because there is a lot of work in range checking the target start and end that we don't
+                // have to do if we use that.
+
+                var length = DirectMessage(NativeMethods.SCI_GETTARGETTEXT).ToInt32();
+                if (length == 0)
+                    return string.Empty;
+
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETTARGETTEXT, IntPtr.Zero, new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding);
+                }
             }
         }
 

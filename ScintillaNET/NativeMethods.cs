@@ -826,6 +826,8 @@ namespace ScintillaNET
         public const int SCI_SETREPRESENTATION = 2665;
         public const int SCI_GETREPRESENTATION = 2666;
         public const int SCI_CLEARREPRESENTATION = 2667;
+        public const int SCI_SETTARGETRANGE = 2686;
+        public const int SCI_GETTARGETTEXT = 2687;
         public const int SCI_STARTRECORD = 3001;
         public const int SCI_STOPRECORD = 3002;
         public const int SCI_SETLEXER = 4001;
