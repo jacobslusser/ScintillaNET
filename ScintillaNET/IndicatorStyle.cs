@@ -83,6 +83,22 @@ namespace ScintillaNET
         /// <summary>
         /// A 2-pixel thick underline with 1 pixel insets on either side.
         /// </summary>
-        CompositionThick = NativeMethods.INDIC_COMPOSITIONTHICK
+        CompositionThick = NativeMethods.INDIC_COMPOSITIONTHICK,
+
+        /// <summary>
+        /// A 1-pixel thick underline with 1 pixel insets on either side.
+        /// </summary>
+        CompositionThin = NativeMethods.INDIC_COMPOSITIONTHIN,
+
+        /// <summary>
+        /// A rectangle around the entire character area. The rectangle outline and fill transparencies can be adjusted using
+        /// <see cref="Indicator.Alpha" /> and <see cref="Indicator.OutlineAlpha"/>.
+        /// </summary>
+        FullBox = NativeMethods.INDIC_FULLBOX,
+
+        /// <summary>
+        /// An indicator that will change the foreground color of text to the foreground color of the indicator.
+        /// </summary>
+        TextFore = NativeMethods.INDIC_TEXTFORE
     }
 }

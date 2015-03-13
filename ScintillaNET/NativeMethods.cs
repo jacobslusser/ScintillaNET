@@ -61,6 +61,9 @@ namespace ScintillaNET
         public const int INDIC_DOTBOX = 12;
         public const int INDIC_SQUIGGLEPIXMAP = 13;
         public const int INDIC_COMPOSITIONTHICK = 14;
+        public const int INDIC_COMPOSITIONTHIN = 15;
+        public const int INDIC_FULLBOX = 16;
+        public const int INDIC_TEXTFORE = 17;
         public const int INDIC_MAX = 31;
         public const int INDIC_CONTAINER = 8;
         // public const int INDIC0_MASK = 0x20;
