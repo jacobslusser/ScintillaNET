@@ -61,6 +61,7 @@
     <Compile Include="ILoader.cs" />
     <Compile Include="Indicator.cs" />
     <Compile Include="IndicatorCollection.cs" />
+    <Compile Include="IndicatorFlags.cs" />
     <Compile Include="IndicatorStyle.cs" />
     <Compile Include="InsertCheckEventArgs.cs" />
     <Compile Include="Lexer.cs" />

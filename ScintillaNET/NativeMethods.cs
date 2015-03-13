@@ -66,6 +66,12 @@ namespace ScintillaNET
         public const int INDIC_TEXTFORE = 17;
         public const int INDIC_MAX = 31;
         public const int INDIC_CONTAINER = 8;
+
+        // Indicator flags
+        public const int SC_INDICFLAG_VALUEFORE = 1;
+        public const int SC_INDICVALUEBIT = 0x1000000;
+        public const int SC_INDICVALUEMASK = 0xFFFFFF;
+
         // public const int INDIC0_MASK = 0x20;
         // public const int INDIC1_MASK = 0x40;
         // public const int INDIC2_MASK = 0x80;
@@ -317,6 +323,8 @@ namespace ScintillaNET
         public const int SCI_INDICGETHOVERSTYLE = 2681;
         public const int SCI_INDICSETHOVERFORE = 2682;
         public const int SCI_INDICGETHOVERFORE = 2683;
+        public const int SCI_INDICSETFLAGS = 2684;
+        public const int SCI_INDICGETFLAGS = 2685;
         public const int SCI_SETWHITESPACEFORE = 2084;
         public const int SCI_SETWHITESPACEBACK = 2085;
         public const int SCI_SETWHITESPACESIZE = 2086;

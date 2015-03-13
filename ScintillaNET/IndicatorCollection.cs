@@ -15,40 +15,6 @@ namespace ScintillaNET
         private readonly Scintilla scintilla;
 
         /// <summary>
-        /// Removes the <see cref="Current" /> indiciator from the specified range of text.
-        /// </summary>
-        /// <param name="position">The zero-based character position within the document to start clearing.</param>
-        /// <param name="length">The number of characters to clear.</param>
-        public void ClearRange(int position, int length)
-        {
-            var textLength = scintilla.TextLength;
-            position = Helpers.Clamp(position, 0, textLength);
-            length = Helpers.Clamp(length, 0, textLength - position);
-
-            var startPos = scintilla.Lines.CharToBytePosition(position);
-            var endPos = scintilla.Lines.CharToBytePosition(position + length);
-
-            scintilla.DirectMessage(NativeMethods.SCI_INDICATORCLEARRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
-        }
-
-        /// <summary>
-        /// Adds the <see cref="Current" /> indicator to the specified range of text.
-        /// </summary>
-        /// <param name="position">The zero-based character position within the document to start filling.</param>
-        /// <param name="length">The number of characters to fill.</param>
-        public void FillRange(int position, int length)
-        {
-            var textLength = scintilla.TextLength;
-            position = Helpers.Clamp(position, 0, textLength);
-            length = Helpers.Clamp(length, 0, textLength - position);
-
-            var startPos = scintilla.Lines.CharToBytePosition(position);
-            var endPos = scintilla.Lines.CharToBytePosition(position + length);
-
-            scintilla.DirectMessage(NativeMethods.SCI_INDICATORFILLRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
-        }
-
-        /// <summary>
         /// Provides an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>An object that contains all <see cref="Indicator" /> objects within the <see cref="IndicatorCollection" />.</returns>
@@ -77,25 +43,6 @@ namespace ScintillaNET
             get
             {
                 return (NativeMethods.INDIC_MAX + 1);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the indicator used in a subsequent call to <see cref="FillRange" /> or <see cref="ClearRange" />.
-        /// </summary>
-        /// <returns>The current indicator index.</returns>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int Current
-        {
-            get
-            {
-                return scintilla.DirectMessage(NativeMethods.SCI_GETINDICATORCURRENT).ToInt32();
-            }
-            set
-            {
-                value = Helpers.Clamp(value, 0, Count - 1);
-                scintilla.DirectMessage(NativeMethods.SCI_SETINDICATORCURRENT, new IntPtr(value));
             }
         }
 

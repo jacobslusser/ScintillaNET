@@ -13,6 +13,17 @@ namespace ScintillaNET
     {
         private readonly Scintilla scintilla;
 
+        /// <summary>
+        /// An OR mask to use with <see cref="Scintilla.IndicatorValue" /> and <see cref="IndicatorFlags.ValueFore" /> to indicate
+        /// that the user-defined indicator value should be treated as a RGB color.
+        /// </summary>
+        public const int ValueBit = NativeMethods.SC_INDICVALUEBIT;
+
+        /// <summary>
+        /// An AND mask to use with <see cref="Indicator.ValueAt" /> to retrieve the user-defined value as a RGB color when being treated as such.
+        /// </summary>
+        public const int ValueMask = NativeMethods.SC_INDICVALUEMASK;
+
         /*
         /// <summary>
         /// Given a position within a text range using this indicator, will return
@@ -38,6 +49,19 @@ namespace ScintillaNET
         */
 
         /// <summary>
+        /// Returns the user-defined value for the indicator at the specified position.
+        /// </summary>
+        /// <param name="position">The zero-based document position to get the indicator value for.</param>
+        /// <returns>The user-defined value at the specified <paramref name="position" />.</returns>
+        public int ValueAt(int position)
+        {
+            position = Helpers.Clamp(position, 0, scintilla.TextLength);
+            position = scintilla.Lines.CharToBytePosition(position);
+
+            return scintilla.DirectMessage(NativeMethods.SCI_INDICATORVALUEAT, new IntPtr(Index), new IntPtr(position)).ToInt32();
+        }
+
+        /// <summary>
         /// Gets or sets the alpha transparency of the indicator.
         /// </summary>
         /// <returns>
@@ -54,6 +78,26 @@ namespace ScintillaNET
             {
                 value = Helpers.Clamp(value, 0, 255);
                 scintilla.DirectMessage(NativeMethods.SCI_INDICSETALPHA, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the indicator flags.
+        /// </summary>
+        /// <returns>
+        /// A bitwise combination of the <see cref="IndicatorFlags" /> enumeration.
+        /// The default is <see cref="IndicatorFlags.None" />.
+        /// </returns>
+        public IndicatorFlags Flags
+        {
+            get
+            {
+                return (IndicatorFlags)scintilla.DirectMessage(NativeMethods.SCI_INDICGETFLAGS, new IntPtr(Index));
+            }
+            set
+            {
+                int flags = (int)value;
+                scintilla.DirectMessage(NativeMethods.SCI_INDICSETFLAGS, new IntPtr(Index), new IntPtr(flags));
             }
         }
 

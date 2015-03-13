@@ -346,8 +346,8 @@ private void HighlightWord(string text)
     const int NUM = 8;
 
     // Remove all uses of our indicator
-    scintilla.Indicators.Current = NUM;
-    scintilla.Indicators.ClearRange(0, scintilla.TextLength);
+    scintilla.IndicatorCurrent = NUM;
+    scintilla.IndicatorClearRange(0, scintilla.TextLength);
 
     // Update indicator appearance
     scintilla.Indicators[NUM].Style = IndicatorStyle.StraightBox;
@@ -362,7 +362,7 @@ private void HighlightWord(string text)
     while (scintilla.SearchInTarget(text) != -1)
     {
         // Mark the search results with the current indicator
-        scintilla.Indicators.FillRange(scintilla.TargetStart, scintilla.TargetEnd - scintilla.TargetStart);
+        scintilla.IndicatorFillRange(scintilla.TargetStart, scintilla.TargetEnd - scintilla.TargetStart);
 
         // Search the remainder of the document
         scintilla.TargetStart = scintilla.TargetEnd;
@@ -371,7 +371,7 @@ private void HighlightWord(string text)
 }
 ```
 
-This example also illustrates the "set-once, run-many" style API that Scintilla is known for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `Indicators.Current` property is first set and then subsequent calls to `Indicators.ClearRange` and `Indicators.FillRange` make use of that value.
+This example also illustrates the "set-once, run-many" style API that Scintilla is known for. When performing a search, the `TargetStart` and `TargetEnd` properties are set to indicate the search range prior to calling `SearchInTarget`. The indicators API is similar. The `IndicatorCurrent` property is first set and then subsequent calls to `IndicatorClearRange` and `IndicatorFillRange` make use of that value.
 
 *NOTE: Indicators and styles can be used simultaneously.*
 

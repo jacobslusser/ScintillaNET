@@ -591,6 +591,40 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Removes the <see cref="IndicatorCurrent" /> indicator (and user-defined value) from the specified range of text.
+        /// </summary>
+        /// <param name="position">The zero-based character position within the document to start clearing.</param>
+        /// <param name="length">The number of characters to clear.</param>
+        public void IndicatorClearRange(int position, int length)
+        {
+            var textLength = TextLength;
+            position = Helpers.Clamp(position, 0, textLength);
+            length = Helpers.Clamp(length, 0, textLength - position);
+
+            var startPos = Lines.CharToBytePosition(position);
+            var endPos = Lines.CharToBytePosition(position + length);
+
+            DirectMessage(NativeMethods.SCI_INDICATORCLEARRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
+        }
+
+        /// <summary>
+        /// Adds the <see cref="IndicatorCurrent" /> indicator and <see cref="IndicatorValue" /> value to the specified range of text.
+        /// </summary>
+        /// <param name="position">The zero-based character position within the document to start filling.</param>
+        /// <param name="length">The number of characters to fill.</param>
+        public void IndicatorFillRange(int position, int length)
+        {
+            var textLength = TextLength;
+            position = Helpers.Clamp(position, 0, textLength);
+            length = Helpers.Clamp(length, 0, textLength - position);
+
+            var startPos = Lines.CharToBytePosition(position);
+            var endPos = Lines.CharToBytePosition(position + length);
+
+            DirectMessage(NativeMethods.SCI_INDICATORFILLRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
+        }
+
+        /// <summary>
         /// Inserts text at the specified position.
         /// </summary>
         /// <param name="position">The zero-based character position to insert the text. Specify -1 to use the current caret position.</param>
@@ -2451,12 +2485,49 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the indicator used in a subsequent call to <see cref="IndicatorFillRange" /> or <see cref="IndicatorClearRange" />.
+        /// </summary>
+        /// <returns>The zero-based indicator index to apply when calling <see cref="IndicatorFillRange" /> or remove when calling <see cref="IndicatorClearRange" />.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int IndicatorCurrent
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETINDICATORCURRENT).ToInt32();
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, Indicators.Count - 1);
+                DirectMessage(NativeMethods.SCI_SETINDICATORCURRENT, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets a collection of objects for working with indicators.
         /// </summary>
         /// <returns>A collection of <see cref="Indicator" /> objects.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IndicatorCollection Indicators { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the user-defined value used in a subsequent call to <see cref="IndicatorFillRange" />.
+        /// </summary>
+        /// <returns>The indicator value to apply when calling <see cref="IndicatorFillRange" />.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int IndicatorValue
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETINDICATORVALUE).ToInt32();
+            }
+            set
+            {
+                DirectMessage(NativeMethods.SCI_SETINDICATORVALUE, new IntPtr(value));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current lexer.
@@ -2540,7 +2611,7 @@ namespace ScintillaNET
         /// Gets or sets the time in milliseconds the mouse must linger to generate a <see cref="DwellStart" /> event.
         /// </summary>
         /// <returns>
-        /// The time in milliseconds the mouse must linger to generate a <see cref="DwelStart" /> event
+        /// The time in milliseconds the mouse must linger to generate a <see cref="DwellStart" /> event
         /// or <see cref="Scintilla.TimeForever" /> if dwell events are disabled.
         /// .</returns>
         [DefaultValue(TimeForever)]
