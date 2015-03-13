@@ -313,6 +313,10 @@ namespace ScintillaNET
         public const int SCI_INDICGETFORE = 2083;
         public const int SCI_INDICSETUNDER = 2510;
         public const int SCI_INDICGETUNDER = 2511;
+        public const int SCI_INDICSETHOVERSTYLE = 2680;
+        public const int SCI_INDICGETHOVERSTYLE = 2681;
+        public const int SCI_INDICSETHOVERFORE = 2682;
+        public const int SCI_INDICGETHOVERFORE = 2683;
         public const int SCI_SETWHITESPACEFORE = 2084;
         public const int SCI_SETWHITESPACEBACK = 2085;
         public const int SCI_SETWHITESPACESIZE = 2086;

@@ -61,6 +61,8 @@ namespace ScintillaNET
         /// Gets or sets the color used to draw an indicator.
         /// </summary>
         /// <returns>The Color used to draw an indicator. The default varies.</returns>
+        /// <remarks>Changing the <see cref="ForeColor" /> property will reset the <see cref="HoverForeColor" />.</remarks>
+        /// <seealso cref="HoverForeColor" />
         public Color ForeColor
         {
             get
@@ -72,6 +74,51 @@ namespace ScintillaNET
             {
                 var color = ColorTranslator.ToWin32(value);
                 scintilla.DirectMessage(NativeMethods.SCI_INDICSETFORE, new IntPtr(Index), new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the color used to draw an indicator when the mouse or caret is over an indicator.
+        /// </summary>
+        /// <returns>
+        /// The Color used to draw an indicator.
+        /// By default, the hover style is equal to the regular <see cref="ForeColor" />.
+        /// </returns>
+        /// <remarks>Changing the <see cref="ForeColor" /> property will reset the <see cref="HoverForeColor" />.</remarks>
+        /// <seealso cref="ForeColor" />
+        public Color HoverForeColor
+        {
+            get
+            {
+                var color = scintilla.DirectMessage(NativeMethods.SCI_INDICGETHOVERFORE, new IntPtr(Index)).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                var color = ColorTranslator.ToWin32(value);
+                scintilla.DirectMessage(NativeMethods.SCI_INDICSETHOVERFORE, new IntPtr(Index), new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the indicator style used when the mouse or caret is over an indicator.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.IndicatorStyle" /> enumeration values.
+        /// By default, the hover style is equal to the regular <see cref="Style" />.
+        /// </returns>
+        /// <remarks>Changing the <see cref="Style" /> property will reset the <see cref="HoverStyle" />.</remarks>
+        /// <seealso cref="Style" />
+        public IndicatorStyle HoverStyle
+        {
+            get
+            {
+                return (IndicatorStyle)scintilla.DirectMessage(NativeMethods.SCI_INDICGETHOVERSTYLE, new IntPtr(Index));
+            }
+            set
+            {
+                var style = (int)value;
+                scintilla.DirectMessage(NativeMethods.SCI_INDICSETHOVERSTYLE, new IntPtr(Index), new IntPtr(style));
             }
         }
 
@@ -105,6 +152,8 @@ namespace ScintillaNET
         /// Gets or sets the indicator style.
         /// </summary>
         /// <returns>One of the <see cref="ScintillaNET.IndicatorStyle" /> enumeration values. The default varies.</returns>
+        /// <remarks>Changing the <see cref="Style" /> property will reset the <see cref="HoverStyle" />.</remarks>
+        /// <seealso cref="HoverStyle" />
         public IndicatorStyle Style
         {
             get
