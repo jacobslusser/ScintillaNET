@@ -275,6 +275,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Indicates to the current <see cref="Lexer" /> that the internal lexer state has changed in the specified
+        /// range and therefore may need to be redrawn.
+        /// </summary>
+        /// <param name="startPos">The zero-based document position at which the lexer state change starts.</param>
+        /// <param name="endPos">The zero-based document position at which the lexer state change ends.</param>
+        public void ChangeLexerState(int startPos, int endPos)
+        {
+            var textLength = TextLength;
+            startPos = Helpers.Clamp(startPos, 0, textLength);
+            endPos = Helpers.Clamp(endPos, 0, textLength);
+
+            startPos = Lines.CharToBytePosition(startPos);
+            endPos = Lines.CharToBytePosition(endPos);
+
+            DirectMessage(NativeMethods.SCI_CHANGELEXERSTATE, new IntPtr(startPos), new IntPtr(endPos));
+        }
+
+        /// <summary>
         /// Removes the selected text from the document.
         /// </summary>
         public void Clear()
@@ -304,6 +322,24 @@ namespace ScintillaNET
         public void ClearRegisteredImages()
         {
             DirectMessage(NativeMethods.SCI_CLEARREGISTEREDIMAGES);
+        }
+
+        /// <summary>
+        /// Requests that the current lexer restyle the specified range.
+        /// </summary>
+        /// <param name="startPos">The zero-based document position at which to start styling.</param>
+        /// <param name="endPos">The zero-based document position at which to stop styling (exclusive).</param>
+        /// <remarks>This will also cause fold levels in the range specified to be reset.</remarks>
+        public void Colorize(int startPos, int endPos)
+        {
+            var textLength = TextLength;
+            startPos = Helpers.Clamp(startPos, 0, textLength);
+            endPos = Helpers.Clamp(endPos, 0, textLength);
+
+            startPos = Lines.CharToBytePosition(startPos);
+            endPos = Lines.CharToBytePosition(endPos);
+
+            DirectMessage(NativeMethods.SCI_COLOURISE, new IntPtr(startPos), new IntPtr(endPos));
         }
 
         /// <summary>
@@ -398,7 +434,7 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Retreives a description of keyword sets supported by the current <see cref="Lexer" />.
+        /// Retrieves a description of keyword sets supported by the current <see cref="Lexer" />.
         /// </summary>
         /// <returns>A String describing each keyword set separated by line breaks for the current lexer.</returns>
         public unsafe string DescribeKeywordSets()
@@ -411,6 +447,33 @@ namespace ScintillaNET
 
             var str = Encoding.ASCII.GetString(bytes, 0, length);
             return str;
+        }
+
+        /// <summary>
+        /// Retrieves a brief description of the specified property name for the current <see cref="Lexer" />.
+        /// </summary>
+        /// <param name="name">A property name supported by the current <see cref="Lexer" />.</param>
+        /// <returns>A String describing the lexer property name if found; otherwise, String.Empty.</returns>
+        /// <remarks>A list of supported property names for the current <see cref="Lexer" /> can be obtained by calling <see cref="PropertyNames" />.</remarks>
+        public unsafe string DescribeProperty(string name)
+        {
+            if (String.IsNullOrEmpty(name))
+                return String.Empty;
+
+            var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* nb = nameBytes)
+            {
+                var length = DirectMessage(NativeMethods.SCI_DESCRIBEPROPERTY, new IntPtr(nb), IntPtr.Zero).ToInt32();
+                if (length == 0)
+                    return string.Empty;
+
+                var descriptionBytes = new byte[length + 1];
+                fixed (byte* db = descriptionBytes)
+                {
+                    DirectMessage(NativeMethods.SCI_DESCRIBEPROPERTY, new IntPtr(nb), new IntPtr(db));
+                    return Helpers.GetString(new IntPtr(db), length, Encoding.ASCII);
+                }
+            }
         }
 
         internal IntPtr DirectMessage(int msg)
@@ -543,6 +606,86 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Lookup a property value for the current <see cref="Lexer" />.
+        /// </summary>
+        /// <param name="name">The property name to lookup.</param>
+        /// <returns>
+        /// A String representing the property value if found; otherwise, String.Empty.
+        /// Any embedded property name macros as described in <see cref="SetProperty" /> will not be replaced (expanded).
+        /// </returns>
+        /// <seealso cref="GetPropertyExpanded" />
+        public unsafe string GetProperty(string name)
+        {
+            if (String.IsNullOrEmpty(name))
+                return String.Empty;
+
+            var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* nb = nameBytes)
+            {
+                var length = DirectMessage(NativeMethods.SCI_GETPROPERTY, new IntPtr(nb)).ToInt32();
+                if (length == 0)
+                    return String.Empty;
+
+                var valueBytes = new byte[length + 1];
+                fixed (byte* vb = valueBytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETPROPERTY, new IntPtr(nb), new IntPtr(vb));
+                    return Helpers.GetString(new IntPtr(vb), length, Encoding.ASCII);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Lookup a property value for the current <see cref="Lexer" /> and expand any embedded property macros.
+        /// </summary>
+        /// <param name="name">The property name to lookup.</param>
+        /// <returns>
+        /// A String representing the property value if found; otherwise, String.Empty.
+        /// Any embedded property name macros as described in <see cref="SetProperty" /> will be replaced (expanded).
+        /// </returns>
+        /// <seealso cref="GetProperty" />
+        public unsafe string GetPropertyExpanded(string name)
+        {
+            if (String.IsNullOrEmpty(name))
+                return String.Empty;
+
+            var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* nb = nameBytes)
+            {
+                var length = DirectMessage(NativeMethods.SCI_GETPROPERTYEXPANDED, new IntPtr(nb)).ToInt32();
+                if (length == 0)
+                    return String.Empty;
+
+                var valueBytes = new byte[length + 1];
+                fixed (byte* vb = valueBytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETPROPERTYEXPANDED, new IntPtr(nb), new IntPtr(vb));
+                    return Helpers.GetString(new IntPtr(vb), length, Encoding.ASCII);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Lookup a property value for the current <see cref="Lexer" /> and convert it to an integer.
+        /// </summary>
+        /// <param name="name">The property name to lookup.</param>
+        /// <param name="defaultValue">A default value to return if the property name is not found or has no value.</param>
+        /// <returns>
+        /// An Integer representing the property value if found;
+        /// otherwise, <paramref name="defaultValue" /> if not found or the property has no value;
+        /// otherwise, 0 if the property is not a number.
+        /// </returns>
+        public unsafe int GetPropertyInt(string name, int defaultValue)
+        {
+            if (String.IsNullOrEmpty(name))
+                return defaultValue;
+
+            var bytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                return DirectMessage(NativeMethods.SCI_GETPROPERTYINT, new IntPtr(bp), new IntPtr(defaultValue)).ToInt32();
+        }
+
+        /// <summary>
         /// Gets a range of text from the document.
         /// </summary>
         /// <param name="position">The zero-based starting character position of the range to get.</param>
@@ -562,8 +705,7 @@ namespace ScintillaNET
             if (ptr == IntPtr.Zero)
                 return string.Empty;
 
-            var text = new string((sbyte*)ptr, 0, length, Encoding);
-            return text;
+            return Helpers.GetString(ptr, (byteEndPos - byteStartPos), Encoding);
         }
 
         /// <summary>
@@ -675,6 +817,20 @@ namespace ScintillaNET
         public void LineScroll(int lines, int columns)
         {
             DirectMessage(NativeMethods.SCI_LINESCROLL, new IntPtr(columns), new IntPtr(lines));
+        }
+
+        /// <summary>
+        /// Loads a <see cref="Scintilla" /> compatible lexer from an external DLL.
+        /// </summary>
+        /// <param name="path">The path to the external lexer DLL.</param>
+        public unsafe void LoadLexerLibrary(string path)
+        {
+            if (String.IsNullOrEmpty(path))
+                return;
+
+            var bytes = Helpers.GetBytes(path, Encoding.Default, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_LOADLEXERLIBRARY, IntPtr.Zero, new IntPtr(bp));
         }
 
         /// <summary>
@@ -936,6 +1092,40 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Retrieves a list of property names that can be set for the current <see cref="Lexer" />.
+        /// </summary>
+        /// <returns>A String of property names separated by line breaks.</returns>
+        public unsafe string PropertyNames()
+        {
+            var length = DirectMessage(NativeMethods.SCI_PROPERTYNAMES).ToInt32();
+            if (length == 0)
+                return string.Empty;
+
+            var bytes = new byte[length + 1];
+            fixed (byte* bp = bytes)
+            {
+                DirectMessage(NativeMethods.SCI_PROPERTYNAMES, IntPtr.Zero, new IntPtr(bp));
+                return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the data type of the specified property name for the current <see cref="Lexer" />.
+        /// </summary>
+        /// <param name="name">A property name supported by the current <see cref="Lexer" />.</param>
+        /// <returns>One of the <see cref="PropertyType" /> enumeration values. The default is <see cref="PropertyType.Boolean" />.</returns>
+        /// <remarks>A list of supported property names for the current <see cref="Lexer" /> can be obtained by calling <see cref="PropertyNames" />.</remarks>
+        public unsafe PropertyType PropertyType(string name)
+        {
+            if (String.IsNullOrEmpty(name))
+                return ScintillaNET.PropertyType.Boolean;
+
+            var bytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                return (PropertyType)DirectMessage(NativeMethods.SCI_PROPERTYTYPE, new IntPtr(bp));
+        }
+
+        /// <summary>
         /// Redoes the effect of an <see cref="Undo" /> operation.
         /// </summary>
         public void Redo()
@@ -1162,6 +1352,31 @@ namespace ScintillaNET
             if (Scintilla.modulePath == null)
             {
                 Scintilla.modulePath = modulePath;
+            }
+        }
+
+        /// <summary>
+        /// Passes the specified property name-value pair to the current <see cref="Lexer" />.
+        /// </summary>
+        /// <param name="name">The property name to set.</param>
+        /// <param name="value">
+        /// The property value. Values can refer to other property names using the syntax $(name), where 'name' is another property
+        /// name for the current <see cref="Lexer" />. When the property value is retrieved by a call to <see cref="GetPropertyExpanded" />
+        /// the embedded property name macro will be replaced (expanded) with that current property value.
+        /// </param>
+        /// <remarks>Property names are case-sensitive.</remarks>
+        public unsafe void SetProperty(string name, string value)
+        {
+            if (String.IsNullOrEmpty(name))
+                return;
+
+            var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
+            var valueBytes = Helpers.GetBytes(value ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
+
+            fixed (byte* nb = nameBytes)
+            fixed (byte* vb = valueBytes)
+            {
+                DirectMessage(NativeMethods.SCI_SETPROPERTY, new IntPtr(nb), new IntPtr(vb));
             }
         }
 
@@ -2546,6 +2761,43 @@ namespace ScintillaNET
             {
                 var lexer = (int)value;
                 DirectMessage(NativeMethods.SCI_SETLEXER, new IntPtr(lexer));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current lexer by name.
+        /// </summary>
+        /// <returns>A String representing the current lexer.</returns>
+        /// <remarks>Lexer names are case-sensitive.</remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public unsafe string LexerLanguage
+        {
+            get
+            {
+                var length = DirectMessage(NativeMethods.SCI_GETLEXERLANGUAGE).ToInt32();
+                if (length == 0)
+                    return string.Empty;
+
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
+                }
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    DirectMessage(NativeMethods.SCI_SETLEXERLANGUAGE, IntPtr.Zero, IntPtr.Zero);
+                }
+                else
+                {
+                    var bytes = Helpers.GetBytes(value, Encoding.ASCII, zeroTerminated: true);
+                    fixed (byte* bp = bytes)
+                        DirectMessage(NativeMethods.SCI_SETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
+                }
             }
         }
 

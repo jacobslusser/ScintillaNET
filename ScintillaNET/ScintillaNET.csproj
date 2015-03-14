@@ -82,6 +82,7 @@
     <Compile Include="ModificationSource.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="PropertyType.cs" />
     <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
       <SubType>Component</SubType>
