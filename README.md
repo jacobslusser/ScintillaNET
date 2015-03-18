@@ -71,6 +71,7 @@ The native Scintilla control has a habit of clamping input values to within acce
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
 14. [Using a Custom SciLexer.dll](#scilexer)
+15. [Direct Messages](#direct-message) 
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -686,6 +687,28 @@ var version = scintilla.GetVersionInfo();
 The path provided can be an absolute or relative path to SciLexer.dll.
 
 It goes without saying that the SciLexer DLL embedded with ScintillaNET has been tested with ScintillaNET; yours has not. You run a compatibility risk running a nonstandard DLL.
+
+### <a name="direct-message"></a>Direct Messages
+
+*This is an advanced topic.*
+
+At its heart Scintilla is a Win32 control. The standard convention for passing messages to any Win32 control is via the Windows [SendMessage](https://msdn.microsoft.com/en-us/library/windows/desktop/ms644950.aspx) function. The same is true of Scintilla. If for any reason you want to bypass the managed wrapper we've created with ScintillaNET you can go directly to the underlying Win32 control via the SendMessage function.
+
+Similar to the Windows SendMessage function is the `Scintilla.DirectMessage` method. It has roughly the same signature as the SendMessage function and serves the same purpose; but internally `DirectMessage` bypasses the Windows message loop to offer better performance than SendMessage. This is how ScintillaNET makes calls to the native Scintilla control.
+
+So if you're crazy enough there is nothing to stop you from finding a message constant in the original Scintilla.h C++ header file and use the `DirectMessage` method like this:
+
+```cs
+const int SCI_PAGEDOWN = 2322;
+scintilla.DirectMessage(SCI_PAGEDOWN, IntPtr.Zero, IntPtr.Zero);
+```
+
+The message above will scroll the view down one page.
+
+I have to warn you though in the strongest possible terms that you should never, **never use the `DirectMessage` method unless you are absolutely sure of what you're doing**. In some cases ScintillaNET makes assumptions about the current state of the Scintilla control and if you sidestep ScintillaNET terrible things may happen.
+> "Fire and brimstone coming down from the skies! Rivers and seas boiling! Forty years of darkness! Earthquakes, volcanoes... The dead rising from the grave! Human sacrifice, dogs and cats living together... mass hysteria!" — [Ghostbusters (1984)](http://www.imdb.com/title/tt0087332/quotes?item=qt0475882)
+
+You've been warned.
 
 ## License
 
