@@ -2046,6 +2046,30 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the automatic folding flags.
+        /// </summary>
+        /// <returns>
+        /// A bitwise combination of the <see cref="ScintillaNET.AutomaticFold" /> enumeration.
+        /// The default is <see cref="ScintillaNET.AutomaticFold.None" />.
+        /// </returns>
+        [DefaultValue(AutomaticFold.None)]
+        [Category("Behavior")]
+        [Description("Options for allowing the control to automatically handle folding.")]
+        [TypeConverter(typeof(FlagsEnumTypeConverter.FlagsEnumConverter))]
+        public AutomaticFold AutomaticFold
+        {
+            get
+            {
+                return (AutomaticFold)DirectMessage(NativeMethods.SCI_GETAUTOMATICFOLD);
+            }
+            set
+            {
+                var automaticFold = (int)value;
+                DirectMessage(NativeMethods.SCI_SETAUTOMATICFOLD, new IntPtr(automaticFold));
+            }
+        }
+
+        /// <summary>
         /// Not supported.
         /// </summary>
         [Browsable(false)]

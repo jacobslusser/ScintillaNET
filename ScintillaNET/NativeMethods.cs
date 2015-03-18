@@ -84,6 +84,11 @@ namespace ScintillaNET
         public const int SC_ALPHA_OPAQUE = 255;
         public const int SC_ALPHA_NOALPHA = 256;
 
+        // Automatic folding
+        public const int SC_AUTOMATICFOLD_SHOW = 0x0001;
+        public const int SC_AUTOMATICFOLD_CLICK = 0x0002;
+        public const int SC_AUTOMATICFOLD_CHANGE = 0x0004;
+
         // Caret sticky behavior
         public const int SC_CARETSTICKY_OFF = 0;
         public const int SC_CARETSTICKY_ON = 1;

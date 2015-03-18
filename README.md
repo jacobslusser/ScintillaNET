@@ -55,21 +55,22 @@ The native Scintilla control has a habit of clamping input values to within acce
   2. [Defining Styles](#styles)
   3. [Setting Keywords](#keywords)
   4. [Complete Recipe](#syntax-highlighting-recipe)
-3. [Basic Autocompletion](#autocompletion)
-4. [Intercepting Inserted Text](#insert-check)
-5. [Displaying Line Numbers](#line-numbers)
-6. [Zooming](#zooming)
-7. [Updating Dependent Controls](#update-ui)
-8. [Find and Highlight Words](#find-highlight)
-9. [View Whitespace](#whitespace)
-10. [Increase Line Spacing](#line-spacing)
-11. [Bookmark Lines](#bookmarks)
-12. [Documents](#documents)
+3. [Automatic Code Folding](#auto-folding)
+4. [Basic Autocompletion](#autocompletion)
+5. [Intercepting Inserted Text](#insert-check)
+6. [Displaying Line Numbers](#line-numbers)
+7. [Zooming](#zooming)
+8. [Updating Dependent Controls](#update-ui)
+9. [Find and Highlight Words](#find-highlight)
+10. [View Whitespace](#whitespace)
+11. [Increase Line Spacing](#line-spacing)
+12. [Bookmark Lines](#bookmarks)
+13. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-13. [Using a Custom SciLexer.dll](#scilexer)
+14. [Using a Custom SciLexer.dll](#scilexer)
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -227,6 +228,54 @@ scintilla.Lexer = Lexer.Cpp;
 scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
 scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
 ```
+
+### <a name="auto-folding"></a>Automatic Code Folding
+
+Most of the lexers included with Scintilla also support code folding (sometimes called outlining). Depending on the level of control you want, you can handle that manually, automatically, or anywhere in between. The recipe below shows the basics of how to configure a lexer so it will do automatic code folding:
+
+```cs
+// Set the lexer
+scintilla.Lexer = Lexer.Cpp;
+
+// Instruct the lexer to calculate folding
+scintilla.SetProperty("fold", "1");
+scintilla.SetProperty("fold.compact", "1");
+
+// Configure a margin to display folding symbols
+scintilla.Margins[2].Type = MarginType.Symbol;
+scintilla.Margins[2].Mask = Marker.MaskFolders;
+scintilla.Margins[2].Sensitive = true;
+scintilla.Margins[2].Width = 20;
+
+// Set colors for all folding markers
+for (int i = 25; i <= 31; i++)
+{
+    scintilla.Markers[i].SetForeColor(SystemColors.ControlLightLight);
+    scintilla.Markers[i].SetBackColor(SystemColors.ControlDark);
+}
+
+// Configure folding markers with respective symbols
+scintilla.Markers[Marker.Folder].Symbol = MarkerSymbol.BoxPlus;
+scintilla.Markers[Marker.FolderOpen].Symbol = MarkerSymbol.BoxMinus;
+scintilla.Markers[Marker.FolderEnd].Symbol = MarkerSymbol.BoxPlusConnected;
+scintilla.Markers[Marker.FolderMidTail].Symbol = MarkerSymbol.TCorner;
+scintilla.Markers[Marker.FolderOpenMid].Symbol = MarkerSymbol.BoxMinusConnected;
+scintilla.Markers[Marker.FolderSub].Symbol = MarkerSymbol.VLine;
+scintilla.Markers[Marker.FolderTail].Symbol = MarkerSymbol.LCorner;
+
+// Enable automatic folding
+scintilla.AutomaticFold = (AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change);
+```
+
+By default a lexer will not do the additional work of calculating fold points unless you configure it to. With the `SetProperty` method you can pass configuration values to a lexer. The lexer behaviors you can customize—their names and possible values—however, are very poorly documented. Perhaps a future version of ScintillaNET will address this. That being said, virtually every lexer included with Scintilla uses the `"fold"` and `"fold.compact"` properties for enabling folding. Setting these to `"1"` will configure the lexer to calculate fold points and set the appropriate line markers.
+
+By convention margin 2 is used for folding symbols but any margin will work if properly configured. In our sample margin 2 is configured as a `Symbol` margin, `Sensitive` to mouse clicks, and we use the `Marker.MaskFolders` constant to mask the range of possible markers the margin can display to just folding-related markers.
+
+The markers designated for folding are indexes 25 through 31 and equivalent constants are named `Marker.Folder*`. When folding is enabled, Scintilla will automatically use the marker indexes in that range to indicate fold points. You can customize the appearance of those markers any way you wish, but you cannot change which marker indexes Scintilla expects to use for folding.
+
+To customize our markers' appearance we use a short loop to change the default background and foreground colors. We then use the `Marker.Folder*` constants to set an appropriate symbol for each marker.
+
+Finally, we enable automatic code folding with the `AutomaticFold` property. Had we not used automatic folding we would need to handle margin click events and use the folding API to toggle visibility of lines. 
 
 ### <a name="autocompletion"></a>Basic Autocompletion
 

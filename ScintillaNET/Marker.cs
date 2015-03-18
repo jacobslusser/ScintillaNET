@@ -26,6 +26,41 @@ namespace ScintillaNET
         public const uint MaskFolders = NativeMethods.SC_MASK_FOLDERS;
 
         /// <summary>
+        /// Folder end marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxPlusConnected" /> symbol.
+        /// </summary>
+        public const int FolderEnd = NativeMethods.SC_MARKNUM_FOLDEREND;
+
+        /// <summary>
+        /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxMinusConnected" /> symbol.
+        /// </summary>
+        public const int FolderOpenMid = NativeMethods.SC_MARKNUM_FOLDEROPENMID;
+
+        /// <summary>
+        /// Folder mid tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.TCorner" /> symbol.
+        /// </summary>
+        public const int FolderMidTail = NativeMethods.SC_MARKNUM_FOLDERMIDTAIL;
+
+        /// <summary>
+        /// Folder tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.LCorner" /> symbol.
+        /// </summary>
+        public const int FolderTail = NativeMethods.SC_MARKNUM_FOLDERTAIL;
+
+        /// <summary>
+        /// Folder sub marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.VLine" /> symbol.
+        /// </summary>
+        public const int FolderSub = NativeMethods.SC_MARKNUM_FOLDERSUB;
+
+        /// <summary>
+        /// Folder marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.BoxPlus" /> symbol.
+        /// </summary>
+        public const int Folder = NativeMethods.SC_MARKNUM_FOLDER;
+
+        /// <summary>
+        /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.BoxMinus" /> symbol.
+        /// </summary>
+        public const int FolderOpen = NativeMethods.SC_MARKNUM_FOLDEROPEN;
+
+        /// <summary>
         /// Sets the marker symbol to a custom image.
         /// </summary>
         /// <param name="image">The Bitmap to use as a marker symbol.</param>

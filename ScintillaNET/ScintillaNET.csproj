@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Annotation.cs" />
     <Compile Include="AutoCSelectionEventArgs.cs" />
+    <Compile Include="AutomaticFold.cs" />
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
     <Compile Include="ChangeAnnotationEventArgs.cs" />
