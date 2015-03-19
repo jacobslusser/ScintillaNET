@@ -113,6 +113,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Assigns the specified key definition to a <see cref="Scintilla" /> command.
+        /// </summary>
+        /// <param name="keyDefinition">The key combination to bind.</param>
+        /// <param name="sciCommand">The command to assign.</param>
+        public void AssignCmdKey(Keys keyDefinition, Command sciCommand)
+        {
+            DirectMessage(NativeMethods.SCI_ASSIGNCMDKEY, new IntPtr((int)keyDefinition), new IntPtr((int)sciCommand));
+        }
+
+        /// <summary>
         /// Cancels any displayed autocompletion list.
         /// </summary>
         /// <seealso cref="AutoCStops" />
@@ -306,6 +316,24 @@ namespace ScintillaNET
         public void ClearAll()
         {
             DirectMessage(NativeMethods.SCI_CLEARALL);
+        }
+
+        /// <summary>
+        /// Makes the specified key definition do nothing.
+        /// </summary>
+        /// <param name="keyDefinition">The key combination to bind.</param>
+        /// <remarks>This is equivalent to binding the keys to <see cref="Command.Null" />.</remarks>
+        public void ClearCmdKey(Keys keyDefinition)
+        {
+            DirectMessage(NativeMethods.SCI_CLEARCMDKEY, new IntPtr((int)keyDefinition), IntPtr.Zero);
+        }
+
+        /// <summary>
+        /// Removes all the key definition command mappings.
+        /// </summary>
+        public void ClearAllCmdKeys()
+        {
+            DirectMessage(NativeMethods.SCI_CLEARALLCMDKEYS);
         }
 
         /// <summary>
@@ -526,6 +554,16 @@ namespace ScintillaNET
         public void EndUndoAction()
         {
             DirectMessage(NativeMethods.SCI_ENDUNDOACTION);
+        }
+
+        /// <summary>
+        /// Performs the specified <see cref="Scintilla" />command.
+        /// </summary>
+        /// <param name="sciCommand">The command to perform.</param>
+        public void ExecuteCmd(Command sciCommand)
+        {
+            var cmd = (int)sciCommand;
+            DirectMessage(cmd);
         }
 
         /// <summary>
@@ -1189,14 +1227,7 @@ namespace ScintillaNET
 
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
         {
-            var keys = Keys.None;
-            if ((scn.modifiers & NativeMethods.SCI_SHIFT) > 0)
-                keys |= Keys.Shift;
-            if ((scn.modifiers & NativeMethods.SCI_CTRL) > 0)
-                keys |= Keys.Control;
-            if ((scn.modifiers & NativeMethods.SCI_ALT) > 0)
-                keys |= Keys.Alt;
-
+            var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
             var eventArgs = new MarginClickEventArgs(this, keys, scn.position, scn.margin);
             OnMarginClick(eventArgs);
         }
