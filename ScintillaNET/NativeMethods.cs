@@ -1141,6 +1141,32 @@ namespace ScintillaNET
         public const int SCE_C_TASKMARKER = 26;
         public const int SCE_C_ESCAPESEQUENCE = 27;
 
+        // Css
+        public const int SCE_CSS_DEFAULT = 0;
+        public const int SCE_CSS_TAG = 1;
+        public const int SCE_CSS_CLASS = 2;
+        public const int SCE_CSS_PSEUDOCLASS = 3;
+        public const int SCE_CSS_UNKNOWN_PSEUDOCLASS = 4;
+        public const int SCE_CSS_OPERATOR = 5;
+        public const int SCE_CSS_IDENTIFIER = 6;
+        public const int SCE_CSS_UNKNOWN_IDENTIFIER = 7;
+        public const int SCE_CSS_VALUE = 8;
+        public const int SCE_CSS_COMMENT = 9;
+        public const int SCE_CSS_ID = 10;
+        public const int SCE_CSS_IMPORTANT = 11;
+        public const int SCE_CSS_DIRECTIVE = 12;
+        public const int SCE_CSS_DOUBLESTRING = 13;
+        public const int SCE_CSS_SINGLESTRING = 14;
+        public const int SCE_CSS_IDENTIFIER2 = 15;
+        public const int SCE_CSS_ATTRIBUTE = 16;
+        public const int SCE_CSS_IDENTIFIER3 = 17;
+        public const int SCE_CSS_PSEUDOELEMENT = 18;
+        public const int SCE_CSS_EXTENDED_IDENTIFIER = 19;
+        public const int SCE_CSS_EXTENDED_PSEUDOCLASS = 20;
+        public const int SCE_CSS_EXTENDED_PSEUDOELEMENT = 21;
+        public const int SCE_CSS_MEDIA = 22;
+        public const int SCE_CSS_VARIABLE = 23;
+
         #endregion Lexer Constants
 
         #region Callbacks

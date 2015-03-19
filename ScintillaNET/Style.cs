@@ -557,5 +557,135 @@ namespace ScintillaNET
         }
 
         #endregion Cpp
+
+        #region Css
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Css" /> lexer.
+        /// </summary>
+        public static class Css
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_CSS_DEFAULT;
+
+            /// <summary>
+            /// Tag style index.
+            /// </summary>
+            public const int Tag = NativeMethods.SCE_CSS_TAG;
+
+            /// <summary>
+            /// Class style index.
+            /// </summary>
+            public const int Class = NativeMethods.SCE_CSS_CLASS;
+
+            /// <summary>
+            /// Pseudo class style index.
+            /// </summary>
+            public const int PseudoClass = NativeMethods.SCE_CSS_PSEUDOCLASS;
+
+            /// <summary>
+            /// Unknown pseudo class style index.
+            /// </summary>
+            public const int UnknownPseudoClass = NativeMethods.SCE_CSS_UNKNOWN_PSEUDOCLASS;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_CSS_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_CSS_IDENTIFIER;
+
+            /// <summary>
+            /// Unknown identifier style index.
+            /// </summary>
+            public const int UnknownIdentifier = NativeMethods.SCE_CSS_UNKNOWN_IDENTIFIER;
+
+            /// <summary>
+            /// Value style index.
+            /// </summary>
+            public const int Value = NativeMethods.SCE_CSS_VALUE;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_CSS_COMMENT;
+
+            /// <summary>
+            /// ID style index.
+            /// </summary>
+            public const int Id = NativeMethods.SCE_CSS_ID;
+
+            /// <summary>
+            /// Important style index.
+            /// </summary>
+            public const int Important = NativeMethods.SCE_CSS_IMPORTANT;
+
+            /// <summary>
+            /// Directive style index.
+            /// </summary>
+            public const int Directive = NativeMethods.SCE_CSS_DIRECTIVE;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int DoubleString = NativeMethods.SCE_CSS_DOUBLESTRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int SingleString = NativeMethods.SCE_CSS_SINGLESTRING;
+
+            /// <summary>
+            /// Identifier style 2 index.
+            /// </summary>
+            public const int Identifier2 = NativeMethods.SCE_CSS_IDENTIFIER2;
+
+            /// <summary>
+            /// Attribute style index.
+            /// </summary>
+            public const int Attribute = NativeMethods.SCE_CSS_ATTRIBUTE;
+
+            /// <summary>
+            /// Identifier style 3 index.
+            /// </summary>
+            public const int Identifier3 = NativeMethods.SCE_CSS_IDENTIFIER3;
+
+            /// <summary>
+            /// Pseudo element style index.
+            /// </summary>
+            public const int PseudoElement = NativeMethods.SCE_CSS_PSEUDOELEMENT;
+
+            /// <summary>
+            /// Extended identifier style index.
+            /// </summary>
+            public const int ExtendedIdentifier = NativeMethods.SCE_CSS_EXTENDED_IDENTIFIER;
+
+            /// <summary>
+            /// Extended pseudo class style index.
+            /// </summary>
+            public const int ExtendedPseudoClass = NativeMethods.SCE_CSS_EXTENDED_PSEUDOCLASS;
+
+            /// <summary>
+            /// Extended pseudo element style index.
+            /// </summary>
+            public const int ExtendedPseudoElement = NativeMethods.SCE_CSS_EXTENDED_PSEUDOELEMENT;
+
+            /// <summary>
+            /// Media style index.
+            /// </summary>
+            public const int Media = NativeMethods.SCE_CSS_MEDIA;
+
+            /// <summary>
+            /// Variable style index.
+            /// </summary>
+            public const int Variable = NativeMethods.SCE_CSS_VARIABLE;
+        }
+
+        #endregion Css
     }
 }

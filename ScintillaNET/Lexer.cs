@@ -29,6 +29,11 @@ namespace ScintillaNET
         /// <summary>
         /// The C language family (C++, C, C#, Java, JavaScript, etc...) lexer.
         /// </summary>
-        Cpp = NativeMethods.SCLEX_CPP
+        Cpp = NativeMethods.SCLEX_CPP,
+
+        /// <summary>
+        /// The Cascading Style Sheets (CSS, SCSS) lexer.
+        /// </summary>
+        Css = NativeMethods.SCLEX_CSS
     }
 }
