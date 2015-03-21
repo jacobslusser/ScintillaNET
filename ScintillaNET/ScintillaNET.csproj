@@ -82,6 +82,7 @@
     <Compile Include="MarkerSymbol.cs" />
     <Compile Include="ModificationEventArgs.cs" />
     <Compile Include="ModificationSource.cs" />
+    <Compile Include="MultiPaste.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="PropertyType.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="StyleCollection.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
+    <Compile Include="VirtualSpace.cs" />
     <Compile Include="WhitespaceMode.cs" />
     <Compile Include="WrapIndentMode.cs" />
     <Compile Include="WrapMode.cs" />

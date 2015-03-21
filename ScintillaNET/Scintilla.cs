@@ -81,6 +81,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Adds an additional selection range to the existing main selection.
+        /// </summary>
+        /// <param name="caret">The zero-based document position to end the selection.</param>
+        /// <param name="anchor">The zero-based document position to start the selection.</param>
+        /// <remarks>A main selection must first have been set by a call to <see cref="SetSelection" />.</remarks>
+        public void AddSelection(int caret, int anchor)
+        {
+            var textLength = TextLength;
+            caret = Helpers.Clamp(caret, 0, textLength);
+            anchor = Helpers.Clamp(anchor, 0, textLength);
+
+            caret = Lines.CharToBytePosition(caret);
+            anchor = Lines.CharToBytePosition(anchor);
+
+            DirectMessage(NativeMethods.SCI_ADDSELECTION, new IntPtr(caret), new IntPtr(anchor));
+        }
+
+        /// <summary>
         /// Inserts the specified text at the current caret position.
         /// </summary>
         /// <param name="text">The text to insert at the current caret position.</param>
@@ -353,6 +371,14 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets a single empty selection at the start of the document.
+        /// </summary>
+        public void ClearSelections()
+        {
+            DirectMessage(NativeMethods.SCI_CLEARSELECTIONS);
+        }
+
+        /// <summary>
         /// Requests that the current lexer restyle the specified range.
         /// </summary>
         /// <param name="startPos">The zero-based document position at which to start styling.</param>
@@ -536,6 +562,17 @@ namespace ScintillaNET
             // Like Win32 SendMessage but directly to Scintilla
             var result = directFunction(sciPtr, msg, wParam, lParam);
             return result;
+        }
+
+        /// <summary>
+        /// If there are multiple selections, removes the specified selection.
+        /// </summary>
+        /// <param name="selection">The zero-based selection index.</param>
+        /// <seealso cref="Selections" />
+        public void DropSelection(int selection)
+        {
+            selection = Helpers.ClampMin(selection, 0);
+            DirectMessage(NativeMethods.SCI_DROPSELECTIONN, new IntPtr(selection));
         }
 
         /// <summary>
@@ -1421,6 +1458,23 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets a single selection from anchor to caret.
+        /// </summary>
+        /// <param name="caret">The zero-based document position to end the selection.</param>
+        /// <param name="anchor">The zero-based document position to start the selection.</param>
+        public void SetSelection(int caret, int anchor)
+        {
+            var textLength = TextLength;
+            caret = Helpers.Clamp(caret, 0, textLength);
+            anchor = Helpers.Clamp(anchor, 0, textLength);
+
+            caret = Lines.CharToBytePosition(caret);
+            anchor = Lines.CharToBytePosition(anchor);
+
+            DirectMessage(NativeMethods.SCI_SETSELECTION, new IntPtr(caret), new IntPtr(anchor));
+        }
+
+        /// <summary>
         /// Sets a global override to the selection background color.
         /// </summary>
         /// <param name="use">true to override the selection background color; otherwise, false.</param>
@@ -1754,6 +1808,26 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets whether additional typing affects multiple selections.
+        /// </summary>
+        /// <returns>true if typing will affect multiple selections instead of just the main selection; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Multiple Selection")]
+        [Description("Whether typing, backspace, or delete works with multiple selection simultaneously.")]
+        public bool AdditionalSelectionTyping
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETADDITIONALSELECTIONTYPING) != IntPtr.Zero;
+            }
+            set
+            {
+                var additionalSelectionTyping = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETADDITIONALSELECTIONTYPING, additionalSelectionTyping);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current anchor position.
@@ -2882,6 +2956,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the main selection when their are multiple selections.
+        /// </summary>
+        /// <returns>The zero-based main selection index.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int MainSelection
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETMAINSELECTION, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets a collection representing margins in a <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>A collection of margins.</returns>
@@ -2934,6 +3027,72 @@ namespace ScintillaNET
             {
                 value = Helpers.ClampMin(value, 0);
                 DirectMessage(NativeMethods.SCI_SETMOUSEDWELLTIME, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the ability to switch to rectangular selection mode while making a selection with the mouse.
+        /// </summary>
+        /// <returns>
+        /// true if the current mouse selection can be switched to a rectangular selection by pressing the ALT key; otherwise, false.
+        /// The default is false.
+        /// </returns>
+        [DefaultValue(false)]
+        [Category("Multiple Selection")]
+        [Description("Enable or disable the ability to switch to rectangular selection mode while making a selection with the mouse.")]
+        public bool MouseSelectionRectangularSwitch
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETMOUSESELECTIONRECTANGULARSWITCH) != IntPtr.Zero;
+            }
+            set
+            {
+                var mouseSelectionRectangularSwitch = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETMOUSESELECTIONRECTANGULARSWITCH, mouseSelectionRectangularSwitch);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether multiple selection is enabled.
+        /// </summary>
+        /// <returns>
+        /// true if multiple selections can be made by holding the CTRL key and dragging the mouse; otherwise, false.
+        /// The default is false.
+        /// </returns>
+        [DefaultValue(false)]
+        [Category("Multiple Selection")]
+        [Description("Enable or disable multiple selection with the CTRL key.")]
+        public bool MultipleSelection
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETMULTIPLESELECTION) != IntPtr.Zero;
+            }
+            set
+            {
+                var multipleSelection = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETMULTIPLESELECTION, multipleSelection);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the behavior when pasting text into multiple selections.
+        /// </summary>
+        /// <returns>One of the <see cref="ScintillaNET.MultiPaste" /> enumeration values. The default is <see cref="ScintillaNET.MultiPaste.Once" />.</returns>
+        [DefaultValue(MultiPaste.Once)]
+        [Category("Multiple Selection")]
+        [Description("Determines how pasted text is applied to multiple selections.")]
+        public MultiPaste MultiPaste
+        {
+            get
+            {
+                return (MultiPaste)DirectMessage(NativeMethods.SCI_GETMULTIPASTE);
+            }
+            set
+            {
+                var multiPaste = (int)value;
+                DirectMessage(NativeMethods.SCI_SETMULTIPASTE, new IntPtr(multiPaste));
             }
         }
 
@@ -3117,6 +3276,35 @@ namespace ScintillaNET
             {
                 var eolFilled = (value ? new IntPtr(1) : IntPtr.Zero);
                 DirectMessage(NativeMethods.SCI_SETSELEOLFILLED, eolFilled);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether all selection ranges are empty.
+        /// </summary>
+        /// <returns>true if all selection ranges are empty; otherwise, false.
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool SelectionEmpty
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of selections.
+        /// </summary>
+        /// <returns>The number of selections.</returns>
+        /// <seealso cref="MultipleSelection" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int Selections
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
             }
         }
 
@@ -3347,6 +3535,30 @@ namespace ScintillaNET
             {
                 var wsMode = (int)value;
                 DirectMessage(NativeMethods.SCI_SETVIEWWS, new IntPtr(wsMode));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the ability for the caret to move into an area beyond the end of each line, otherwise known as virtual space.
+        /// </summary>
+        /// <returns>
+        /// A bitwise combination of the <see cref="VirtualSpace" /> enumeration.
+        /// The default is <see cref="VirtualSpace.None" />.
+        /// </returns>
+        [DefaultValue(VirtualSpace.None)]
+        [Category("Behavior")]
+        [Description("Options for allowing the caret to move beyond the end of each line.")]
+        [TypeConverter(typeof(FlagsEnumTypeConverter.FlagsEnumConverter))]
+        public VirtualSpace VirtualSpaceOptions
+        {
+            get
+            {
+                return (VirtualSpace)DirectMessage(NativeMethods.SCI_GETVIRTUALSPACEOPTIONS);
+            }
+            set
+            {
+                var virtualSpace = (int)value;
+                DirectMessage(NativeMethods.SCI_SETVIRTUALSPACEOPTIONS, new IntPtr(virtualSpace));
             }
         }
 

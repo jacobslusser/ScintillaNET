@@ -160,6 +160,9 @@ namespace ScintillaNET
         public const int SC_MARKNUM_FOLDEROPEN = 31;
         public const uint SC_MASK_FOLDERS = 0xFE000000;
 
+        public const int SC_MULTIPASTE_ONCE = 0;
+        public const int SC_MULTIPASTE_EACH = 1;
+
         public const int SC_ORDER_PRESORTED = 0;
         public const int SC_ORDER_PERFORMSORT = 1;
         public const int SC_ORDER_CUSTOM = 2;
@@ -934,6 +937,11 @@ namespace ScintillaNET
         public const int SC_WRAPINDENT_FIXED = 0;
         public const int SC_WRAPINDENT_SAME = 1;
         public const int SC_WRAPINDENT_INDENT = 2;
+
+        // Virtual space
+        public const int SCVS_NONE = 0;
+        public const int SCVS_RECTANGULARSELECTION = 1;
+        public const int SCVS_USERACCESSIBLE = 2;
 
         // Styles constants
         public const int STYLE_DEFAULT = 32;
