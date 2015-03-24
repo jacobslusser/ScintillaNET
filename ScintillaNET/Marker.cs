@@ -36,27 +36,27 @@ namespace ScintillaNET
         public const int FolderOpenMid = NativeMethods.SC_MARKNUM_FOLDEROPENMID;
 
         /// <summary>
-        /// Folder mid tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.TCorner" /> symbol.
+        /// Folder mid tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.TCorner" /> symbol.
         /// </summary>
         public const int FolderMidTail = NativeMethods.SC_MARKNUM_FOLDERMIDTAIL;
 
         /// <summary>
-        /// Folder tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.LCorner" /> symbol.
+        /// Folder tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.LCorner" /> symbol.
         /// </summary>
         public const int FolderTail = NativeMethods.SC_MARKNUM_FOLDERTAIL;
 
         /// <summary>
-        /// Folder sub marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.VLine" /> symbol.
+        /// Folder sub marker index. This marker is typically configured to display the <see cref="MarkerSymbol.VLine" /> symbol.
         /// </summary>
         public const int FolderSub = NativeMethods.SC_MARKNUM_FOLDERSUB;
 
         /// <summary>
-        /// Folder marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.BoxPlus" /> symbol.
+        /// Folder marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxPlus" /> symbol.
         /// </summary>
         public const int Folder = NativeMethods.SC_MARKNUM_FOLDER;
 
         /// <summary>
-        /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.MarkerSymbol.BoxMinus" /> symbol.
+        /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxMinus" /> symbol.
         /// </summary>
         public const int FolderOpen = NativeMethods.SC_MARKNUM_FOLDEROPEN;
 

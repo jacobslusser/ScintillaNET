@@ -1188,7 +1188,7 @@ namespace ScintillaNET
         /// Retrieves the data type of the specified property name for the current <see cref="Lexer" />.
         /// </summary>
         /// <param name="name">A property name supported by the current <see cref="Lexer" />.</param>
-        /// <returns>One of the <see cref="PropertyType" /> enumeration values. The default is <see cref="PropertyType.Boolean" />.</returns>
+        /// <returns>One of the <see cref="PropertyType" /> enumeration values. The default is <see cref="ScintillaNET.PropertyType.Boolean" />.</returns>
         /// <remarks>A list of supported property names for the current <see cref="Lexer" /> can be obtained by calling <see cref="PropertyNames" />.</remarks>
         public unsafe PropertyType PropertyType(string name)
         {
@@ -3280,33 +3280,12 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets a value indicating whether all selection ranges are empty.
+        /// Gets a collection representing multiple selections in a <see cref="Scintilla" /> control.
         /// </summary>
-        /// <returns>true if all selection ranges are empty; otherwise, false.
+        /// <returns>A collection of selections.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool SelectionEmpty
-        {
-            get
-            {
-                return DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
-            }
-        }
-
-        /// <summary>
-        /// Gets the number of selections.
-        /// </summary>
-        /// <returns>The number of selections.</returns>
-        /// <seealso cref="MultipleSelection" />
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int Selections
-        {
-            get
-            {
-                return DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
-            }
-        }
+        public SelectionCollection Selections { get; private set; }
 
         /// <summary>
         /// Gets a collection representing style definitions in a <see cref="Scintilla" /> control.
@@ -4157,6 +4136,7 @@ namespace ScintillaNET
             Indicators = new IndicatorCollection(this);
             Margins = new MarginCollection(this);
             Markers = new MarkerCollection(this);
+            Selections = new SelectionCollection(this);
         }
 
         #endregion Constructors
