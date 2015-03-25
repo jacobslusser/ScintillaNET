@@ -35,6 +35,23 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the amount of anchor virtual space.
+        /// </summary>
+        /// <returns>The amount of virtual space past the end of the line offsetting the selection anchor.</returns>
+        public int AnchorVirtualSpace
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNANCHORVIRTUALSPACE, new IntPtr(Index)).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                scintilla.DirectMessage(NativeMethods.SCI_SETSELECTIONNANCHORVIRTUALSPACE, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the caret position of the selection.
         /// </summary>
         /// <returns>The zero-based document position of the selection caret.</returns>
@@ -53,6 +70,23 @@ namespace ScintillaNET
                 value = Helpers.Clamp(value, 0, scintilla.TextLength);
                 value = scintilla.Lines.CharToBytePosition(value);
                 scintilla.DirectMessage(NativeMethods.SCI_SETSELECTIONNCARET, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of caret virtual space.
+        /// </summary>
+        /// <returns>The amount of virtual space past the end of the line offsetting the selection caret.</returns>
+        public int CaretVirtualSpace
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARETVIRTUALSPACE, new IntPtr(Index)).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                scintilla.DirectMessage(NativeMethods.SCI_SETSELECTIONNCARETVIRTUALSPACE, new IntPtr(Index), new IntPtr(value));
             }
         }
 

@@ -3174,6 +3174,92 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Gets or sets the anchor position of the rectangular selection.
+        /// </summary>
+        /// <returns>The zero-based document position of the rectangular selection anchor.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int RectangularSelectionAnchor
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONANCHOR).ToInt32();
+                if (pos <= 0)
+                    return pos;
+
+                return Lines.ByteToCharPosition(pos);
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, TextLength);
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONANCHOR, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of anchor virtual space in a rectangular selection.
+        /// </summary>
+        /// <returns>The amount of virtual space past the end of the line offsetting the rectangular selection anchor.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int RectangularSelectionAnchorVirtualSpace
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the caret position of the rectangular selection.
+        /// </summary>
+        /// <returns>The zero-based document position of the rectangular selection caret.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int RectangularSelectionCaret
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONCARET).ToInt32();
+                if (pos <= 0)
+                    return 0;
+
+                return Lines.ByteToCharPosition(pos);
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, TextLength);
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONCARET, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of caret virtual space in a rectangular selection.
+        /// </summary>
+        /// <returns>The amount of virtual space past the end of the line offsetting the rectangular selection caret.</returns>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int RectangularSelectionCaretVirtualSpace
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE, new IntPtr(value));
+            }
+        }
+
         private IntPtr SciPointer
         {
             get
