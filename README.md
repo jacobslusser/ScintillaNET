@@ -66,13 +66,14 @@ The native Scintilla control has a habit of clamping input values to within acce
 11. [Increase Line Spacing](#line-spacing)
 12. [Rectangular/Multiple Selections](#multiple-selections)
 13. [Bookmark Lines](#bookmarks)
-14. [Documents](#documents)
+14. [Key Bindings](#key-bindings)
+15. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-15. [Using a Custom SciLexer.dll](#scilexer)
-16. [Direct Messages](#direct-message) 
+16. [Using a Custom SciLexer.dll](#scilexer)
+17. [Direct Messages](#direct-message) 
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -551,6 +552,33 @@ private void buttonNext_Click(object sender, EventArgs e)
         scintilla.Lines[nextLine].Goto();
 }
 ```
+
+### <a name="key-bindings"></a>Key Bindings
+
+When a new `Scintilla` instance is created, there are a number key bindings set by default. All default bindings can be cleared in one fell swoop using the `ClearCmdKeys` method, or individually using the `ClearCmdKey` method.
+
+To disable the use of `CTRL`+`V` as a shortcut for paste:
+
+```cs
+scintilla.ClearCmdKey(Keys.Control | Keys.V);
+```
+
+An alternative way would be to assign `Command.Null` to the `CTRL`+`V` keys:
+
+```cs
+scintilla.AssignCmdKey(Keys.Control | Keys.V, Command.Null);
+```
+
+If, for example, you wanted to provide an option in your editor where holding the `CTRL` key would enable a Vi (or Vim) style of caret movement with the `H`, `J`, `K`, and `L` keys:
+
+```cs
+scintilla.AssignCmdKey(Keys.Control | Keys.H, Command.CharLeft);
+scintilla.AssignCmdKey(Keys.Control | Keys.J, Command.LineDown);
+scintilla.AssignCmdKey(Keys.Control | Keys.K, Command.LineUp);
+scintilla.AssignCmdKey(Keys.Control | Keys.L, Command.CharRight);
+```
+
+*TIP: You can execute a `Command` using the `ExecuteCmd` method without having to bind it to a key combination if you just want to perform the command programmatically.*
 
 ### <a name="documents"></a>Documents
 
