@@ -1262,6 +1262,11 @@ namespace ScintillaNET
                 DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
         }
 
+        private void ResetAdditionalCaretForeColor()
+        {
+            AdditionalCaretForeColor = Color.FromArgb(127, 127, 127);
+        }
+
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
         {
             var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
@@ -1387,6 +1392,28 @@ namespace ScintillaNET
                 return bytePos;
 
             return Lines.ByteToCharPosition(bytePos);
+        }
+
+        /// <summary>
+        /// Sets the background color of additional selections.
+        /// </summary>
+        /// <param name="color">Additional selections background color.</param>
+        /// <remarks>Calling <see cref="SetSelectionBackColor" /> will reset the <paramref name="color" /> specified.</remarks>
+        public void SetAdditionalSelBack(Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            DirectMessage(NativeMethods.SCI_SETADDITIONALSELBACK, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Sets the foreground color of additional selections.
+        /// </summary>
+        /// <param name="color">Additional selections foreground color.</param>
+        /// <remarks>Calling <see cref="SetSelectionForeColor" /> will reset the <paramref name="color" /> specified.</remarks>
+        public void SetAdditionalSelFore(Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            DirectMessage(NativeMethods.SCI_SETADDITIONALSELFORE, new IntPtr(colour));
         }
 
         /// <summary>
@@ -1586,6 +1613,11 @@ namespace ScintillaNET
             var useWhitespaceForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
             DirectMessage(NativeMethods.SCI_SETWHITESPACEFORE, useWhitespaceForeColour, new IntPtr(colour));
+        }
+
+        private bool ShouldSerializeAdditionalCaretForeColor()
+        {
+            return AdditionalCaretForeColor != Color.FromArgb(127, 127, 127);
         }
 
         /// <summary>
@@ -1808,6 +1840,89 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Properties
+
+        /// <summary>
+        /// Gets or sets the caret foreground color for additional selections.
+        /// </summary>
+        /// <returns>The caret foreground color in additional selections. The default is (127, 127, 127).</returns>
+        [Category("Multiple Selection")]
+        [Description("The additional caret foreground color.")]
+        public Color AdditionalCaretForeColor
+        {
+            get
+            {
+                var color = DirectMessage(NativeMethods.SCI_GETADDITIONALCARETFORE).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                var color = ColorTranslator.ToWin32(value);
+                DirectMessage(NativeMethods.SCI_SETADDITIONALCARETFORE, new IntPtr(color));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the carets in additional selections will blink.
+        /// </summary>
+        /// <returns>true if additional selection carets should blink; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Multiple Selection")]
+        [Description("Whether the carets in additional selections should blink.")]
+        public bool AdditionalCaretsBlink
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETADDITIONALCARETSBLINK) != IntPtr.Zero;
+            }
+            set
+            {
+                var additionalCaretsBlink = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETADDITIONALCARETSBLINK, additionalCaretsBlink);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the carets in additional selections are visible.
+        /// </summary>
+        /// <returns>true if additional selection carets are visible; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Multiple Selection")]
+        [Description("Whether the carets in additional selections are visible.")]
+        public bool AdditionalCaretsVisible
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETADDITIONALCARETSVISIBLE) != IntPtr.Zero;
+            }
+            set
+            {
+                var additionalCaretsBlink = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETADDITIONALCARETSVISIBLE, additionalCaretsBlink);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the alpha transparency of additional multiple selections.
+        /// </summary>
+        /// <returns>
+        /// The alpha transparency ranging from 0 (completely transparent) to 255 (completely opaque).
+        /// The value 256 will disable alpha transparency. The default is 256.
+        /// </returns>
+        [DefaultValue(256)]
+        [Category("Multiple Selection")]
+        [Description("The transparency of additional selections.")]
+        public int AdditionalSelAlpha
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETADDITIONALSELALPHA).ToInt32();
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, NativeMethods.SC_ALPHA_NOALPHA);
+                DirectMessage(NativeMethods.SCI_SETADDITIONALSELALPHA, new IntPtr(value));
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether additional typing affects multiple selections.
