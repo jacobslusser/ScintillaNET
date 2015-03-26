@@ -64,14 +64,15 @@ The native Scintilla control has a habit of clamping input values to within acce
 9. [Find and Highlight Words](#find-highlight)
 10. [View Whitespace](#whitespace)
 11. [Increase Line Spacing](#line-spacing)
-12. [Bookmark Lines](#bookmarks)
-13. [Documents](#documents)
+12. [Rectangular/Multiple Selections](#multiple-selections)
+13. [Bookmark Lines](#bookmarks)
+14. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-14. [Using a Custom SciLexer.dll](#scilexer)
-15. [Direct Messages](#direct-message) 
+15. [Using a Custom SciLexer.dll](#scilexer)
+16. [Direct Messages](#direct-message) 
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -445,6 +446,37 @@ Feeling like your text is a little too cramped? Having a little extra space betw
 scintilla.ExtraAscent = 5;
 scintilla.ExtraDescent = 5;
 ```
+
+### <a name="multiple-selections"></a>Rectangular/Multiple Selections
+
+Scintilla supports the now popular ability of making a "rectangular" selection. A user can do this by holding the `ALT` key when dragging the mouse. This feature is a specialized version of what is more generally known a "multiple selections" in Scintilla. To get the most of our rectangular selections you'll likely want to enable the following features at a minimum:
+
+```cs
+scintilla.MultipleSelection = true;
+scintilla.MouseSelectionRectangularSwitch = true;
+scintilla.AdditionalSelectionTyping = true;
+scintilla.VirtualSpaceOptions = VirtualSpace.RectangularSelection;
+```
+
+Internally Scintilla handles rectangular selections as a list of multiple selection ranges. When there are multiple selections, one range it is said to be the "main selection" and the others are known as "additional selections". These ranges do not need to be contiguous as they are in a rectangular selection. Once multiple selections are enabled with the `MultipleSelection` property, a user can hold the `CTRL` key to select additional, non-continuous ranges of text.
+
+To get information about the current selections you can enumerate the `Scintilla.Selections` property like so:
+
+```cs
+foreach (var selection in scintilla.Selections)
+{
+    // Print the current selection's range
+    Debug.WriteLine("Start: " + selection.Start + ", End: " + selection.End);
+}
+```
+
+Most of the properties on the enumerated `Selection` object have setters if you want to modify the bounds of an existing selection.
+
+Selections are only queried through the `Scintilla.Selections` collection, not created. Selections are created using the `Scintilla.SetSelection` method to make the main selection and the subsequent calls to the `AddSelection` method as many times is needed to add additional selections.
+
+If you intend to programmatically create a rectangular selection you can save yourself the time of calling `SetSelection` and multiple calls to `AddSelection` by using the `RectangularSelection*` properties. These allow you to specify the anchor and caret (and virtual space) positions of the rectangle and Scintilla will do the extra work of converting those to multiple selections.
+
+In much the same way that you can customize the appearance of a single selection using the `SetSelectionForeColor` and `SetSelectionBackColor` methods, you may use the `SetAdditionalSelFore` and `SetAdditionalSelBack` methods to do the same for additional selections. The caret in an additional selection can also be customized using the `AdditionalCaret*` properties.
 
 ### <a name="bookmarks"></a>Bookmark Lines
 
