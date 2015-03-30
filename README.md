@@ -8,7 +8,7 @@ ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft
 
 ### Project Status
 
-ScintillaNET is currently in active development and is not considered ready for general use.
+ScintillaNET is in active development and nearing 100% API coverage with the core Scintilla component. Beta testers are welcome.
 
 ## Background
 
