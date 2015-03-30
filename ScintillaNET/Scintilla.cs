@@ -49,6 +49,7 @@ namespace ScintillaNET
         private static readonly object autoCCharDeletedEventKey = new object();
         private static readonly object dwellStartEventKey = new object();
         private static readonly object dwellEndEventKey = new object();
+        private static readonly object borderStyleChangedEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1001,6 +1002,17 @@ namespace ScintillaNET
         protected virtual void OnBeforeInsert(BeforeModificationEventArgs e)
         {
             var handler = Events[beforeInsertEventKey] as EventHandler<BeforeModificationEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="BorderStyleChanged" /> event.
+        /// </summary>
+        /// <param name="e">An EventArgs that contains the event data.</param>
+        protected virtual void OnBorderStyleChanged(EventArgs e)
+        {
+            var handler = Events[borderStyleChangedEventKey] as EventHandler;
             if (handler != null)
                 handler(this, e);
         }
@@ -2350,6 +2362,34 @@ namespace ScintillaNET
             set
             {
                 base.BackgroundImageLayout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the border type of the <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>A BorderStyle enumeration value that represents the border type of the control. The default is Fixed3D.</returns>
+        /// <exception cref="InvalidEnumArgumentException">A value that is not within the range of valid values for the enumeration was assigned to the property.</exception>
+        [DefaultValue(BorderStyle.Fixed3D)]
+        [Category("Appearance")]
+        [Description("Indicates whether the control should have a border.")]
+        public BorderStyle BorderStyle
+        {
+            get
+            {
+                return borderStyle;
+            }
+            set
+            {
+                if (borderStyle != value)
+                {
+                    if (!Enum.IsDefined(typeof(BorderStyle), value))
+                        throw new InvalidEnumArgumentException("value", (int)value, typeof(BorderStyle));
+
+                    borderStyle = value;
+                    UpdateStyles();
+                    OnBorderStyleChanged(EventArgs.Empty);
+                }
             }
         }
 
@@ -4098,6 +4138,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(beforeInsertEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the value of the <see cref="Scintilla.BorderStyle" /> property has changed.
+        /// </summary>
+        [Category("Property Changed")]
+        [Description("Occurs when the value of the BorderStyle property changes.")]
+        public event EventHandler BorderStyleChanged
+        {
+            add
+            {
+                Events.AddHandler(borderStyleChangedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(borderStyleChangedEventKey, value);
             }
         }
 
