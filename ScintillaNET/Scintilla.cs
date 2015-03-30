@@ -3461,6 +3461,30 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the selected text.
+        /// </summary>
+        /// <returns>The selected text if there is any; otherwise, an empty string.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public unsafe string SelectedText
+        {
+            get
+            {
+                // NOTE: For some reason the length returned by this API includes the terminating NULL
+                var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
+                if (length <= 0)
+                    return string.Empty;
+
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETSELTEXT, IntPtr.Zero, new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to fill past the end of a line with the selection background color.
         /// </summary>
         /// <returns>true to fill past the end of the line; otherwise, false. The default is false.</returns>
