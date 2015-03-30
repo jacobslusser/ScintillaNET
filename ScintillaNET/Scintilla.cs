@@ -761,6 +761,19 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the style of the specified document position.
+        /// </summary>
+        /// <param name="position">The zero-based document position of the character to get the style for.</param>
+        /// <returns>The zero-based <see cref="Style" /> index used at the specified <paramref name="position" />.</returns>
+        public int GetStyleAt(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+
+            return DirectMessage(NativeMethods.SCI_GETSTYLEAT, new IntPtr(position)).ToInt32();
+        }
+
+        /// <summary>
         /// Gets a range of text from the document.
         /// </summary>
         /// <param name="position">The zero-based starting character position of the range to get.</param>
