@@ -34,6 +34,11 @@ namespace ScintillaNET
         /// <summary>
         /// The Cascading Style Sheets (CSS, SCSS) lexer.
         /// </summary>
-        Css = NativeMethods.SCLEX_CSS
+        Css = NativeMethods.SCLEX_CSS,
+
+        /// <summary>
+        /// The Blitz (Blitz3D, BlitzMax, etc...) variant of Basic lexer.
+        /// </summary>
+        BlitzBasic = NativeMethods.SCLEX_BLITZBASIC
     }
 }

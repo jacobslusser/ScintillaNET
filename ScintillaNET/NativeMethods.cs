@@ -1175,6 +1175,30 @@ namespace ScintillaNET
         public const int SCE_CSS_MEDIA = 22;
         public const int SCE_CSS_VARIABLE = 23;
 
+        public const int SCE_B_DEFAULT = 0;
+        public const int SCE_B_COMMENT = 1;
+        public const int SCE_B_NUMBER = 2;
+        public const int SCE_B_KEYWORD = 3;
+        public const int SCE_B_STRING = 4;
+        public const int SCE_B_PREPROCESSOR = 5;
+        public const int SCE_B_OPERATOR = 6;
+        public const int SCE_B_IDENTIFIER = 7;
+        public const int SCE_B_DATE = 8;
+        public const int SCE_B_STRINGEOL = 9;
+        public const int SCE_B_KEYWORD2 = 10;
+        public const int SCE_B_KEYWORD3 = 11;
+        public const int SCE_B_KEYWORD4 = 12;
+        public const int SCE_B_CONSTANT = 13;
+        public const int SCE_B_ASM = 14;
+        public const int SCE_B_LABEL = 15;
+        public const int SCE_B_ERROR = 16;
+        public const int SCE_B_HEXNUMBER = 17;
+        public const int SCE_B_BINNUMBER = 18;
+        public const int SCE_B_COMMENTBLOCK = 19;
+        public const int SCE_B_DOCLINE = 20;
+        public const int SCE_B_DOCBLOCK = 21;
+        public const int SCE_B_DOCKEYWORD = 22;
+
         #endregion Lexer Constants
 
         #region Callbacks

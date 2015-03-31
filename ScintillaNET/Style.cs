@@ -687,5 +687,130 @@ namespace ScintillaNET
         }
 
         #endregion Css
+
+        #region Basic
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.BlitzBasic" /> lexer.
+        /// </summary>
+        public static class Basic
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_CSS_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_B_COMMENT;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_B_NUMBER;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Keyword = NativeMethods.SCE_B_KEYWORD;
+
+            /// <summary>
+            /// String style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_B_STRING;
+
+            /// <summary>
+            /// Preprocessor style index.
+            /// </summary>
+            public const int Preprocessor = NativeMethods.SCE_B_PREPROCESSOR;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_B_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_B_IDENTIFIER;
+
+            /// <summary>
+            /// Date style index.
+            /// </summary>
+            public const int Date = NativeMethods.SCE_B_DATE;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_B_STRINGEOL;
+
+            /// <summary>
+            /// Keyword list 2 style index.
+            /// </summary>
+            public const int Keyword2 = NativeMethods.SCE_B_KEYWORD2;
+
+            /// <summary>
+            /// Keyword list 3 style index.
+            /// </summary>
+            public const int Keyword3 = NativeMethods.SCE_B_KEYWORD3;
+
+            /// <summary>
+            /// Keyword list 4 style index.
+            /// </summary>
+            public const int Keyword4 = NativeMethods.SCE_B_KEYWORD4;
+
+            /// <summary>
+            /// Constant style index.
+            /// </summary>
+            public const int Constant = NativeMethods.SCE_B_CONSTANT;
+
+            /// <summary>
+            /// Inline assembler style index.
+            /// </summary>
+            public const int Asm = NativeMethods.SCE_B_ASM;
+
+            /// <summary>
+            /// Label style index.
+            /// </summary>
+            public const int Label = NativeMethods.SCE_B_LABEL;
+
+            /// <summary>
+            /// Error style index.
+            /// </summary>
+            public const int Error = NativeMethods.SCE_B_ERROR;
+
+            /// <summary>
+            /// Hexadecimal number style index.
+            /// </summary>
+            public const int HexNumber = NativeMethods.SCE_B_HEXNUMBER;
+
+            /// <summary>
+            /// Binary number style index.
+            /// </summary>
+            public const int BinNumber = NativeMethods.SCE_B_BINNUMBER;
+
+            /// <summary>
+            /// Block comment style index.
+            /// </summary>
+            public const int CommentBlock = NativeMethods.SCE_B_COMMENTBLOCK;
+
+            /// <summary>
+            /// Documentation line style index.
+            /// </summary>
+            public const int DocLine = NativeMethods.SCE_B_DOCLINE;
+
+            /// <summary>
+            /// Documentation block style index.
+            /// </summary>
+            public const int DocBlock = NativeMethods.SCE_B_DOCBLOCK;
+
+            /// <summary>
+            /// Documentation keyword style index.
+            /// </summary>
+            public const int DocKeyword = NativeMethods.SCE_B_DOCKEYWORD;
+        }
+
+        #endregion Basic
     }
 }
