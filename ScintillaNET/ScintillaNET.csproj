@@ -61,6 +61,7 @@
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ILoader.cs" />
+    <Compile Include="IndentView.cs" />
     <Compile Include="Indicator.cs" />
     <Compile Include="IndicatorCollection.cs" />
     <Compile Include="IndicatorFlags.cs" />

@@ -19,6 +19,12 @@ namespace ScintillaNET
         public const int ANNOTATION_BOXED = 2;
         public const int ANNOTATION_INDENTED = 3;
 
+        // Indentation 
+        public const int SC_IV_NONE = 0;
+        public const int SC_IV_REAL = 1;
+        public const int SC_IV_LOOKFORWARD = 2;
+        public const int SC_IV_LOOKBOTH = 3;
+
         // Keys
         public const int SCMOD_NORM = 0;
         public const int SCMOD_SHIFT = 1;

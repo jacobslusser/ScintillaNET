@@ -2997,6 +2997,27 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether to display indentation guides.
+        /// </summary>
+        /// <returns>One of the <see cref="IndentView" /> enumeration values. The default is <see cref="IndentView.None" />.</returns>
+        /// <remarks>The <see cref="Style.IndentGuide" /> style can be used to specify the foreground and background color of indentation guides.</remarks>
+        [DefaultValue(IndentView.None)]
+        [Category("Indentation")]
+        [Description("Indicates whether indentation guides are displayed.")]
+        public IndentView IndentationGuides
+        {
+            get
+            {
+                return (IndentView)DirectMessage(NativeMethods.SCI_GETINDENTATIONGUIDES);
+            }
+            set
+            {
+                var indentView = (int)value;
+                DirectMessage(NativeMethods.SCI_SETINDENTATIONGUIDES, new IntPtr(indentView));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the indicator used in a subsequent call to <see cref="IndicatorFillRange" /> or <see cref="IndicatorClearRange" />.
         /// </summary>
         /// <returns>The zero-based indicator index to apply when calling <see cref="IndicatorFillRange" /> or remove when calling <see cref="IndicatorClearRange" />.</returns>
