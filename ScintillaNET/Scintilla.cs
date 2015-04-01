@@ -67,6 +67,11 @@ namespace ScintillaNET
         /// </summary>
         public const int TimeForever = NativeMethods.SC_TIME_FOREVER;
 
+        /// <summary>
+        /// A constant used to specify an invalid document position.
+        /// </summary>
+        public const int InvalidPosition = NativeMethods.INVALID_POSITION;
+
         #endregion Fields
 
         #region Methods
@@ -227,6 +232,60 @@ namespace ScintillaNET
         public void BeginUndoAction()
         {
             DirectMessage(NativeMethods.SCI_BEGINUNDOACTION);
+        }
+
+        /// <summary>
+        /// Styles the specified character position with the <see cref="Style.BraceBad" /> style when there is an unmatched brace.
+        /// </summary>
+        /// <param name="position">The zero-based document position of the unmatched brace character or <seealso cref="InvalidPosition"/> to remove the highlight.</param>
+        public void BraceBadLight(int position)
+        {
+            position = Helpers.Clamp(position, -1, TextLength);
+            if (position > 0)
+                position = Lines.CharToBytePosition(position);
+
+            DirectMessage(NativeMethods.SCI_BRACEBADLIGHT, new IntPtr(position));
+        }
+
+        /// <summary>
+        /// Styles the specified character positions with the <see cref="Style.BraceLight" /> style.
+        /// </summary>
+        /// <param name="position1">The zero-based document position of the open brace character.</param>
+        /// <param name="position2">The zero-based document position of the close brace character.</param>
+        /// <remarks>Brace highlighting can be removed by specifying <see cref="InvalidPosition" /> for <paramref name="position1" /> and <paramref name="position2" />.</remarks>
+        /// <seealso cref="HighlightGuide" />
+        public void BraceHighlight(int position1, int position2)
+        {
+            var textLength = TextLength;
+
+            position1 = Helpers.Clamp(position1, -1, textLength);
+            if (position1 > 0)
+                position1 = Lines.CharToBytePosition(position1);
+
+            position2 = Helpers.Clamp(position2, -1, textLength);
+            if (position2 > 0)
+                position2 = Lines.CharToBytePosition(position2);
+
+            DirectMessage(NativeMethods.SCI_BRACEHIGHLIGHT, new IntPtr(position1), new IntPtr(position2));
+        }
+
+        /// <summary>
+        /// Finds a corresponding matching brace starting at the position specified.
+        /// The brace characters handled are '(', ')', '[', ']', '{', '}', '&lt;', and '&gt;'.
+        /// </summary>
+        /// <param name="position">The zero-based document position of a brace character to start the search from for a matching brace character.</param>
+        /// <returns>The zero-based document position of the corresponding matching brace or <paramref name="InvalidPosition" /> it no matching brace could be found.</returns>
+        /// <remarks>A match only occurs if the style of the matching brace is the same as the starting brace. Nested braces are handled correctly.</remarks>
+        public int BraceMatch(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+            
+            var match = DirectMessage(NativeMethods.SCI_BRACEMATCH, new IntPtr(position), IntPtr.Zero).ToInt32();
+            if (match > 0)
+                match = Lines.ByteToCharPosition(match);
+
+            return match;
         }
 
         /// <summary>
@@ -602,6 +661,51 @@ namespace ScintillaNET
         {
             var cmd = (int)sciCommand;
             DirectMessage(cmd);
+        }
+
+        /// <summary>
+        /// Returns the character as the specified document position.
+        /// </summary>
+        /// <param name="position">The zero-based document position of the character to get.</param>
+        /// <returns>The character at the specified <paramref name="position" />.</returns>
+        public unsafe int GetCharAt(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+
+            var nextPosition = DirectMessage(NativeMethods.SCI_POSITIONAFTER, new IntPtr(position)).ToInt32();
+            var length = (nextPosition - position);
+            if (length <= 1)
+            {
+                // Position is at single-byte character
+                return DirectMessage(NativeMethods.SCI_GETCHARAT, new IntPtr(position)).ToInt32();
+            }
+
+            // Position is at multibyte character
+            var bytes = new byte[length + 1];
+            fixed (byte* bp = bytes)
+            {
+                NativeMethods.Sci_TextRange* range = stackalloc NativeMethods.Sci_TextRange[1];
+                range->chrg.cpMin = position;
+                range->chrg.cpMax = nextPosition;
+                range->lpstrText = new IntPtr(bp);
+
+                DirectMessage(NativeMethods.SCI_GETTEXTRANGE, IntPtr.Zero, new IntPtr(range));
+                var str = Helpers.GetString(new IntPtr(bp), length, Encoding);
+                return str[0];
+            }
+        }
+
+        /// <summary>
+        /// Returns the column number of the specified document position, taking the width of tabs into account.
+        /// </summary>
+        /// <param name="position">The zero-based document position to get the column for.</param>
+        /// <returns>The number of columns from the start of the line to the specified document <paramref name="position" />.</returns>
+        public int GetColumn(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+            return DirectMessage(NativeMethods.SCI_GETCOLUMN, new IntPtr(position)).ToInt32();
         }
 
         /// <summary>
@@ -2956,6 +3060,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the column number of the indentation guide to highlight.
+        /// </summary>
+        /// <returns>The column number of the indentation guide to highlight or 0 if disabled.</returns>
+        /// <remarks>Guides are highlighted in the <see cref="Style.BraceLight" /> style. Column numbers can be determined by calling <see cref="GetColumn" />.</remarks>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int HighlightGuide
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETHIGHLIGHTGUIDE).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETHIGHLIGHTGUIDE, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to display the horizontal scroll bar.
         /// </summary>
         /// <returns>true to display the horizontal scroll bar when needed; otherwise, false. The default is true.</returns>
@@ -3202,7 +3326,7 @@ namespace ScintillaNET
         /// <returns>
         /// The time in milliseconds the mouse must linger to generate a <see cref="DwellStart" /> event
         /// or <see cref="Scintilla.TimeForever" /> if dwell events are disabled.
-        /// .</returns>
+        /// </returns>
         [DefaultValue(TimeForever)]
         [Category("Behavior")]
         [Description("The time in milliseconds the mouse must linger to generate a dwell start event. A value of 10000000 disables dwell events.")]

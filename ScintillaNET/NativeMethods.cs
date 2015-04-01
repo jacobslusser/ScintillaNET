@@ -13,6 +13,8 @@ namespace ScintillaNET
         private const string DLL_NAME_KERNEL32 = "kernel32.dll";
         private const string DLL_NAME_USER32 = "user32.dll";
 
+        public const int INVALID_POSITION = -1;
+
         // Annotations
         public const int ANNOTATION_HIDDEN = 0;
         public const int ANNOTATION_STANDARD = 1;
@@ -1250,11 +1252,25 @@ namespace ScintillaNET
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        public struct Sci_CharacterRange
+        {
+            public int cpMin;
+            public int cpMax;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         public struct Sci_NotifyHeader
         {
             public IntPtr hwndFrom;
             public IntPtr idFrom;
             public int code;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Sci_TextRange
+        {
+            public Sci_CharacterRange chrg;
+            public IntPtr lpstrText;
         }
 
         [StructLayout(LayoutKind.Sequential)]

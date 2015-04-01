@@ -57,23 +57,24 @@ The native Scintilla control has a habit of clamping input values to within acce
   4. [Complete Recipe](#syntax-highlighting-recipe)
 3. [Automatic Code Folding](#auto-folding)
 4. [Basic Autocompletion](#autocompletion)
-5. [Intercepting Inserted Text](#insert-check)
-6. [Displaying Line Numbers](#line-numbers)
-7. [Zooming](#zooming)
-8. [Updating Dependent Controls](#update-ui)
-9. [Find and Highlight Words](#find-highlight)
-10. [View Whitespace](#whitespace)
-11. [Increase Line Spacing](#line-spacing)
-12. [Rectangular/Multiple Selections](#multiple-selections)
-13. [Bookmark Lines](#bookmarks)
-14. [Key Bindings](#key-bindings)
-15. [Documents](#documents)
+5. [Brace Matching](#brace-matching)
+6. [Intercepting Inserted Text](#insert-check)
+7. [Displaying Line Numbers](#line-numbers)
+8. [Zooming](#zooming)
+9. [Updating Dependent Controls](#update-ui)
+10. [Find and Highlight Words](#find-highlight)
+11. [View Whitespace](#whitespace)
+12. [Increase Line Spacing](#line-spacing)
+13. [Rectangular/Multiple Selections](#multiple-selections)
+14. [Bookmark Lines](#bookmarks)
+15. [Key Bindings](#key-bindings)
+16. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-16. [Using a Custom SciLexer.dll](#scilexer)
-17. [Direct Messages](#direct-message) 
+17. [Using a Custom SciLexer.dll](#scilexer)
+18. [Direct Messages](#direct-message) 
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -307,6 +308,163 @@ private void scintilla_CharAdded(object sender, CharAddedEventArgs e)
 When you display an autocompletion list you tell Scintilla how many characters of the word being completed have already been entered. By doing this, Scintilla will narrow down the list of possible completion words and, when the user selects one of those words with the tab or enter key, automatically complete the *rest* of the word and not insert the *entire* word. That's what the code using `WordStartPosition` is doing—figuring out how many characters of the current word have already been entered.
 
 The `if (lenEntered > 0)` check is a way of making sure the user is entering a word and not just typing whitespace. If `wordStartPos` was the same as `currentPos` it would mean our caret is in the middle of whitespace, not a word. Another way to do that would be to check the `CharAddedEventArgs.Char` property.
+
+### <a name="brace-matching"></a>Brace Matching
+
+So you wanna highlight matching braces? No problem. But it doesn't come for free. What may be a brace character in one programming language may be an operator in another. Thus, Scintilla provides facilities for you to highlight matching braces but it doesn't do it for you.
+
+Our basic approach will be this: listen to the `UpdateUI` event to know when the caret changes position, determine if the caret is adjacent to a brace character, find the matching brace character using `BraceMatch`, and then highlight those characters with `BraceHighlight`. This may sound like a lot of work but it's actually pretty easy. Let's start by setting the brace styles:
+
+```cs
+scintilla.Styles[Style.BraceLight].BackColor = Color.LightGray;
+scintilla.Styles[Style.BraceLight].ForeColor = Color.BlueViolet;
+scintilla.Styles[Style.BraceBad].ForeColor = Color.Red;
+```
+
+You'll notice that we also set the style for an unmatched brace. We'll indicate those in red.
+
+For the purposes of this recipe we'll assume the following characters are braces: '(', ')', '[', ']', '{', '}', '<', and '>'. This is convenient because that's also what the `BraceMatch` method supports, as you'll see in a minute. To determine if a character is one of the brace characters we want to process we'll use a simple helper method:
+
+```cs
+private static bool IsBrace(int c)
+{
+    switch (c)
+    {
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case '{':
+        case '}':
+        case '<':
+        case '>':
+            return true;
+    }
+
+    return false;
+}
+```
+
+All that remains now is to handle the `UpdateUI` event:
+
+```cs
+int lastCaretPos = 0;
+
+private void scintilla_UpdateUI(object sender, UpdateUIEventArgs e)
+{
+    // Has the caret changed position?
+    var caretPos = scintilla.CurrentPosition;
+    if (lastCaretPos != caretPos)
+    {
+        lastCaretPos = caretPos;
+        var bracePos1 = -1;
+        var bracePos2 = -1;
+
+        // Is there a brace to the left or right?
+        if (caretPos > 0 && IsBrace(scintilla.GetCharAt(caretPos - 1)))
+            bracePos1 = (caretPos - 1);
+        else if (IsBrace(scintilla.GetCharAt(caretPos)))
+            bracePos1 = caretPos;
+
+        if (bracePos1 >= 0)
+        {
+            // Find the matching brace
+            bracePos2 = scintilla.BraceMatch(bracePos1);
+            if (bracePos2 == Scintilla.InvalidPosition)
+                scintilla.BraceBadLight(bracePos1);
+            else
+                scintilla.BraceHighlight(bracePos1, bracePos2);
+        }
+        else
+        {
+            // Turn off brace matching
+            scintilla.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+        }
+    }
+}
+```
+
+The `UpdateUI` event can be called for many reasons—not just because the caret moved. So at the top of the handler is a check to see if the caret has moved since the last time the `UpdateUI` event fired. Next we peek at the character before the current caret position and *at* the current caret position to determine if either is a brace character using our simple `IsBrace` helper method. If it is a brace character, `bracePos` will be set and we can then look for the matching brace character. Scintilla makes this easy by providing the `BraceMatch` method which looks for the same brace characters that our `IsBrace` method does and knows whether to scan backwards or forwards depending on the start character. It's also smart enough to skip over nested braces. If you wanted to find a character that the `BraceMatch` method doesn't support you would have to roll your own scanning logic. If a matching brace is found we highlight both brace positions using the `BraceHighlight` method, if not, we highlight the orphaned brace with the `BraceBadLight` method.
+
+That's it for basic brace matching, but we could go one step further. Scintilla also provides the ability to show an indentation guide, which is a vertical line at different indentation levels. This is a good companion feature for brace matching. When we do brace matching we can also highlight the corresponding indentation guide in the `BraceLight` style. To enable indentation guides we use the `IndentationGuides` property:
+
+```cs
+scintilla.IndentationGuides = IndentView.LookBoth;
+```
+
+To highlight an indentation guide we use the `HighlightGuide` property. The value of this property is the column number of the guide to highlight. Since indentation guides are vertical lines at different indentation levels, it makes sense that we have to tell Scintilla which indentation level should be highlighted by providing it with the column (read level) of the indentation. The column number of a document position can be determined using the `GetColumn` method.
+
+Putting that all together, here is the complete recipe:
+
+```cs
+int lastCaretPos = 0;
+
+private void form_Load(object sender, EventArgs e)
+{
+    scintilla.IndentationGuides = IndentView.LookBoth;
+    scintilla.Styles[Style.BraceLight].BackColor = Color.LightGray;
+    scintilla.Styles[Style.BraceLight].ForeColor = Color.BlueViolet;
+    scintilla.Styles[Style.BraceBad].ForeColor = Color.Red;
+}
+
+private static bool IsBrace(int c)
+{
+    switch (c)
+    {
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case '{':
+        case '}':
+        case '<':
+        case '>':
+            return true;
+    }
+
+    return false;
+}
+
+private void scintilla_UpdateUI(object sender, UpdateUIEventArgs e)
+{
+    // Has the caret changed position?
+    var caretPos = scintilla.CurrentPosition;
+    if (lastCaretPos != caretPos)
+    {
+        lastCaretPos = caretPos;
+        var bracePos1 = -1;
+        var bracePos2 = -1;
+
+        // Is there a brace to the left or right?
+        if (caretPos > 0 && IsBrace(scintilla.GetCharAt(caretPos - 1)))
+            bracePos1 = (caretPos - 1);
+        else if (IsBrace(scintilla.GetCharAt(caretPos)))
+            bracePos1 = caretPos;
+
+        if (bracePos1 >= 0)
+        {
+            // Find the matching brace
+            bracePos2 = scintilla.BraceMatch(bracePos1);
+            if (bracePos2 == Scintilla.InvalidPosition)
+            {
+                scintilla.BraceBadLight(bracePos1);
+                scintilla.HighlightGuide = 0;
+            }
+            else
+            {
+                scintilla.BraceHighlight(bracePos1, bracePos2);
+                scintilla.HighlightGuide = scintilla.GetColumn(bracePos1);
+            }
+        }
+        else
+        {
+            // Turn off brace matching
+            scintilla.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+            scintilla.HighlightGuide = 0;
+        }
+    }
+}
+```
 
 ### <a name="insert-check"></a>Intercepting Inserted Text
 

@@ -35,6 +35,17 @@ namespace ScintillaNET
         /// </summary>
         public const int IndentGuide = NativeMethods.STYLE_INDENTGUIDE;
 
+        /// <summary>
+        /// Brace highlighting style index. This style is used on a brace character when set with the <see cref="BraceHighlight" /> method
+        /// or the indentation guide when used with the <see cref="HighlightGuide" /> property.
+        /// </summary>
+        public const int BraceLight = NativeMethods.STYLE_BRACELIGHT;
+
+        /// <summary>
+        /// Bad brace style index. This style is used on an unmatched brace character when set with the <see cref="BraceBadLight" /> method.
+        /// </summary>
+        public const int BraceBad = NativeMethods.STYLE_BRACEBAD;
+
         #endregion Constants
 
         #region Fields
