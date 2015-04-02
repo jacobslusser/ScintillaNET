@@ -98,6 +98,7 @@
     <Compile Include="Style.cs" />
     <Compile Include="StyleCase.cs" />
     <Compile Include="StyleCollection.cs" />
+    <Compile Include="StyleNeededEventArgs.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="VirtualSpace.cs" />

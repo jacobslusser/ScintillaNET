@@ -1268,10 +1268,10 @@ namespace ScintillaNET
         /// <summary>
         /// Raises the <see cref="StyleNeeded" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
-        protected virtual void OnStyleNeeded(EventArgs e)
+        /// <param name="e">A <see cref="StyleNeededEventArgs" /> that contains the event data.</param>
+        protected virtual void OnStyleNeeded(StyleNeededEventArgs e)
         {
-            var handler = Events[styleNeededEventKey] as EventHandler<EventArgs>;
+            var handler = Events[styleNeededEventKey] as EventHandler<StyleNeededEventArgs>;
             if (handler != null)
                 handler(this, e);
         }
@@ -1841,7 +1841,7 @@ namespace ScintillaNET
                         break;
 
                     case NativeMethods.SCN_STYLENEEDED:
-                        OnStyleNeeded(EventArgs.Empty);
+                        OnStyleNeeded(new StyleNeededEventArgs(this, scn.position));
                         break;
 
                     case NativeMethods.SCN_SAVEPOINTLEFT:
@@ -4515,12 +4515,12 @@ namespace ScintillaNET
         /// </summary>
         /// <remarks>
         /// This event is only raised when <see cref="Lexer" /> is set to <see cref="ScintillaNET.Lexer.Container" />.
-        /// The last position styled can be determined by calling <see cref="GetEndStyled" />.
+        /// The last position styled correctly can be determined by calling <see cref="GetEndStyled" />.
         /// </remarks>
         /// <seealso cref="GetEndStyled" />
         [Category("Notifications")]
         [Description("Occurs when the text needs styling.")]
-        public event EventHandler<EventArgs> StyleNeeded
+        public event EventHandler<StyleNeededEventArgs> StyleNeeded
         {
             add
             {
