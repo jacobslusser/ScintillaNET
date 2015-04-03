@@ -1686,7 +1686,7 @@ namespace ScintillaNET
 
             var endPos = stylingPosition + length;
             var endBytePos = Lines.CharToBytePosition(endPos);
-            DirectMessage(NativeMethods.SCI_SETSTYLING, new IntPtr(endBytePos - stylingPosition), new IntPtr(style));
+            DirectMessage(NativeMethods.SCI_SETSTYLING, new IntPtr(endBytePos - stylingBytePosition), new IntPtr(style));
 
             // Track this for the next call
             stylingPosition = endPos;
