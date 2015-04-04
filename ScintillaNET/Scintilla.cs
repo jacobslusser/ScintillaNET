@@ -2865,6 +2865,9 @@ namespace ScintillaNET
             {
                 var ptr = value.Value;
                 DirectMessage(NativeMethods.SCI_SETDOCPOINTER, IntPtr.Zero, ptr);
+
+                // Rebuild the line cache
+                Lines.RebuildLineData();
             }
         }
 

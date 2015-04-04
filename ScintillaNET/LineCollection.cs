@@ -14,7 +14,7 @@ namespace ScintillaNET
     public class LineCollection : IEnumerable<Line>
     {
         private readonly Scintilla scintilla;
-        private readonly GapBuffer<PerLine> perLineData;
+        private GapBuffer<PerLine> perLineData;
 
         // The 'step' is a break in the continuity of our line starts. It allows us
         // to delay the updating of every line start when text is inserted/deleted.
@@ -272,6 +272,24 @@ namespace ScintillaNET
             }
         }
 
+        internal void RebuildLineData()
+        {
+            stepLine = 0;
+            stepLength = 0;
+
+            perLineData = new GapBuffer<PerLine>();
+            perLineData.Add(new PerLine { Start = 0 });
+            perLineData.Add(new PerLine { Start = 0 }); // Terminal
+
+            // Fake an insert notification
+            var scn = new NativeMethods.SCNotification();
+            scn.linesAdded = scintilla.DirectMessage(NativeMethods.SCI_GETLINECOUNT).ToInt32() - 1;
+            scn.position = 0;
+            scn.length = scintilla.DirectMessage(NativeMethods.SCI_GETLENGTH).ToInt32();
+            scn.text = scintilla.DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(scn.position), new IntPtr(scn.length));
+            TrackInsertText(scn);
+        }
+
         private void scintilla_SCNotification(object sender, SCNotificationEventArgs e)
         {
             var scn = e.SCNotification;
@@ -400,9 +418,7 @@ namespace ScintillaNET
             this.scintilla = scintilla;
             this.scintilla.SCNotification += scintilla_SCNotification;
 
-            this.perLineData = new GapBuffer<PerLine>();
-            this.perLineData.Add(new PerLine { Start = 0 });
-            this.perLineData.Add(new PerLine { Start = 0 }); // Terminal
+            RebuildLineData();
         }
 
         /// <summary>
