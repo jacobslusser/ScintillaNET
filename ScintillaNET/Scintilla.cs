@@ -3854,8 +3854,15 @@ namespace ScintillaNET
             }
             set
             {
-                fixed (byte* bp = Helpers.GetBytes(value ?? string.Empty, Encoding, zeroTerminated: true))
-                    DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
+                if (string.IsNullOrEmpty(value))
+                {
+                    DirectMessage(NativeMethods.SCI_CLEARALL);
+                }
+                else
+                {
+                    fixed (byte* bp = Helpers.GetBytes(value, Encoding, zeroTerminated: true))
+                        DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
+                }
             }
         }
 

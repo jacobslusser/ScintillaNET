@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ScintillaNET")]
 [assembly: AssemblyDescription("Source Editing Component")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Jacob Slusser")]
 [assembly: AssemblyProduct("ScintillaNET")]
 [assembly: AssemblyCopyright("Copyright (c) 2015, Jacob Slusser. All rights reserved.")]
 [assembly: AssemblyTrademark("The MIT License (MIT)")]
@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("f8ac48e7-9378-482d-8c7f-92c8408dd4f2")]
 
+// http://stackoverflow.com/a/65062
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -34,9 +35,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.0.1.0")]
-[assembly: AssemblyFileVersion("3.0.1.0")]
-[assembly: AssemblyInformationalVersion("3.0.1.0")]
+[assembly: AssemblyVersion("3.1.0.0")]
+[assembly: AssemblyFileVersion("3.1.0.0")]
+[assembly: AssemblyInformationalVersion("3.1.0-rc")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
 
 [assembly: InternalsVisibleToAttribute("ScintillaNET.Test")]

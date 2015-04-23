@@ -8,7 +8,11 @@ ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft
 
 ### Project Status
 
-ScintillaNET is in active development and nearing 100% API coverage with the core Scintilla component. Beta testers are welcome.
+ScintillaNET is in active development and nearing 100% API coverage with the core Scintilla component.
+
+Compiled versions can be downloaded from [NuGet](https://www.nuget.org/packages/jacobslusser.ScintillaNET) or the [Releases](https://github.com/jacobslusser/ScintillaNET/releases) page.
+
+For the latest and greatest you can build the Master branch from source using Visual Studio 2013.
 
 ## Background
 
