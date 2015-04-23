@@ -60,6 +60,7 @@ The native Scintilla control has a habit of clamping input values to within acce
 5. [Brace Matching](#brace-matching)
 6. [Intercepting Inserted Text](#insert-check)
 7. [Displaying Line Numbers](#line-numbers)
+  1. [Custom Line Numbers](#custom-line-numbers)
 8. [Zooming](#zooming)
 9. [Updating Dependent Controls](#update-ui)
 10. [Find and Highlight Words](#find-highlight)
@@ -512,6 +513,46 @@ private void scintilla_TextChanged(object sender, EventArgs e)
 ```
 
 *NOTE: The color of the text displayed in a line number margin can be controlled via the `Style.LineNumber` style definition.*
+
+#### <a name="custom-line-numbers"></a>Custom Line Numbers
+
+Scintilla has no built-in facilities for changing the line number display to some other text or format; however, using a standard text margin (rather than a number margin) we could simulate line numbers using any text or format we'd like.
+
+In this example we'll assume our user is either a savant or masochist and wants line numbers displayed in hexadecimal format. The first step would be to change margin 0 (traditionally use for line numbers) to a right-aligned text margin.
+
+```cs
+scintilla.Margins[0].Type = MarginType.RightText;
+scintilla.Margins[0].Width = 35;
+```
+
+Now we just need to set the margin text for each line to a hexadecimal representation of its line number and keep it up-to-date when the lines change. To monitor changes I'll use the `Insert` and `Delete` events because they include a property indicating the number of lines added or removed. Using the `TextChanged` event wouldn't tell me that (easily). A small optimization I've also done is to update only the lines affected rather than every line. That would be anything *following* the changed line, but not before it—those are still valid.
+
+```cs
+private void UpdateLineNumbers(int startingAtLine)
+{
+    // Starting at the specified line index, update each
+    // subsequent line margin text with a hex line number.
+    for (int i = startingAtLine; i < scintilla.Lines.Count; i++)
+    {
+        scintilla.Lines[i].MarginStyle = Style.LineNumber;
+        scintilla.Lines[i].MarginText = "0x" + i.ToString("X2");
+    }
+}
+
+private void scintilla_Insert(object sender, ModificationEventArgs e)
+{
+    // Only update line numbers if the number of lines changed
+    if (e.LinesAdded != 0)
+        UpdateLineNumbers(scintilla.LineFromPosition(e.Position));
+}
+
+private void scintilla_Delete(object sender, ModificationEventArgs e)
+{
+    // Only update line numbers if the number of lines changed
+    if (e.LinesAdded != 0)
+        UpdateLineNumbers(scintilla.LineFromPosition(e.Position));
+}
+```
 
 ### <a name="zooming"></a>Zooming
 
