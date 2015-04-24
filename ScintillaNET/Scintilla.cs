@@ -202,7 +202,7 @@ namespace ScintillaNET
                 var endPos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
                 var startPos = endPos;
                 for (int i = 0; i < lenEntered; i++)
-                    startPos = DirectMessage(NativeMethods.SCI_POSITIONBEFORE, new IntPtr(startPos)).ToInt32();
+                    startPos = DirectMessage(NativeMethods.SCI_POSITIONRELATIVE, new IntPtr(startPos), new IntPtr(-1)).ToInt32();
 
                 lenEntered = (endPos - startPos);
             }
@@ -673,7 +673,7 @@ namespace ScintillaNET
             position = Helpers.Clamp(position, 0, TextLength);
             position = Lines.CharToBytePosition(position);
 
-            var nextPosition = DirectMessage(NativeMethods.SCI_POSITIONAFTER, new IntPtr(position)).ToInt32();
+            var nextPosition = DirectMessage(NativeMethods.SCI_POSITIONRELATIVE, new IntPtr(position), new IntPtr(1)).ToInt32();
             var length = (nextPosition - position);
             if (length <= 1)
             {

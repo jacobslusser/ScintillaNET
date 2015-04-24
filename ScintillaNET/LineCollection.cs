@@ -93,7 +93,7 @@ namespace ScintillaNET
             while (pos > 0)
             {
                 // Move char-by-char
-                bytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONAFTER, new IntPtr(bytePos)).ToInt32();
+                bytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONRELATIVE, new IntPtr(bytePos), new IntPtr(1)).ToInt32();
                 pos--;
             }
 

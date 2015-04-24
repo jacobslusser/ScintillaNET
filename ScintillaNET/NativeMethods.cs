@@ -673,8 +673,6 @@ namespace ScintillaNET
         public const int SCI_PARADOWNEXTEND = 2414;
         public const int SCI_PARAUP = 2415;
         public const int SCI_PARAUPEXTEND = 2416;
-        public const int SCI_POSITIONBEFORE = 2417;
-        public const int SCI_POSITIONAFTER = 2418;
         public const int SCI_POSITIONRELATIVE = 2670;
         public const int SCI_COPYRANGE = 2419;
         public const int SCI_COPYTEXT = 2420;
