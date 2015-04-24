@@ -274,7 +274,7 @@ namespace ScintillaNET
         /// The brace characters handled are '(', ')', '[', ']', '{', '}', '&lt;', and '&gt;'.
         /// </summary>
         /// <param name="position">The zero-based document position of a brace character to start the search from for a matching brace character.</param>
-        /// <returns>The zero-based document position of the corresponding matching brace or <paramref name="InvalidPosition" /> it no matching brace could be found.</returns>
+        /// <returns>The zero-based document position of the corresponding matching brace or <see cref="InvalidPosition" /> it no matching brace could be found.</returns>
         /// <remarks>A match only occurs if the style of the matching brace is the same as the starting brace. Nested braces are handled correctly.</remarks>
         public int BraceMatch(int position)
         {

@@ -743,8 +743,6 @@ namespace ScintillaNET
         public const int SCI_GETCHARACTERPOINTER = 2520;
         public const int SCI_GETRANGEPOINTER = 2643;
         public const int SCI_GETGAPPOSITION = 2644;
-        public const int SCI_SETKEYSUNICODE = 2521;
-        public const int SCI_GETKEYSUNICODE = 2522;
         public const int SCI_INDICSETALPHA = 2523;
         public const int SCI_INDICGETALPHA = 2524;
         public const int SCI_INDICSETOUTLINEALPHA = 2558;
