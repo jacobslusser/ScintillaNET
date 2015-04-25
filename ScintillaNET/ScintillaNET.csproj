@@ -58,6 +58,7 @@
     <Compile Include="DwellEventArgs.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
+    <Compile Include="FontQuality.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ILoader.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="MultiPaste.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="Phases.cs" />
     <Compile Include="PropertyType.cs" />
     <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
@@ -99,6 +101,7 @@
     <Compile Include="StyleCase.cs" />
     <Compile Include="StyleCollection.cs" />
     <Compile Include="StyleNeededEventArgs.cs" />
+    <Compile Include="Technology.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="VirtualSpace.cs" />

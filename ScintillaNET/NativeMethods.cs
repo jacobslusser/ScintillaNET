@@ -75,6 +75,11 @@ namespace ScintillaNET
         public const int INDIC_MAX = 31;
         public const int INDIC_CONTAINER = 8;
 
+        // Phases
+        public const int SC_PHASES_ONE = 0;
+        public const int SC_PHASES_TWO = 1;
+        public const int SC_PHASES_MULTIPLE = 2;
+
         // Indicator flags
         public const int SC_INDICFLAG_VALUEFORE = 1;
         public const int SC_INDICVALUEBIT = 0x1000000;
@@ -110,6 +115,12 @@ namespace ScintillaNET
         public const int SC_CURSORARROW = 2;
         public const int SC_CURSORWAIT = 4;
         public const int SC_CURSORREVERSEARROW = 7;
+
+        // Font quality
+        public const int SC_EFF_QUALITY_DEFAULT = 0;
+        public const int SC_EFF_QUALITY_NON_ANTIALIASED = 1;
+        public const int SC_EFF_QUALITY_ANTIALIASED = 2;
+        public const int SC_EFF_QUALITY_LCD_OPTIMIZED = 3;
 
         // Margins
         public const int SC_MAX_MARGIN = 4;
@@ -673,6 +684,8 @@ namespace ScintillaNET
         public const int SCI_PARADOWNEXTEND = 2414;
         public const int SCI_PARAUP = 2415;
         public const int SCI_PARAUPEXTEND = 2416;
+        // public const int SCI_POSITIONBEFORE = 2417; // Bad, bad, bad. Don't use these...
+        // public const int SCI_POSITIONAFTER = 2418;  // they treat \r\n as one character.
         public const int SCI_POSITIONRELATIVE = 2670;
         public const int SCI_COPYRANGE = 2419;
         public const int SCI_COPYTEXT = 2420;
@@ -962,6 +975,12 @@ namespace ScintillaNET
         public const int SC_CASE_MIXED = 0;
         public const int SC_CASE_UPPER = 1;
         public const int SC_CASE_LOWER = 2;
+
+        // Technology
+        public const int SC_TECHNOLOGY_DEFAULT = 0;
+        public const int SC_TECHNOLOGY_DIRECTWRITE = 1;
+        public const int SC_TECHNOLOGY_DIRECTWRITERETAIN = 2;
+        public const int SC_TECHNOLOGY_DIRECTWRITEDC = 3;
 
         // Undo
         public const int UNDO_MAY_COALESCE = 1;

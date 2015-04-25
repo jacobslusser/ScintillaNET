@@ -2497,6 +2497,30 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether drawing is double-buffered.
+        /// </summary>
+        /// <returns>
+        /// true to draw each line into an offscreen bitmap first before copying it to the screen; otherwise, false.
+        /// The default is true.
+        /// </returns>
+        /// <remarks>Disabling buffer can improve performance but will cause flickering.</remarks>
+        [DefaultValue(true)]
+        [Category("Misc")]
+        [Description("Determines whether drawing is double-buffered.")]
+        public bool BufferedDraw
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETBUFFEREDDRAW) != IntPtr.Zero);
+            }
+            set
+            {
+                var isBuffered = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETBUFFEREDDRAW, isBuffered);
+            }
+        }
+
         /*
         /// <summary>
         /// Gets or sets the current position of a call tip.
@@ -3046,6 +3070,29 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets font quality (anti-aliasing method) used to render fonts.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.FontQuality" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.FontQuality.Default" />.
+        /// </returns>
+        [DefaultValue(FontQuality.Default)]
+        [Category("Misc")]
+        [Description("Specifies the anti-aliasing method to use when rendering fonts.")]
+        public FontQuality FontQuality
+        {
+            get
+            {
+                return (FontQuality)DirectMessage(NativeMethods.SCI_GETFONTQUALITY);
+            }
+            set
+            {
+                var fontQuality = (int)value;
+                DirectMessage(NativeMethods.SCI_SETFONTQUALITY, new IntPtr(fontQuality));
+            }
+        }
+
+        /// <summary>
         /// Not supported.
         /// </summary>
         [Browsable(false)]
@@ -3470,6 +3517,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the number of phases used when drawing.
+        /// </summary>
+        /// <returns>One of the <see cref="Phases" /> enumeration values. The default is <see cref="Phases.Two" />.</returns>
+        [DefaultValue(Phases.Two)]
+        [Category("Misc")]
+        [Description("Adjusts the number of phases used when drawing.")]
+        public Phases PhasesDraw
+        {
+            get
+            {
+                return (Phases)DirectMessage(NativeMethods.SCI_GETPHASESDRAW);
+            }
+            set
+            {
+                var phases = (int)value;
+                DirectMessage(NativeMethods.SCI_SETPHASESDRAW, new IntPtr(phases));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether the document is read-only.
         /// </summary>
         /// <returns>true if the document is read-only; otherwise, false. The default is false.</returns>
@@ -3829,6 +3896,29 @@ namespace ScintillaNET
                     DirectMessage(NativeMethods.SCI_GETTARGETTEXT, IntPtr.Zero, new IntPtr(bp));
                     return Helpers.GetString(new IntPtr(bp), length, Encoding);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the rendering technology used.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="Technology" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.Technology.Default" />.
+        /// </returns>
+        [DefaultValue(Technology.Default)]
+        [Category("Misc")]
+        [Description("The rendering technology used to draw text.")]
+        public Technology Technology
+        {
+            get
+            {
+                return (Technology)DirectMessage(NativeMethods.SCI_GETTECHNOLOGY);
+            }
+            set
+            {
+                var technology = (int)value;
+                DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(technology));
             }
         }
 
