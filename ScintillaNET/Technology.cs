@@ -22,4 +22,3 @@ namespace ScintillaNET
         DirectWrite = NativeMethods.SC_TECHNOLOGY_DIRECTWRITE
     }
 }
-

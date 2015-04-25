@@ -212,6 +212,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether indicators are drawn under or over text.
+        /// </summary>
+        /// <returns>true to draw the indicator under text; otherwise, false. The default is false.</returns>
+        /// <remarks>Drawing indicators under text requires <see cref="Phases.One" /> or <see cref="Phases.Multiple" /> drawing.</remarks>
+        public bool Under
+        {
+            get
+            {
+                return (scintilla.DirectMessage(NativeMethods.SCI_INDICGETUNDER, new IntPtr(Index)) != IntPtr.Zero);
+            }
+            set
+            {
+                var under = (value ? new IntPtr(1) : IntPtr.Zero);
+                scintilla.DirectMessage(NativeMethods.SCI_INDICSETUNDER, new IntPtr(Index), under);
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Indicator" /> class.
         /// </summary>
         /// <param name="scintilla">The <see cref="Scintilla" /> control that created this indicator.</param>
