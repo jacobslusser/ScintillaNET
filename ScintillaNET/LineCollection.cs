@@ -28,6 +28,11 @@ namespace ScintillaNET
         {
             MoveStep(index);
             stepLength += delta;
+
+            // Invalidate multibyte flag
+            var perLine = perLineData[index];
+            perLine.ContainsMultibyte = ContainsMultibyte.Unkown;
+            perLineData[index] = perLine;
         }
 
         /// <summary>
@@ -90,6 +95,10 @@ namespace ScintillaNET
             var bytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(line)).ToInt32();
             pos -= CharPositionFromLine(line);
 
+            // Optimization when the line contains NO multibyte characters
+            if (!LineContainsMultibyteChar(line))
+                return (bytePos + pos);
+
             while (pos > 0)
             {
                 // Move char-by-char
@@ -137,8 +146,13 @@ namespace ScintillaNET
                         scintilla.DirectMessage(NativeMethods.SCI_GETLINE, new IntPtr(i), new IntPtr(ptr));
 
                     var str = scintilla.Encoding.GetString(bytes);
+                    var containsMultibyte = "U";
+                    if (perLineData[i].ContainsMultibyte == ContainsMultibyte.Yes)
+                        containsMultibyte = "Y";
+                    else if (perLineData[i].ContainsMultibyte == ContainsMultibyte.No)
+                        containsMultibyte = "N";
 
-                    writer.WriteLine("{0}[{1}] {2}:{3} {4}", error, i, CharPositionFromLine(i), str.Length, str.Replace("\r", "\\r").Replace("\n", "\\n"));
+                    writer.WriteLine("{0}[{1}] {2}:{3}:{4} {5}", error, i, CharPositionFromLine(i), str.Length, containsMultibyte, str.Replace("\r", "\\r").Replace("\n", "\\n"));
                     totalChars += str.Length;
                 }
             }
@@ -182,6 +196,22 @@ namespace ScintillaNET
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        private bool LineContainsMultibyteChar(int index)
+        {
+            var perLine = perLineData[index];
+            if (perLine.ContainsMultibyte == ContainsMultibyte.Unkown)
+            {
+                perLine.ContainsMultibyte =
+                    (scintilla.DirectMessage(NativeMethods.SCI_LINELENGTH, new IntPtr(index)).ToInt32() == CharLineLength(index))
+                    ? ContainsMultibyte.No
+                    : ContainsMultibyte.Yes;
+
+                perLineData[index] = perLine;
+            }
+
+            return (perLine.ContainsMultibyte == ContainsMultibyte.Yes);
         }
 
         /// <summary>
@@ -430,6 +460,19 @@ namespace ScintillaNET
             /// The CHARACTER position where the line begins.
             /// </summary>
             public int Start;
+
+            /// <summary>
+            /// 1 if the line contains multibyte (Unicode) characters; -1 if not; 0 if undetermined.
+            /// </summary>
+            /// <remarks>Using an enum instead of Nullable because it uses less memory per line...</remarks>
+            public ContainsMultibyte ContainsMultibyte;
+        }
+
+        private enum ContainsMultibyte
+        {
+            No = -1,
+            Unkown,
+            Yes
         }
     }
 }
