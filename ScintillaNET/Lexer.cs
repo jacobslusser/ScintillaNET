@@ -39,6 +39,11 @@ namespace ScintillaNET
         /// <summary>
         /// The Blitz (Blitz3D, BlitzMax, etc...) variant of Basic lexer.
         /// </summary>
-        BlitzBasic = NativeMethods.SCLEX_BLITZBASIC
+        BlitzBasic = NativeMethods.SCLEX_BLITZBASIC,
+
+        /// <summary>
+        /// The XML lexer.
+        /// </summary>
+        Xml = NativeMethods.SCLEX_XML
     }
 }

@@ -1198,6 +1198,7 @@ namespace ScintillaNET
         public const int SCE_CSS_MEDIA = 22;
         public const int SCE_CSS_VARIABLE = 23;
 
+        // Basic
         public const int SCE_B_DEFAULT = 0;
         public const int SCE_B_COMMENT = 1;
         public const int SCE_B_NUMBER = 2;
@@ -1221,6 +1222,29 @@ namespace ScintillaNET
         public const int SCE_B_DOCLINE = 20;
         public const int SCE_B_DOCBLOCK = 21;
         public const int SCE_B_DOCKEYWORD = 22;
+
+        // HTML/XML
+        public const int SCE_H_DEFAULT = 0;
+        public const int SCE_H_TAG = 1;
+        public const int SCE_H_TAGUNKNOWN = 2;
+        public const int SCE_H_ATTRIBUTE = 3;
+        public const int SCE_H_ATTRIBUTEUNKNOWN = 4;
+        public const int SCE_H_NUMBER = 5;
+        public const int SCE_H_DOUBLESTRING = 6;
+        public const int SCE_H_SINGLESTRING = 7;
+        public const int SCE_H_OTHER = 8;
+        public const int SCE_H_COMMENT = 9;
+        public const int SCE_H_ENTITY = 10;
+        public const int SCE_H_TAGEND = 11;
+        public const int SCE_H_XMLSTART = 12;
+        public const int SCE_H_XMLEND = 13;
+        public const int SCE_H_SCRIPT = 14;
+        public const int SCE_H_ASP = 15;
+        public const int SCE_H_ASPAT = 16;
+        public const int SCE_H_CDATA = 17;
+        public const int SCE_H_QUESTION = 18;
+        public const int SCE_H_VALUE = 19;
+        public const int SCE_H_XCCOMMENT = 20;
 
         #endregion Lexer Constants
 

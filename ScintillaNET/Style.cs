@@ -714,7 +714,7 @@ namespace ScintillaNET
             /// <summary>
             /// Default (whitespace) style index.
             /// </summary>
-            public const int Default = NativeMethods.SCE_CSS_DEFAULT;
+            public const int Default = NativeMethods.SCE_B_DEFAULT;
 
             /// <summary>
             /// Comment style index.
@@ -828,5 +828,120 @@ namespace ScintillaNET
         }
 
         #endregion Basic
+
+        #region Xml
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Xml" /> lexer.
+        /// </summary>
+        public static class Xml
+        {
+            /// <summary>
+            /// Content style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_H_DEFAULT;
+
+            /// <summary>
+            /// Tag style index.
+            /// </summary>
+            public const int Tag = NativeMethods.SCE_H_TAG;
+
+            /// <summary>
+            /// Unknown tag style index.
+            /// </summary>
+            public const int TagUnknown = NativeMethods.SCE_H_TAGUNKNOWN;
+
+            /// <summary>
+            /// Attribute style index.
+            /// </summary>
+            public const int Attribute = NativeMethods.SCE_H_ATTRIBUTE;
+
+            /// <summary>
+            /// Unknown attribute style index.
+            /// </summary>
+            public const int AttributeUnknown = NativeMethods.SCE_H_ATTRIBUTEUNKNOWN;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_H_NUMBER;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int DoubleString = NativeMethods.SCE_H_DOUBLESTRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int SingleString = NativeMethods.SCE_H_SINGLESTRING;
+
+            /// <summary>
+            /// Other tag content (not elements or attributes) style index.
+            /// </summary>
+            public const int Other = NativeMethods.SCE_H_OTHER;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_H_COMMENT;
+
+            /// <summary>
+            /// Entity ($nnn;) name style index.
+            /// </summary>
+            public const int Entity = NativeMethods.SCE_H_ENTITY;
+
+            /// <summary>
+            /// End-tag style index.
+            /// </summary>
+            public const int TagEnd = NativeMethods.SCE_H_TAGEND;
+
+            /// <summary>
+            /// Start of XML declaration (&lt;?xml&gt;) style index.
+            /// </summary>
+            public const int XmlStart = NativeMethods.SCE_H_XMLSTART;
+
+            /// <summary>
+            /// End of XML declaration (?&gt;) style index.
+            /// </summary>
+            public const int XmlEnd = NativeMethods.SCE_H_XMLEND;
+
+            /// <summary>
+            /// Script tag (&lt;script&gt;) style index.
+            /// </summary>
+            public const int Script = NativeMethods.SCE_H_SCRIPT;
+
+            /// <summary>
+            /// ASP-like script engine block (&lt;%) style index.
+            /// </summary>
+            public const int Asp = NativeMethods.SCE_H_ASP;
+
+            /// <summary>
+            /// ASP-like language declaration (&lt;%@) style index.
+            /// </summary>
+            public const int AspAt = NativeMethods.SCE_H_ASPAT;
+
+            /// <summary>
+            /// CDATA section style index.
+            /// </summary>
+            public const int CData = NativeMethods.SCE_H_CDATA;
+
+            /// <summary>
+            /// Question mark style index.
+            /// </summary>
+            public const int Question = NativeMethods.SCE_H_QUESTION;
+
+            /// <summary>
+            /// Value style index.
+            /// </summary>
+            public const int Value = NativeMethods.SCE_H_VALUE;
+
+            /// <summary>
+            /// Script engine comment (&lt;%--) style index.
+            /// </summary>
+            public const int XcComment = NativeMethods.SCE_H_XCCOMMENT;
+        }
+
+        #endregion Xml
     }
 }
