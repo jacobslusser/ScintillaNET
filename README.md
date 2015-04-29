@@ -245,7 +245,7 @@ scintilla.SetKeywords(1, "bool byte char class const decimal double enum float i
 
 If you want to do syntax highlighting for a language not already included with Scintilla you can implement your own syntax highlighting logic.
 
-*Before going further we should point out that it's not generally possible to augment an existing, built-in lexer with your own custom styling logic. They are not designed to support that. For the most part you get what you get with the built-in lexers. If you want to deviate from them you'll need to write your own lexer as described below.*
+*Before going further I should point out that it's not generally possible to augment an existing, built-in lexer with your own custom styling logic. They are not designed to support that. For the most part you get what you get with the built-in lexers. If you want to deviate from them you'll need to write your own lexer as described below.*
 
 The two key APIs for doing syntax highlighting in Scintilla are the `StartStyling(int position)` and `SetStyling(int length, int style)` methods. `StartStyling` is called for the `position` where you would like to start styling. Then, for each subsequent range of characters a call to `SetStyling` will apply the `style` for the `length` of characters specified. Each call to `SetStyling` advances the position so it's not necessary to call `StartStyling` for each style range.
 

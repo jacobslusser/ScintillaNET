@@ -151,7 +151,7 @@ namespace ScintillaNET
                         scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFONT, new IntPtr(Index), new IntPtr(bp));
                 }
 
-                var name = Encoding.Default.GetString(font, 0, length);
+                var name = Encoding.UTF8.GetString(font, 0, length);
                 return name;
             }
             set
@@ -159,9 +159,8 @@ namespace ScintillaNET
                 if (string.IsNullOrEmpty(value))
                     value = "Verdana";
 
-                // As best I can tell, Scintilla is using the LOGFONTA structure for loading
-                // and saving fonts. Meaning we need to convert our font name to ANSI.
-                var font = Helpers.GetBytes(value, Encoding.Default, true);
+                // Scintilla expects UTF-8
+                var font = Helpers.GetBytes(value, Encoding.UTF8, true);
                 unsafe
                 {
                     fixed (byte* bp = font)
