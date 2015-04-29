@@ -54,32 +54,35 @@ The native Scintilla control has a habit of clamping input values to within acce
 1. [Basic Text Retrieval and Modification](#basic-text)
   1. [Retrieving Text](#retrieve-text)
   2. [Insert, Append, Delete](#modify-text)
-2. [Syntax Highlighting](#syntax-highlighting)
+2. [Automatic Syntax Highlighting](#syntax-highlighting)
   1. [Selecting a Lexer](#lexer)
   2. [Defining Styles](#styles)
   3. [Setting Keywords](#keywords)
   4. [Complete Recipe](#syntax-highlighting-recipe)
-3. [Automatic Code Folding](#auto-folding)
-4. [Basic Autocompletion](#autocompletion)
-5. [Brace Matching](#brace-matching)
-6. [Intercepting Inserted Text](#insert-check)
-7. [Displaying Line Numbers](#line-numbers)
+3. [Custom Syntax Highlighting](#custom-highlighting)
+  1. [Handling the StyleNeeded Event](#style-needed)
+  2. [A Basic C# Lexer](#basic-lexer)
+4. [Automatic Code Folding](#auto-folding)
+5. [Basic Autocompletion](#autocompletion)
+6. [Brace Matching](#brace-matching)
+7. [Intercepting Inserted Text](#insert-check)
+8. [Displaying Line Numbers](#line-numbers)
   1. [Custom Line Numbers](#custom-line-numbers)
-8. [Zooming](#zooming)
-9. [Updating Dependent Controls](#update-ui)
-10. [Find and Highlight Words](#find-highlight)
-11. [View Whitespace](#whitespace)
-12. [Increase Line Spacing](#line-spacing)
-13. [Rectangular/Multiple Selections](#multiple-selections)
-14. [Bookmark Lines](#bookmarks)
-15. [Key Bindings](#key-bindings)
-16. [Documents](#documents)
+9. [Zooming](#zooming)
+10. [Updating Dependent Controls](#update-ui)
+11. [Find and Highlight Words](#find-highlight)
+12. [View Whitespace](#whitespace)
+13. [Increase Line Spacing](#line-spacing)
+14. [Rectangular/Multiple Selections](#multiple-selections)
+15. [Bookmark Lines](#bookmarks)
+16. [Key Bindings](#key-bindings)
+17. [Documents](#documents)
   1. [Understanding Document Reference Counts](#reference-counting)
   2. [Multiple Views of one Document](#multiple-views)
   3. [Multiple Documents for one View](#multiple-documents)
   3. [Background Loading](#loader)
-17. [Using a Custom SciLexer.dll](#scilexer)
-18. [Direct Messages](#direct-message) 
+18. [Using a Custom SciLexer.dll](#scilexer)
+19. [Direct Messages](#direct-message) 
 
 ### <a name="basic-text"></a>Basic Text Retrieval and Modification
 
@@ -110,7 +113,7 @@ scintilla.InsertText(0, "Goodbye"); // ' World' -> 'Goodbye World'
 
 *NOTE: It may help to think of a Scintilla control as a `StringBuilder`.*
 
-### <a name="syntax-highlighting"></a>Syntax Highlighting
+### <a name="syntax-highlighting"></a>Automatic Syntax Highlighting
 
 Far and away the most popular use for Scintilla is to display and edit source code. Out-of-the-box, Scintilla comes with syntax highlighting support for over 100 different languages. Chances are that the language you want to edit is already supported.
 
@@ -237,6 +240,271 @@ scintilla.Lexer = Lexer.Cpp;
 scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
 scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
 ```
+
+### <a name="custom-highlighting"></a>Custom Syntax Highlighting
+
+If you want to do syntax highlighting for a language not already included with Scintilla you can implement your own syntax highlighting logic.
+
+*Before going further we should point out that it's not generally possible to augment an existing, built-in lexer with your own custom styling logic. They are not designed to support that. For the most part you get what you get with the built-in lexers. If you want to deviate from them you'll need to write your own lexer as described below.*
+
+The two key APIs for doing syntax highlighting in Scintilla are the `StartStyling(int position)` and `SetStyling(int length, int style)` methods. `StartStyling` is called for the `position` where you would like to start styling. Then, for each subsequent range of characters a call to `SetStyling` will apply the `style` for the `length` of characters specified. Each call to `SetStyling` advances the position so it's not necessary to call `StartStyling` for each style range.
+
+For example, the following snippet will color the first 5 characters of the document in style `1` (red) and the subsequent 2 characters in style `2` (blue):
+
+```cs
+scintilla.Lexer = Lexer.Null;
+
+scintilla.Styles[1].ForeColor = Color.Red;
+scintilla.Styles[2].ForeColor = Color.Blue;
+
+scintilla.StartStyling(0);
+scintilla.SetStyling(5, 1);
+scintilla.SetStyling(2, 2);
+```
+
+You'll notice that we also set the current lexer to `Lexer.Null` to let Scintilla know that we will be doing our own syntax highlighting and not to use a built-in lexer which would interfere with our work.
+
+Following a process similar to that above you could begin to construct logic in your application for doing custom syntax highlighting. You'll quickly find, however, that when the text changes, there is not an automatic process to update your styles. Styled text will continue to remain styled, but new or changed text will have no style. Knowing this, Scintilla provides an easier way to track changes and know when to do styling by handling the `StyleNeeded` event.
+
+### <a name="style-needed"></a>Handling the StyleNeeded Event
+
+The `StyleNeeded` event can be enabled by setting the current lexer to `Lexer.Container` (think "containing application" instead of built-in). Once enabled, the `StyleNeeded` event will be raise each time the document needs to be re-styled.
+
+To ensure optimal performance, Scintilla suggests that you only re-style affected areas of the document. Text extending beyond the bottom of the window or text at the top of the document which is already correctly styled doesn't need to be styled again. Scintilla provides APIs for knowing where to begin styling—because of a change in the text or scrolling, and where to end styling—just out of view. This is determined by using the `GetEndStyled` method in conjunction with the `StyleNeededEventArgs.Position` property like this:
+
+```cs
+private void scintilla_StyleNeeded(object sender, StyleNeededEventArgs e)
+{
+    var startPos = scintilla.GetEndStyled();
+    var endPos = e.Position;
+
+    // TODO style this range
+}
+```
+
+Much better. Now instead of wondering what to style and when to do it, we just handle the `StyleNeeded` event, determine the range that needs to be styled, and use that information with our custom logic. There is nothing to prevent you from re-styling text outside this range, but it will likely be unnecessary and waste cycles.
+
+We're now in a position to write some custom lexer / syntax highlighting logic.
+
+### <a name="basic-lexer"></a>A Basic C# Lexer
+
+*This is an advanced topic.*
+
+Writing a complete lexer is WAY, WAY beyond the scope of this document. There are [entire volumes](http://en.wikipedia.org/wiki/Lexical_analysis) written on the subject and there is just no way to cover it completely in a few short paragraphs. That being said, I'll see if I can at least point you in the right direction.
+
+Lexer logic usually consists of a big loop which iterates through each character in the document and classifies it. These classifications form the basis of syntax highlighting styles.
+
+Often, characters are significant when they are grouped with other characters to form keywords or strings. These are called lexemes (or tokens). So in addition to looping through each character we're going to need to track some state about whether this character belongs to a group and forms a lexeme. In essence, we need to build a basic state machine.
+
+For the purposes of this example we're going to build a VERY basic C# lexer. Our lexer will identify keywords, numbers, and strings. This should be sufficient to teach the basics without going overboard.
+
+The skeleton of our loop looks like this:
+
+```cs
+public const int StyleString = 4;
+
+private const int STATE_UNKNOWN = 0;
+private const int STATE_STRING = 3;
+
+public void Style(Scintilla scintilla, int startPos, int endPos)
+{
+    var state = STATE_UNKNOWN;
+
+    // Start styling
+    scintilla.StartStyling(startPos);
+    while (startPos < endPos)
+    {
+        var c = (char)scintilla.GetCharAt(startPos);
+
+    REPROCESS:
+        switch (state)
+        {
+            case STATE_UNKNOWN:
+                if (c == '"')
+                {
+                    // Start of "string"
+                    scintilla.SetStyling(1, StyleString);
+                    state = STATE_STRING;
+                }
+                break;
+
+            case STATE_STRING:
+                break;
+
+            // etc...
+        }
+
+        startPos++;
+    }
+}
+```
+
+Our method is designed to be called from the `StyleNeeded` event as previously discussed. I prefer to write my lexers so that they don't store any variables outside of my `Style` method because that allows me to handle multiple `StyleNeeded` events from multiple Scintilla windows using a single lexer instance.
+
+Our constants define the possible states our lexer loop can be in. `STATE_UNKOWN` means the next character could be anything—a string, a number, whatever. Once we encounter a known character, for example a double-quote (") we style it using `SetStyling` and then change the loop state to `STATE_STRING` so that the next iteration of the loop can begin looking for the closing double-quote (") character. Once found, the range will get styled and the state set back to `STATE_UNKOWN` to begin looking for the next language element.
+
+On each loop iteration we advance the `starPos` and get the next character by calling `GetCharAt`. For performance or practical reasons you may prefer to get an entire line of text a time. It's entirely up to you how you go about writing your lexer.
+
+Now that you're an expert we'll look at the complete working sample and then break it down:
+
+```cs
+private CSharpLexer cSharpLexer = new CSharpLexer("class const int namespace partial public static string using void");
+
+private void form_Load(object sender, EventArgs e)
+{
+    scintilla.StyleResetDefault();
+    scintilla.Styles[Style.Default].Font = "Consolas";
+    scintilla.Styles[Style.Default].Size = 10;
+    scintilla.StyleClearAll();
+
+    scintilla.Styles[CSharpLexer.StyleDefault].ForeColor = Color.Black;
+    scintilla.Styles[CSharpLexer.StyleKeyword].ForeColor = Color.Blue;
+    scintilla.Styles[CSharpLexer.StyleIdentifier].ForeColor = Color.Teal;
+    scintilla.Styles[CSharpLexer.StyleNumber].ForeColor = Color.Purple;
+    scintilla.Styles[CSharpLexer.StyleString].ForeColor = Color.Red;
+
+    scintilla.Lexer = Lexer.Container;
+}
+
+private void scintilla_StyleNeeded(object sender, StyleNeededEventArgs e)
+{
+    var startPos = scintilla.GetEndStyled();
+    var endPos = e.Position;
+
+    cSharpLexer.Style(scintilla, startPos, endPos);
+}
+```
+
+```cs
+public class CSharpLexer
+{
+    public const int StyleDefault = 0;
+    public const int StyleKeyword = 1;
+    public const int StyleIdentifier = 2;
+    public const int StyleNumber = 3;
+    public const int StyleString = 4;
+
+    private const int STATE_UNKNOWN = 0;
+    private const int STATE_IDENTIFIER = 1;
+    private const int STATE_NUMBER = 2;
+    private const int STATE_STRING = 3;
+
+    private HashSet<string> keywords;
+
+    public void Style(Scintilla scintilla, int startPos, int endPos)
+    {
+        // Back up to the line start
+        var line = scintilla.LineFromPosition(startPos);
+        startPos = scintilla.Lines[line].Position;
+
+        var length = 0;
+        var state = STATE_UNKNOWN;
+
+        // Start styling
+        scintilla.StartStyling(startPos);
+        while (startPos < endPos)
+        {
+            var c = (char)scintilla.GetCharAt(startPos);
+
+        REPROCESS:
+            switch (state)
+            {
+                case STATE_UNKNOWN:
+                    if (c == '"')
+                    {
+                        // Start of "string"
+                        scintilla.SetStyling(1, StyleString);
+                        state = STATE_STRING;
+                    }
+                    else if (Char.IsDigit(c))
+                    {
+                        state = STATE_NUMBER;
+                        goto REPROCESS;
+                    }
+                    else if (Char.IsLetter(c))
+                    {
+                        state = STATE_IDENTIFIER;
+                        goto REPROCESS;
+                    }
+                    else
+                    {
+                        // Everything else
+                        scintilla.SetStyling(1, StyleDefault);
+                    }
+                    break;
+
+                case STATE_STRING:
+                    if (c == '"')
+                    {
+                        length++;
+                        scintilla.SetStyling(length, StyleString);
+                        length = 0;
+                        state = STATE_UNKNOWN;
+                    }
+                    else
+                    {
+                        length++;
+                    }
+                    break;
+
+                case STATE_NUMBER:
+                    if (Char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x')
+                    {
+                        length++;
+                    }
+                    else
+                    {
+                        scintilla.SetStyling(length, StyleNumber);
+                        length = 0;
+                        state = STATE_UNKNOWN;
+                        goto REPROCESS;
+                    }
+                    break;
+
+                case STATE_IDENTIFIER:
+                    if (Char.IsLetterOrDigit(c))
+                    {
+                        length++;
+                    }
+                    else
+                    {
+                        var style = StyleIdentifier;
+                        var identifier = scintilla.GetTextRange(startPos - length, length);
+                        if (keywords.Contains(identifier))
+                            style = StyleKeyword;
+
+                        scintilla.SetStyling(length, style);
+                        length = 0;
+                        state = STATE_UNKNOWN;
+                        goto REPROCESS;
+                    }
+                    break;
+            }
+
+            startPos++;
+        }
+    }
+
+    public CSharpLexer(string keywords)
+    {
+        // Put keywords in a HashSet
+        var list = Regex.Split(keywords ?? string.Empty, @"\s+").Where(l => !string.IsNullOrEmpty(l));
+        this.keywords = new HashSet<string>(list);
+    }
+}
+```
+
+If we did everything correct you should get rudimentary syntax highlighting of C# strings, numbers, and keywords.
+
+The first code block is typical boilerplate for configuring styles. We new-up a `CSharpLexer` instance with some keywords and pass control to its `Style` method in the `StyleNeeded` event. As a matter of practice it's usually a good idea to allow keywords to be configured separately from your lexer logic so you can easily add keywords when the language evolves without rewriting your lexer logic. This is how lexers built-in to Scintilla work.
+
+Once the `CSharpLexer.Style` method has control we execute our loop. Scintilla expects us to always style entire lines at a time so we first make sure our `startPos` is at the beginning of a line.
+
+We iterate through each character and start classifying; double-quotes are strings, digits are numbers, letters are keywords or identifiers, and set the state and styling appropriately.
+
+To track a range of characters we increment the `length` variable. This is best illustrated by how we capture keywords in the `STATE_IDENTIFIER` state. When we've detected the end of an identifier or keyword sequence we use the `length` we've been tracking to get the entire word and check it against our list of possible keywords. The `length` then gets reset along with the `state` and the whole sequence starts over.
+
+You may notice the `REPROCESS` label and `goto` (yes, goto) statements. This is a little trick I picked-up from studying the [http-parser](https://github.com/joyent/http-parser) used in the Node.js project. By jumping back to the top of the switch statement we can reprocess a character without advancing to the next character. This allows us to avoid having to 'peek' at the next character in the document. For example, if we wanted to know where a number sequence ends we could either peek ahead of the current character to see if the next character is non-digit (i.e. whitespace) or we could just wait until we've actually hit the non-digit character, complete the number sequence we're tracking, and then reprocess the current unknown character all within a single loop iteration.
 
 ### <a name="auto-folding"></a>Automatic Code Folding
 
