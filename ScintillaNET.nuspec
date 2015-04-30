@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>jacobslusser.ScintillaNET</id>
-    <version>3.2.0</version>
+    <version>3.2.0-rc</version>
     <title>ScintillaNET Source Editing Component</title>
     <authors>Jacob Slusser</authors>
     <owners>Jacob Slusser</owners>
