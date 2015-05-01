@@ -478,6 +478,56 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Copies the selected text from the document, formats it as HTML, and places it on the clipboard.
+        /// </summary>
+        public unsafe void CopyAsHtml()
+        {
+            // Copying HTML to the clipboard requires that the document be in UTF-8.
+            // That's all we officially support, but do a sanity check just in case.
+            if (Encoding.CodePage != NativeMethods.SC_CP_UTF8)
+                return;
+
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
+
+            var selStart = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
+            var selEnd = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
+
+            if (selStart != selEnd)
+            {
+                // Using Win32 instead of the Clipboard class so we can avoid the overhead
+                // of converting to string.
+
+                var format = NativeMethods.RegisterClipboardFormat(NativeMethods.CF_HTML);
+                if (format == 0)
+                    throw new Win32Exception(); // Calls GetLastError
+
+                if (!NativeMethods.OpenClipboard(Handle))
+                    throw new Win32Exception(); // Calls GetLastError
+
+                if (!NativeMethods.EmptyClipboard())
+                    throw new Win32Exception(); // Calls GetLastError
+
+                int len;
+                var hMem = Helpers.ExportAsClipboardHtml(this, selStart, selEnd, true, out len);
+                //var str = new string((sbyte*)hMem, 0, len, Encoding.UTF8);
+                //Debug.WriteLine(str);
+
+                if (NativeMethods.SetClipboardData(format, hMem) == IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(hMem);
+                    throw new Win32Exception(); // Calls GetLastError 
+                }
+
+                if (!NativeMethods.CloseClipboard())
+                    throw new Win32Exception(); // Calls GetLastError
+            }
+
+            //stopwatch.Stop();
+            //Debug.WriteLine("Time to copy HTML: " + stopwatch.Elapsed);
+        }
+
+        /// <summary>
         /// Copies the specified range of text to the clipboard.
         /// </summary>
         /// <param name="start">The zero-based character position in the document to start copying.</param>
@@ -2774,7 +2824,7 @@ namespace ScintillaNET
                     if (moduleHandle == IntPtr.Zero)
                     {
                         var message = string.Format(CultureInfo.InvariantCulture, "Could not load the Scintilla module at the path '{0}'.", path);
-                        throw new Win32Exception(message, new Win32Exception()); // Will GetLastError
+                        throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
 
                     // Get the native Scintilla direct function -- the only function the library exports
@@ -2782,7 +2832,7 @@ namespace ScintillaNET
                     if (directFunctionPointer == IntPtr.Zero)
                     {
                         var message = "The Scintilla module has no export for the 'Scintilla_DirectFunction' procedure.";
-                        throw new Win32Exception(message, new Win32Exception()); // Will GetLastError
+                        throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
 
                     // Create a managed callback

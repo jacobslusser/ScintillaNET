@@ -85,6 +85,7 @@
     <Compile Include="ModificationEventArgs.cs" />
     <Compile Include="ModificationSource.cs" />
     <Compile Include="MultiPaste.cs" />
+    <Compile Include="NativeMemoryStream.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Phases.cs" />
