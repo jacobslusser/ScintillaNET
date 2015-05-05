@@ -44,6 +44,11 @@ namespace ScintillaNET
         /// <summary>
         /// The XML lexer.
         /// </summary>
-        Xml = NativeMethods.SCLEX_XML
+        Xml = NativeMethods.SCLEX_XML,
+
+        /// <summary>
+        /// The SQL lexer.
+        /// </summary>
+        Sql = NativeMethods.SCLEX_SQL
     }
 }

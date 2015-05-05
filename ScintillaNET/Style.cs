@@ -942,5 +942,130 @@ namespace ScintillaNET
         }
 
         #endregion Xml
+
+        #region Sql
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Sql" /> lexer.
+        /// </summary>
+        public static class Sql
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_SQL_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_SQL_COMMENT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_SQL_COMMENTLINE;
+
+            /// <summary>
+            /// Documentation comment style index.
+            /// </summary>
+            public const int CommentDoc = NativeMethods.SCE_SQL_COMMENTDOC;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_SQL_NUMBER;
+
+            /// <summary>
+            /// Keyword list 1 style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_SQL_WORD;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_SQL_STRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int Character = NativeMethods.SCE_SQL_CHARACTER;
+
+            /// <summary>
+            /// Keyword from the SQL*Plus list style index.
+            /// </summary>
+            public const int SqlPlus = NativeMethods.SCE_SQL_SQLPLUS;
+
+            /// <summary>
+            /// SQL*Plus prompt style index.
+            /// </summary>
+            public const int SqlPlusPrompt = NativeMethods.SCE_SQL_SQLPLUS_PROMPT;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_SQL_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_SQL_IDENTIFIER;
+
+            /// <summary>
+            /// SQL*Plus comment style index.
+            /// </summary>
+            public const int SqlPlusComment = NativeMethods.SCE_SQL_SQLPLUS_COMMENT;
+
+            /// <summary>
+            /// Documentation line comment style index.
+            /// </summary>
+            public const int CommentLineDoc = NativeMethods.SCE_SQL_COMMENTLINEDOC;
+
+            /// <summary>
+            /// Keyword list 2 style index.
+            /// </summary>
+            public const int Word2 = NativeMethods.SCE_SQL_WORD2;
+
+            /// <summary>
+            /// Documentation (Doxygen) keyword style index.
+            /// </summary>
+            public const int CommentDocKeyword = NativeMethods.SCE_SQL_COMMENTDOCKEYWORD;
+
+            /// <summary>
+            /// Documentation (Doxygen) keyword error style index.
+            /// </summary>
+            public const int CommentDocKeywordError = NativeMethods.SCE_SQL_COMMENTDOCKEYWORDERROR;
+
+            /// <summary>
+            /// Keyword user-list 1 style index.
+            /// </summary>
+            public const int User1 = NativeMethods.SCE_SQL_USER1;
+
+            /// <summary>
+            /// Keyword user-list 2 style index.
+            /// </summary>
+            public const int User2 = NativeMethods.SCE_SQL_USER2;
+
+            /// <summary>
+            /// Keyword user-list 3 style index.
+            /// </summary>
+            public const int User3 = NativeMethods.SCE_SQL_USER3;
+
+            /// <summary>
+            /// Keyword user-list 4 style index.
+            /// </summary>
+            public const int User4 = NativeMethods.SCE_SQL_USER4;
+
+            /// <summary>
+            /// Quoted identifier style index.
+            /// </summary>
+            public const int QuotedIdentifier = NativeMethods.SCE_SQL_QUOTEDIDENTIFIER;
+
+            /// <summary>
+            /// Q operator style index.
+            /// </summary>
+            public const int QOperator = NativeMethods.SCE_SQL_QOPERATOR;
+        }
+
+        #endregion Sql
     }
 }

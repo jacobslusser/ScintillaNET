@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -137,6 +140,156 @@ namespace ScintillaNET
 
             return value;
         }
+
+        public static void Copy(Scintilla scintilla, CopyFormat format)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var selStart = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
+            var selEnd = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
+
+            if (selStart != selEnd)
+            {
+                var openClipboard = false;
+                var styledTextPtr = IntPtr.Zero;
+
+                try
+                {
+                    openClipboard = NativeMethods.OpenClipboard(scintilla.Handle);
+                    if (openClipboard == false)
+                        throw new Win32Exception(); // Calls GetLastError
+
+                    NativeMethods.EmptyClipboard();
+
+
+                    
+                    //var styledTextPtr
+                }
+                catch (Exception ex)
+                {
+                    if (styledTextPtr != IntPtr.Zero)
+                        Marshal.FreeHGlobal(styledTextPtr);
+
+                    // For debugging purposes only.
+                    // In Release mode we swallow the exception. That may seem like code smell but this matches
+                    // the behavior of the Clipboard class, Windows Forms controls, and native Scintilla.
+                    Debug.Fail(ex.Message, ex.ToString());
+                }
+                finally
+                {
+                    if (openClipboard)
+                        NativeMethods.CloseClipboard();
+                }
+            }
+
+            stopwatch.Stop();
+            Debug.WriteLine("Copy time: " + stopwatch.Elapsed);
+
+            //// Copying HTML to the clipboard requires that the document be in UTF-8.
+            //// That's all we officially support, but do a sanity check just in case.
+            //if (Encoding.CodePage != NativeMethods.SC_CP_UTF8)
+            //    return;
+
+            ////var stopwatch = new Stopwatch();
+            ////stopwatch.Start();
+
+            //var selStart = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
+            //var selEnd = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
+
+            //if (selStart != selEnd)
+            //{
+            //    // Using Win32 instead of the Clipboard class so we can avoid the overhead
+            //    // of converting to string.
+
+            //    var format = NativeMethods.RegisterClipboardFormat(NativeMethods.CF_HTML);
+            //    if (format == 0)
+            //        throw new Win32Exception(); // Calls GetLastError
+
+            //    if (!NativeMethods.OpenClipboard(Handle))
+            //        throw new Win32Exception(); // Calls GetLastError
+
+            //    if (!NativeMethods.EmptyClipboard())
+            //        throw new Win32Exception(); // Calls GetLastError
+
+            //    int len;
+            //    var hMem = Helpers.ExportAsClipboardHtml(this, selStart, selEnd, true, out len);
+            //    //var str = new string((sbyte*)hMem, 0, len, Encoding.UTF8);
+            //    //Debug.WriteLine(str);
+
+            //    if (NativeMethods.SetClipboardData(format, hMem) == IntPtr.Zero)
+            //    {
+            //        Marshal.FreeHGlobal(hMem);
+            //        throw new Win32Exception(); // Calls GetLastError 
+            //    }
+
+            //    if (!NativeMethods.CloseClipboard())
+            //        throw new Win32Exception(); // Calls GetLastError
+            //}
+
+            ////stopwatch.Stop();
+            ////Debug.WriteLine("Time to copy HTML: " + stopwatch.Elapsed);
+        }
+
+        //public static unsafe IntPtr CopyRtf(Scintilla scintilla, StyleData[] styles, byte[] styledText, out int length)
+        //{
+        //    // NppExport
+        //    // http://en.wikipedia.org/wiki/Rich_Text_Format
+        //    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649013.aspx
+
+
+        //    // Clipboard.SetText(, TextDataFormat)
+        //    length = 0;
+        //    return IntPtr.Zero;
+        //}
+
+        //public static unsafe IntPtr CopyUnicode(Scintilla scintilla, bool allowLine, out int length)
+        //{
+        //    var selections = new List<Selection>();
+        //    var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+        //    if (selIsEmpty)
+        //    {
+        //        if (allowLine)
+        //        {
+        //            // Get the current line
+        //            var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
+        //            var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
+        //            var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
+        //            var start = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+        //            var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+        //            var end = (start + lineLength);
+
+        //            selections.Add(new Selection { Start = start, End = end });
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var selCount = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
+        //        for (int i = 0; i < selCount; i++)
+        //        {
+        //            var start = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNSTART, new IntPtr(i)).ToInt32();
+        //            var end = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNEND, new IntPtr(i)).ToInt32();
+
+        //            selections.Add(new Selection { Start = start, End = end });
+        //        }
+        //    }
+
+        //    if (selections.Count > 0)
+        //    {
+        //        var isUnicode = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8;
+        //        var selIsRect = scintilla.DirectMessage(NativeMethods.SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
+        //        if (selIsRect)
+        //        {
+        //            // Sort top to bottom
+        //            selections.OrderBy(s => s.Start);
+        //        }
+
+                
+        //    }
+
+        //    length = 0;
+        //    return IntPtr.Zero;
+        //}
 
         public static unsafe IntPtr ExportAsClipboardHtml(Scintilla scintilla, int byteStartPos, int byteEndPos, bool colorize, out int length)
         {
@@ -343,6 +496,8 @@ namespace ScintillaNET
             }
         }
 
+
+
         public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
         {
             if (string.IsNullOrEmpty(text))
@@ -390,6 +545,12 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Types
+
+        private struct Selection
+        {
+            public int Start;
+            public int End;
+        }
 
         private struct StyleData
         {
