@@ -9,7 +9,6 @@ namespace ScintillaNET
 {
     /// <summary>
     /// Like an UnmanagedMemoryStream execpt it can grow.
-    /// Dispose (using) does nothing! Caller is responsible for freeing <see cref="Pointer" />.
     /// </summary>
     internal sealed unsafe class NativeMemoryStream : Stream
     {
@@ -23,6 +22,14 @@ namespace ScintillaNET
         #endregion Fields
 
         #region Methods
+
+        protected override void Dispose(bool disposing)
+        {
+            if(FreeOnDispose)
+                Marshal.FreeHGlobal(ptr);
+
+            base.Dispose(disposing);
+        }
 
         public override void Flush()
         {
@@ -102,6 +109,8 @@ namespace ScintillaNET
             }
         }
 
+        public bool FreeOnDispose { get; set; }
+
         public override long Length
         {
             get
@@ -141,6 +150,7 @@ namespace ScintillaNET
 
             this.capacity = capacity;
             this.ptr = Marshal.AllocHGlobal(capacity);
+            FreeOnDispose = true;
         }
 
         #endregion Constructors

@@ -1249,6 +1249,30 @@ namespace ScintillaNET
         public const int SCE_H_VALUE = 19;
         public const int SCE_H_XCCOMMENT = 20;
 
+        // Markdown
+        public const int SCE_MARKDOWN_DEFAULT = 0;
+        public const int SCE_MARKDOWN_LINE_BEGIN = 1;
+        public const int SCE_MARKDOWN_STRONG1 = 2;
+        public const int SCE_MARKDOWN_STRONG2 = 3;
+        public const int SCE_MARKDOWN_EM1 = 4;
+        public const int SCE_MARKDOWN_EM2 = 5;
+        public const int SCE_MARKDOWN_HEADER1 = 6;
+        public const int SCE_MARKDOWN_HEADER2 = 7;
+        public const int SCE_MARKDOWN_HEADER3 = 8;
+        public const int SCE_MARKDOWN_HEADER4 = 9;
+        public const int SCE_MARKDOWN_HEADER5 = 10;
+        public const int SCE_MARKDOWN_HEADER6 = 11;
+        public const int SCE_MARKDOWN_PRECHAR = 12;
+        public const int SCE_MARKDOWN_ULIST_ITEM = 13;
+        public const int SCE_MARKDOWN_OLIST_ITEM = 14;
+        public const int SCE_MARKDOWN_BLOCKQUOTE = 15;
+        public const int SCE_MARKDOWN_STRIKEOUT = 16;
+        public const int SCE_MARKDOWN_HRULE = 17;
+        public const int SCE_MARKDOWN_LINK = 18;
+        public const int SCE_MARKDOWN_CODE = 19;
+        public const int SCE_MARKDOWN_CODE2 = 20;
+        public const int SCE_MARKDOWN_CODEBK = 21;
+
         // SQL
         public const int SCE_SQL_DEFAULT = 0;
         public const int SCE_SQL_COMMENT = 1;

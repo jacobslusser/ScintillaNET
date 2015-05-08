@@ -1067,5 +1067,125 @@ namespace ScintillaNET
         }
 
         #endregion Sql
+
+        #region Markdown
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Markdown" /> lexer.
+        /// </summary>
+        public static class Markdown
+        {
+            /// <summary>
+            /// Default text style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_MARKDOWN_DEFAULT;
+
+            /// <summary>
+            /// Line begin style index.
+            /// </summary>
+            public const int LineBegin = NativeMethods.SCE_MARKDOWN_LINE_BEGIN;
+
+            /// <summary>
+            /// Strong type 1 style index.
+            /// </summary>
+            public const int Strong1 = NativeMethods.SCE_MARKDOWN_STRONG1;
+
+            /// <summary>
+            /// Strong type 2 style index.
+            /// </summary>
+            public const int Strong2 = NativeMethods.SCE_MARKDOWN_STRONG2;
+
+            /// <summary>
+            /// Empasis type 1 style index.
+            /// </summary>
+            public const int Em1 = NativeMethods.SCE_MARKDOWN_EM1;
+
+            /// <summary>
+            /// Empasis type 2 style index.
+            /// </summary>
+            public const int Em2 = NativeMethods.SCE_MARKDOWN_EM2;
+
+            /// <summary>
+            /// Header type 1 style index.
+            /// </summary>
+            public const int Header1 = NativeMethods.SCE_MARKDOWN_HEADER1;
+
+            /// <summary>
+            /// Header type 2 style index.
+            /// </summary>
+            public const int Header2 = NativeMethods.SCE_MARKDOWN_HEADER2;
+
+            /// <summary>
+            /// Header type 3 style index.
+            /// </summary>
+            public const int Header3 = NativeMethods.SCE_MARKDOWN_HEADER3;
+
+            /// <summary>
+            /// Header type 4 style index.
+            /// </summary>
+            public const int Header4 = NativeMethods.SCE_MARKDOWN_HEADER4;
+
+            /// <summary>
+            /// Header type 5 style index.
+            /// </summary>
+            public const int Header5 = NativeMethods.SCE_MARKDOWN_HEADER5;
+
+            /// <summary>
+            /// Header type 6 style index.
+            /// </summary>
+            public const int Header6 = NativeMethods.SCE_MARKDOWN_HEADER6;
+
+            /// <summary>
+            /// Pre char style index.
+            /// </summary>
+            public const int PreChar = NativeMethods.SCE_MARKDOWN_PRECHAR;
+
+            /// <summary>
+            /// Unordered list style index.
+            /// </summary>
+            public const int UListItem = NativeMethods.SCE_MARKDOWN_ULIST_ITEM;
+
+            /// <summary>
+            /// Ordered list style index.
+            /// </summary>
+            public const int OListItem = NativeMethods.SCE_MARKDOWN_OLIST_ITEM;
+
+            /// <summary>
+            /// Blockquote style index.
+            /// </summary>
+            public const int BlockQuote = NativeMethods.SCE_MARKDOWN_BLOCKQUOTE;
+
+            /// <summary>
+            /// Strikeout style index.
+            /// </summary>
+            public const int Strikeout = NativeMethods.SCE_MARKDOWN_STRIKEOUT;
+
+            /// <summary>
+            /// Horizontal rule style index.
+            /// </summary>
+            public const int HRule = NativeMethods.SCE_MARKDOWN_HRULE;
+
+            /// <summary>
+            /// Link style index.
+            /// </summary>
+            public const int Link = NativeMethods.SCE_MARKDOWN_LINK;
+
+            /// <summary>
+            /// Code type 1 style index.
+            /// </summary>
+            public const int Code = NativeMethods.SCE_MARKDOWN_CODE;
+
+            /// <summary>
+            /// Code type 2 style index.
+            /// </summary>
+            public const int Code2 = NativeMethods.SCE_MARKDOWN_CODE2;
+
+            /// <summary>
+            /// Code block style index.
+            /// </summary>
+            public const int CodeBk = NativeMethods.SCE_MARKDOWN_CODEBK;
+        }
+
+        #endregion Markdown
     }
 }

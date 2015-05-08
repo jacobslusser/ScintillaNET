@@ -29,6 +29,12 @@ namespace ScintillaNET
 
         private static readonly byte[] header = Encoding.ASCII.GetBytes(HTML_HEADER);
 
+        private static bool registeredFormats;
+        private static uint CF_HTML;
+        private static uint CF_RTF;
+        private static uint CF_LINESELECT;
+        private static uint CF_VSLINETAG;
+
         #endregion Fields
 
         #region Methods
@@ -141,155 +147,402 @@ namespace ScintillaNET
             return value;
         }
 
-        public static void Copy(Scintilla scintilla, CopyFormat format)
+        public static void Copy(Scintilla scintilla, CopyFormat format, bool allowLine)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            var defaultProcessing = false;
 
-            var selStart = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
-            var selEnd = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
-
-            if (selStart != selEnd)
+            // Text (default processing)
+            if ((format & CopyFormat.Text) > 0)
             {
-                var openClipboard = false;
-                var styledTextPtr = IntPtr.Zero;
+                defaultProcessing = true;
 
-                try
+                if (allowLine)
+                    scintilla.DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+                else
+                    scintilla.DirectMessage(NativeMethods.SCI_COPY);
+            }
+
+            // RTF or HTML (custom processing)
+            if ((format & (CopyFormat.Rtf | CopyFormat.Html)) > 0)
+            {
+                if (!registeredFormats)
                 {
-                    openClipboard = NativeMethods.OpenClipboard(scintilla.Handle);
-                    if (openClipboard == false)
-                        throw new Win32Exception(); // Calls GetLastError
-
-                    NativeMethods.EmptyClipboard();
-
-
-                    
-                    //var styledTextPtr
+                    CF_LINESELECT = NativeMethods.RegisterClipboardFormat("MSDEVLineSelect");
+                    CF_VSLINETAG = NativeMethods.RegisterClipboardFormat("VisualStudioEditorOperationsLineCutCopyClipboardTag");
+                    CF_HTML = NativeMethods.RegisterClipboardFormat("HTML Format");
+                    CF_RTF = NativeMethods.RegisterClipboardFormat("Rich Text Format");
                 }
-                catch (Exception ex)
-                {
-                    if (styledTextPtr != IntPtr.Zero)
-                        Marshal.FreeHGlobal(styledTextPtr);
 
-                    // For debugging purposes only.
-                    // In Release mode we swallow the exception. That may seem like code smell but this matches
-                    // the behavior of the Clipboard class, Windows Forms controls, and native Scintilla.
-                    Debug.Fail(ex.Message, ex.ToString());
-                }
-                finally
+                StyleData[] styles = null;
+                List<ArraySegment<byte>> styledSelections = null;
+
+                var lineCopy = false;
+                var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+                if (selIsEmpty)
                 {
-                    if (openClipboard)
-                        NativeMethods.CloseClipboard();
+                    if (allowLine)
+                    {
+                        // Get the current line
+                        var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
+                        var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
+                        var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
+                        var lineStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+                        var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+
+                        styledSelections = GetStyledSelections(scintilla, true, lineStartBytePos, (lineStartBytePos + lineLength), out styles);
+                        lineCopy = true;
+                    }
+                }
+                else
+                {
+                    // Get every selection
+                    styledSelections = GetStyledSelections(scintilla, false, 0, 0, out styles);
+                }
+
+                // If we have selections and can open the clipboard
+                if (styledSelections != null && NativeMethods.OpenClipboard(scintilla.Handle))
+                {
+                    if (!defaultProcessing)
+                    {
+                        NativeMethods.EmptyClipboard();
+
+                        if (lineCopy)
+                        {
+                            // Clipboard tags
+                            NativeMethods.SetClipboardData(CF_LINESELECT, IntPtr.Zero);
+                            NativeMethods.SetClipboardData(CF_VSLINETAG, IntPtr.Zero);
+                        }
+                    }
+
+                    // RTF
+                    if ((format & CopyFormat.Rtf) > 0)
+                        CopyRtf(scintilla, styles, styledSelections);
+
+                    // HTML
+                    if ((format & CopyFormat.Html) > 0)
+                        CopyHtml(scintilla, styles, styledSelections);
+
+                    NativeMethods.CloseClipboard();
+                }
+            }
+        }
+
+        private static unsafe void CopyHtml(Scintilla scintilla, StyleData[] usedStyles, List<ArraySegment<byte>> styledSelections)
+        {
+        }
+
+
+        private static unsafe void CopyRtf(Scintilla scintilla, StyleData[] styles, List<ArraySegment<byte>> styledSelections)
+        {
+            // NppExport -> NppExport.cpp
+            // NppExport -> RTFExporter.cpp
+            // http://en.wikipedia.org/wiki/Rich_Text_Format
+            // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649013.aspx
+            // http://stackoverflow.com/questions/4044397/how-do-i-convert-twips-to-pixels-in-net
+
+            var codePage = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32();
+
+            try
+            {
+                // Calculate twips per space
+                var twips = 8;
+                using (var graphics = scintilla.CreateGraphics())
+                using (var font = new Font(styles[Style.Default].FontName, styles[Style.Default].SizeF))
+                {
+                    var width = graphics.MeasureString(" ", font).Width;
+                    twips = (int)(width * (1440 / graphics.DpiX));
+                }
+
+                using (var ms = new NativeMemoryStream(styledSelections.Sum(s => s.Count)))
+                using (var tw = new StreamWriter(ms, Encoding.ASCII))
+                {
+                    var ansicpg = "";
+                    if (codePage != NativeMethods.SC_CP_UTF8)
+                        ansicpg = @"\ansicpg" + codePage;
+
+                    tw.WriteLine(@"{{\rtf1\ansi{0}\deff0\deftab{1}", ansicpg, twips);
+
+                    // Build the font table
+                    tw.Write(@"{\fonttbl");
+                    tw.Write(@"{{\f0 {0};}}", styles[Style.Default].FontName);
+                    var fontIndex = 1;
+                    for (int i = 0; i < styles.Length; i++)
+                    {
+                        if (i == Style.Default)
+                            continue;
+
+                        if (styles[i].Used)
+                        {
+                            if (styles[i].FontName != styles[Style.Default].FontName)
+                            {
+                                styles[i].FontIndex = fontIndex++;
+                                tw.Write(@"{{\f{0} {1};}}", styles[i].FontIndex, styles[i].FontName);
+                            }
+                        }
+                    }
+                    tw.WriteLine("}"); // fonttbl
+                    tw.Flush();
+
+                    // Build the color table
+                    tw.Write(@"{\colortbl;");
+                    tw.Write(@"\red{0}\green{1}\blue{1};", (styles[Style.Default].ForeColor >> 0) & 0xFF, (styles[Style.Default].ForeColor >> 8) & 0xFF, (styles[Style.Default].ForeColor >> 16) & 0xFF);
+                    tw.Write(@"\red{0}\green{1}\blue{1};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
+                    styles[Style.Default].BackColorIndex = 1;
+
+                    var colorIndex = 0;
+                    for (int i = 0; i < styles.Length; i++)
+                    {
+                        if (i == Style.Default)
+                            continue;
+
+                        if (styles[i].Used)
+                        {
+                            if (styles[i].ForeColor != styles[Style.Default].ForeColor)
+                            {
+                                styles[i].ForeColorIndex = colorIndex++;
+                                tw.Write(@"\red{0}\green{1}\blue{1};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
+                            }
+
+                            if (styles[i].BackColor != styles[Style.Default].BackColor)
+                            {
+                                styles[i].BackColorIndex = colorIndex++;
+                                tw.Write(@"\red{0}\green{1}\blue{1};", (styles[i].BackColor >> 0) & 0xFF, (styles[i].BackColor >> 8) & 0xFF, (styles[i].BackColor >> 16) & 0xFF);
+                            }
+                            else
+                            {
+                                styles[i].BackColorIndex = 1;
+                            }
+                        }
+                    }
+                    tw.WriteLine("}"); // colortbl
+                    tw.Flush();
+
+                    var lastStyle = Style.Default;
+                    tw.Write(@"\f{0}\fs{1}\cf{2}\cb{3}\chshdng0\chcbpat{3} ", styles[Style.Default].FontIndex, (int)(styles[Style.Default].SizeF * 2), styles[Style.Default].ForeColorIndex, styles[Style.Default].BackColorIndex);
+                    foreach (var selection in styledSelections)
+                    {
+                        var endOffset = selection.Offset + selection.Count;
+                        for (int i = selection.Offset; i < endOffset; i += 2)
+                        {
+                            var ch = selection.Array[i];
+                            var style = selection.Array[i + 1];
+
+                            if (lastStyle != style)
+                            {
+                                if (styles[lastStyle].FontIndex != styles[style].FontIndex)
+                                    tw.Write(@"\f{0}", styles[style].FontIndex);
+                                if (styles[lastStyle].SizeF != styles[style].SizeF)
+                                    tw.Write(@"\fs{0}", (int)(styles[style].SizeF * 2));
+                                if (styles[lastStyle].ForeColorIndex != styles[style].ForeColorIndex)
+                                    tw.Write(@"\cf{0}", styles[style].ForeColorIndex);
+                                if (styles[lastStyle].BackColorIndex != styles[style].BackColorIndex)
+                                    tw.Write(@"\cb{0}\chshdng0\chcbpat{0}", styles[style].BackColorIndex);
+                                if (styles[lastStyle].Italic != styles[style].Italic)
+                                    tw.Write(@"\i{0}", styles[style].Italic != 0 ? "" : "0");
+                                if (styles[lastStyle].Underline != styles[style].Underline)
+                                    tw.Write(@"\ul{0}", styles[style].Underline != 0 ? "" : "0");
+                                if (styles[lastStyle].Weight != styles[style].Weight)
+                                {
+                                    if (styles[style].Weight >= 700 && styles[lastStyle].Weight < 700)
+                                        tw.Write(@"\b");
+                                    else if (styles[style].Weight < 700 && styles[lastStyle].Weight >= 700)
+                                        tw.Write(@"\b0");
+                                }
+
+                                lastStyle = style;
+                                tw.Write(" ");
+                            }
+
+                            switch (ch)
+                            {
+                                case (byte)'{':
+                                    tw.Write(@"\{");
+                                    break;
+                                case (byte)'}':
+                                    tw.Write(@"\}");
+                                    break;
+                                case (byte)'\\':
+                                    tw.Write(@"\\");
+                                    break;
+                                case (byte)'\t':
+                                    tw.Write(@"\tab ");
+                                    break;
+                                case (byte)'\n':
+                                    tw.WriteLine(@"\par"); // Because we normalized line breaks
+                                    break;
+                                default:
+                                    // Ignore control characters
+                                    if (ch < 20)
+                                        break;
+
+                                    // TODO Unicode
+                                    tw.Write((char)ch);
+                                    break;
+                            }
+                        }
+                    }
+
+                    tw.WriteLine("}"); // rtf1
+                    tw.Flush();
+
+                    var tmp = GetString(ms.Pointer, (int)ms.Length, Encoding.ASCII);
+
+                    ms.FreeOnDispose = false; // Clipboard will free
+                }
+            }
+            catch (Exception ex)
+            {
+                // Yes, we swallow the exception. That may seem like code smell but this matches
+                // the behavior of the Clipboard class, Windows Forms controls, and native Scintilla.
+                Debug.Fail(ex.Message, ex.ToString());
+            }
+
+
+            // build the header
+            // index the fonts
+            // if allow line, do one line only
+            //    add line breaks
+            // foreach selection
+            // get span, if rect add line breaks
+            // translate each byte to ansi
+
+
+            // Clipboard.SetText(, TextDataFormat)
+            //length = 0;
+            //return IntPtr.Zero;
+        }
+
+        private static unsafe List<ArraySegment<byte>> GetStyledSelections(Scintilla scintilla, bool allowLine, int lineStartBytePos, int lineEndBytePos, out StyleData[] styles)
+        {
+            var selections = new List<ArraySegment<byte>>();
+            if (allowLine)
+            {
+                var styledText = GetStyledText(scintilla, lineStartBytePos, lineEndBytePos, true);
+                selections.Add(styledText);
+            }
+            else
+            {
+                var ranges = new List<Tuple<int, int>>();
+                var selCount = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
+                for (int i = 0; i < selCount; i++)
+                {
+                    var selStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNSTART, new IntPtr(i)).ToInt32();
+                    var selEndBytePos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNEND, new IntPtr(i)).ToInt32();
+
+                    ranges.Add(Tuple.Create(selStartBytePos, selEndBytePos));
+                }
+
+                var selIsRect = scintilla.DirectMessage(NativeMethods.SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
+                if (selIsRect)
+                {
+                    // Sort top to bottom
+                    ranges.OrderBy(r => r.Item1);
+                }
+
+                foreach (var range in ranges)
+                {
+                    var styledText = GetStyledText(scintilla, range.Item1, range.Item2, selIsRect);
+                    selections.Add(styledText);
                 }
             }
 
-            stopwatch.Stop();
-            Debug.WriteLine("Copy time: " + stopwatch.Elapsed);
+            // Build a list of (used) styles
+            styles = new StyleData[NativeMethods.STYLE_MAX + 1];
 
-            //// Copying HTML to the clipboard requires that the document be in UTF-8.
-            //// That's all we officially support, but do a sanity check just in case.
-            //if (Encoding.CodePage != NativeMethods.SC_CP_UTF8)
-            //    return;
+            styles[Style.Default].Used = true;
+            styles[Style.Default].FontName = scintilla.Styles[Style.Default].Font;
+            styles[Style.Default].SizeF = scintilla.Styles[Style.Default].SizeF;
+            styles[Style.Default].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+            styles[Style.Default].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
 
-            ////var stopwatch = new Stopwatch();
-            ////stopwatch.Start();
+            foreach (var sel in selections)
+            {
+                for (int i = 0; i < sel.Count; i += 2)
+                {
+                    var style = sel.Array[i + 1];
+                    if (!styles[style].Used)
+                    {
+                        styles[style].Used = true;
+                        styles[style].FontName = scintilla.Styles[style].Font;
+                        styles[style].SizeF = scintilla.Styles[style].SizeF;
+                        styles[style].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                        styles[style].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    }
+                }
+            }
 
-            //var selStart = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
-            //var selEnd = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
-
-            //if (selStart != selEnd)
-            //{
-            //    // Using Win32 instead of the Clipboard class so we can avoid the overhead
-            //    // of converting to string.
-
-            //    var format = NativeMethods.RegisterClipboardFormat(NativeMethods.CF_HTML);
-            //    if (format == 0)
-            //        throw new Win32Exception(); // Calls GetLastError
-
-            //    if (!NativeMethods.OpenClipboard(Handle))
-            //        throw new Win32Exception(); // Calls GetLastError
-
-            //    if (!NativeMethods.EmptyClipboard())
-            //        throw new Win32Exception(); // Calls GetLastError
-
-            //    int len;
-            //    var hMem = Helpers.ExportAsClipboardHtml(this, selStart, selEnd, true, out len);
-            //    //var str = new string((sbyte*)hMem, 0, len, Encoding.UTF8);
-            //    //Debug.WriteLine(str);
-
-            //    if (NativeMethods.SetClipboardData(format, hMem) == IntPtr.Zero)
-            //    {
-            //        Marshal.FreeHGlobal(hMem);
-            //        throw new Win32Exception(); // Calls GetLastError 
-            //    }
-
-            //    if (!NativeMethods.CloseClipboard())
-            //        throw new Win32Exception(); // Calls GetLastError
-            //}
-
-            ////stopwatch.Stop();
-            ////Debug.WriteLine("Time to copy HTML: " + stopwatch.Elapsed);
+            return selections;
         }
 
-        //public static unsafe IntPtr CopyRtf(Scintilla scintilla, StyleData[] styles, byte[] styledText, out int length)
-        //{
-        //    // NppExport
-        //    // http://en.wikipedia.org/wiki/Rich_Text_Format
-        //    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649013.aspx
+        private static unsafe ArraySegment<byte> GetStyledText(Scintilla scintilla, int startBytePos, int endBytePos, bool normalizeLineBreaks)
+        {
+            var byteLength = (endBytePos - startBytePos);
+            var buffer = new byte[(byteLength * 2) + 2];
+            fixed (byte* bp = buffer)
+            {
+                NativeMethods.Sci_TextRange* tr = stackalloc NativeMethods.Sci_TextRange[1];
+                tr->chrg.cpMin = startBytePos;
+                tr->chrg.cpMax = endBytePos;
+                tr->lpstrText = new IntPtr(bp);
 
+                scintilla.DirectMessage(NativeMethods.SCI_GETSTYLEDTEXT, IntPtr.Zero, new IntPtr(tr));
+                byteLength *= 2;
+            }
 
-        //    // Clipboard.SetText(, TextDataFormat)
-        //    length = 0;
-        //    return IntPtr.Zero;
-        //}
+            if (normalizeLineBreaks)
+            {
+                if (byteLength >= 2 && buffer[byteLength - 2] == (byte)'\r')
+                {
+                    // LF \u000A
+                    buffer[byteLength] = (byte)'\n';
+                    buffer[byteLength + 1] = buffer[byteLength - 1];
+                    byteLength += 2; // Write over the \0\0
+                }
+                else if (byteLength >= 2 && buffer[byteLength - 2] == (byte)'\n')
+                {
+                    // CR \u000D
+                    if (byteLength == 2 || (buffer[byteLength - 4] != (byte)'\r'))
+                    {
+                        buffer[byteLength - 2] = (byte)'\r';
+                        buffer[byteLength] = (byte)'\n';
+                        buffer[byteLength + 1] = buffer[byteLength - 1];
+                        byteLength += 2; // Write over the \0\0
+                    }
+                }
+                else if (byteLength >= 4 && buffer[byteLength - 4] == 0xC2 && buffer[byteLength - 2] == 0x85)
+                {
+                    // NEL \u0085
+                    buffer[byteLength - 4] = (byte)'\r';
+                    buffer[byteLength - 2] = (byte)'\n';
+                }
+                else if (byteLength >= 6 && buffer[byteLength - 6] == 0xE2 && buffer[byteLength - 4] == 0x80 && buffer[byteLength - 2] == 0xA8)
+                {
+                    // LS \u2028
+                    buffer[byteLength - 6] = (byte)'\r';
+                    buffer[byteLength - 4] = (byte)'\n';
+                    byteLength -= 2;
+                }
+                else if (byteLength >= 6 && buffer[byteLength - 6] == 0xE2 && buffer[byteLength - 4] == 0x80 && buffer[byteLength - 2] == 0xA9)
+                {
+                    // PS \u2029
+                    buffer[byteLength - 6] = (byte)'\r';
+                    buffer[byteLength - 4] = (byte)'\n';
+                    byteLength -= 2;
+                }
+            }
 
-        //public static unsafe IntPtr CopyUnicode(Scintilla scintilla, bool allowLine, out int length)
-        //{
-        //    var selections = new List<Selection>();
-        //    var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
-        //    if (selIsEmpty)
-        //    {
-        //        if (allowLine)
-        //        {
-        //            // Get the current line
-        //            var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
-        //            var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
-        //            var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
-        //            var start = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
-        //            var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
-        //            var end = (start + lineLength);
-
-        //            selections.Add(new Selection { Start = start, End = end });
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var selCount = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
-        //        for (int i = 0; i < selCount; i++)
-        //        {
-        //            var start = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNSTART, new IntPtr(i)).ToInt32();
-        //            var end = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNEND, new IntPtr(i)).ToInt32();
-
-        //            selections.Add(new Selection { Start = start, End = end });
-        //        }
-        //    }
-
-        //    if (selections.Count > 0)
-        //    {
-        //        var isUnicode = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8;
-        //        var selIsRect = scintilla.DirectMessage(NativeMethods.SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
-        //        if (selIsRect)
-        //        {
-        //            // Sort top to bottom
-        //            selections.OrderBy(s => s.Start);
-        //        }
-
-                
-        //    }
-
-        //    length = 0;
-        //    return IntPtr.Zero;
-        //}
+            return new ArraySegment<byte>(buffer, 0, byteLength);
+        }
 
         public static unsafe IntPtr ExportAsClipboardHtml(Scintilla scintilla, int byteStartPos, int byteEndPos, bool colorize, out int length)
         {
@@ -496,8 +749,6 @@ namespace ScintillaNET
             }
         }
 
-
-
         public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
         {
             if (string.IsNullOrEmpty(text))
@@ -546,25 +797,21 @@ namespace ScintillaNET
 
         #region Types
 
-        private struct Selection
-        {
-            public int Start;
-            public int End;
-        }
-
         private struct StyleData
         {
             public bool Used;
             public string FontName;
+            public int FontIndex; // RTF Only
             public float SizeF;
             public int Weight;
             public int Italic;
             public int Underline;
             public int BackColor;
+            public int BackColorIndex; // RTF Only
             public int ForeColor;
-            public int Case;
-            // public int FillLine;
-            public int Visible;
+            public int ForeColorIndex; // RTF Only
+            public int Case; // HTML only
+            public int Visible; // HTML only
         }
 
         #endregion Types

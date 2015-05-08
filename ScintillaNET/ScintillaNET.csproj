@@ -90,6 +90,7 @@
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Phases.cs" />
+    <Compile Include="ProjectionEqualityComparer.cs" />
     <Compile Include="PropertyType.cs" />
     <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
