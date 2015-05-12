@@ -1581,6 +1581,15 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Selects all the text in the document.
+        /// </summary>
+        /// <remarks>The current position is not scrolled into view.</remarks>
+        public void SelectAll()
+        {
+            DirectMessage(NativeMethods.SCI_SELECTALL);
+        }
+
+        /// <summary>
         /// Sets the background color of additional selections.
         /// </summary>
         /// <param name="color">Additional selections background color.</param>
@@ -1671,6 +1680,35 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets the anchor and current position.
+        /// </summary>
+        /// <param name="anchorPos">The zero-based document position to start the selection.</param>
+        /// <param name="currentPos">The zero-based document position to end the selection.</param>
+        /// <remarks>
+        /// A negative value for <paramref name="currentPos" /> signifies the end of the document.
+        /// A negative value for <paramref name="anchorPos" /> signifies no selection (set the <paramref name="anchorPos" /> to the same as the <paramref name="currentPos" />).
+        /// The current position is scrolled into view following this operation.
+        /// </remarks>
+        public void SetSel(int anchorPos, int currentPos)
+        {
+            var textLength = TextLength;
+
+            if (anchorPos >= 0)
+            {
+                anchorPos = Helpers.Clamp(anchorPos, 0, textLength);
+                anchorPos = Lines.CharToBytePosition(anchorPos);
+            }
+
+            if (currentPos >= 0)
+            {
+                currentPos = Helpers.Clamp(currentPos, 0, textLength);
+                currentPos = Lines.CharToBytePosition(currentPos);
+            }
+
+            DirectMessage(NativeMethods.SCI_SETSEL, new IntPtr(anchorPos), new IntPtr(currentPos));
+        }
+
+        /// <summary>
         /// Sets a single selection from anchor to caret.
         /// </summary>
         /// <param name="caret">The zero-based document position to end the selection.</param>
@@ -1678,6 +1716,7 @@ namespace ScintillaNET
         public void SetSelection(int caret, int anchor)
         {
             var textLength = TextLength;
+
             caret = Helpers.Clamp(caret, 0, textLength);
             anchor = Helpers.Clamp(anchor, 0, textLength);
 
