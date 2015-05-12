@@ -381,6 +381,36 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Finds the closest character position to the specified display point.
+        /// </summary>
+        /// <param name="x">The x pixel coordinate within the client rectangle of the control.</param>
+        /// <param name="y">The y pixel coordinate within the client rectangle of the control.</param>
+        /// <returns>The zero-based document position of the nearest character to the point specified.</returns>
+        public int CharPositionFromPoint(int x, int y)
+        {
+            var pos = DirectMessage(NativeMethods.SCI_CHARPOSITIONFROMPOINT, new IntPtr(x), new IntPtr(y)).ToInt32();
+            pos = Lines.ByteToCharPosition(pos);
+
+            return pos;
+        }
+
+        /// <summary>
+        /// Finds the closest character position to the specified display point or returns -1
+        /// if the point is outside the window or not close to any characters.
+        /// </summary>
+        /// <param name="x">The x pixel coordinate within the client rectangle of the control.</param>
+        /// <param name="y">The y pixel coordinate within the client rectangle of the control.</param>
+        /// <returns>The zero-based document position of the nearest character to the point specified when near a character; otherwise, -1.</returns>
+        public int CharPositionFromPointClose(int x, int y)
+        {
+            var pos = DirectMessage(NativeMethods.SCI_CHARPOSITIONFROMPOINTCLOSE, new IntPtr(x), new IntPtr(y)).ToInt32();
+            if (pos >= 0)
+                pos = Lines.ByteToCharPosition(pos);
+
+            return pos;
+        }
+
+        /// <summary>
         /// Removes the selected text from the document.
         /// </summary>
         public void Clear()
@@ -1350,6 +1380,30 @@ namespace ScintillaNET
         public void Paste()
         {
             DirectMessage(NativeMethods.SCI_PASTE);
+        }
+
+        /// <summary>
+        /// Returns the X display pixel location of the specified document position.
+        /// </summary>
+        /// <param name="pos">The zero-based document character position.</param>
+        /// <returns>The x-coordinate of the specified <paramref name="pos" /> within the client rectangle of the control.</returns>
+        public int PointXFromPosition(int pos)
+        {
+            pos = Helpers.Clamp(pos, 0, TextLength);
+            pos = Lines.CharToBytePosition(pos);
+            return DirectMessage(NativeMethods.SCI_POINTXFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
+        }
+
+        /// <summary>
+        /// Returns the Y display pixel location of the specified document position.
+        /// </summary>
+        /// <param name="pos">The zero-based document character position.</param>
+        /// <returns>The y-coordinate of the specified <paramref name="pos" /> within the client rectangle of the control.</returns>
+        public int PointYFromPosition(int pos)
+        {
+            pos = Helpers.Clamp(pos, 0, TextLength);
+            pos = Lines.CharToBytePosition(pos);
+            return DirectMessage(NativeMethods.SCI_POINTYFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
         }
 
         /// <summary>
