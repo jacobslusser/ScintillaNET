@@ -1246,6 +1246,13 @@ namespace ScintillaNET
             // Enable support for the call tip style and tabs
             DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
 
+            // Native Scintilla uses the WM_CREATE message to register itself as an
+            // IDropTarget... beating Windows Forms to the punch. There are many possible
+            // ways to solve this, but my favorite is to revoke drag and drop from the
+            // native Scintilla control before base.OnHandleCreated does the standard
+            // processing of AllowDrop.
+            NativeMethods.RevokeDragDrop(Handle);
+
             base.OnHandleCreated(e);
         }
 

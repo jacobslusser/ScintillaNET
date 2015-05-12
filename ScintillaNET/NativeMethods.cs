@@ -11,6 +11,7 @@ namespace ScintillaNET
         #region Constants
 
         private const string DLL_NAME_KERNEL32 = "kernel32.dll";
+        private const string DLL_NAME_OLE32 = "ole32.dll";
         private const string DLL_NAME_USER32 = "user32.dll";
 
         public const int INVALID_POSITION = -1;
@@ -994,6 +995,7 @@ namespace ScintillaNET
         public const int SCWS_VISIBLEAFTERINDENT = 2;
 
         // Window messages
+        public const int WM_CREATE = 0x0001;
         public const int WM_NOTIFY = 0x004E;
         public const int WM_USER = 0x0400;
         public const int WM_REFLECT = WM_USER + 0x1C00;
@@ -1331,6 +1333,9 @@ namespace ScintillaNET
 
         [DllImport(DLL_NAME_USER32, SetLastError = true)]
         public static extern uint RegisterClipboardFormat(string lpszFormat);
+
+        [DllImport(DLL_NAME_OLE32, ExactSpelling = true)]
+        public static extern int RevokeDragDrop(IntPtr hwnd);
 
         [DllImport(DLL_NAME_USER32, EntryPoint = "SendMessageW", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessage(HandleRef hWnd, int msg, IntPtr wParam, IntPtr lParam);
