@@ -238,29 +238,42 @@ namespace ScintillaNET
             // NppExport -> RTFExporter.cpp
             // http://en.wikipedia.org/wiki/Rich_Text_Format
             // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649013.aspx
-            // http://stackoverflow.com/questions/4044397/how-do-i-convert-twips-to-pixels-in-net
-
-            var codePage = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32();
+            // http://forums.codeguru.com/showthread.php?242982-Converting-pixels-to-twips
+            // http://en.wikipedia.org/wiki/UTF-8
 
             try
             {
                 // Calculate twips per space
-                var twips = 8;
+                int twips;
+                var fontStyle = FontStyle.Regular;
+                if (styles[Style.Default].Weight >= 700)
+                    fontStyle |= FontStyle.Bold;
+                if (styles[Style.Default].Italic != 0)
+                    fontStyle |= FontStyle.Italic;
+                if (styles[Style.Default].Underline != 0)
+                    fontStyle |= FontStyle.Underline;
+
                 using (var graphics = scintilla.CreateGraphics())
-                using (var font = new Font(styles[Style.Default].FontName, styles[Style.Default].SizeF))
+                using (var font = new Font(styles[Style.Default].FontName, styles[Style.Default].SizeF, fontStyle))
                 {
                     var width = graphics.MeasureString(" ", font).Width;
-                    twips = (int)(width * (1440 / graphics.DpiX));
+                    twips = (int)((width / graphics.DpiX) * 1440);
                 }
 
+                // Write RTF
                 using (var ms = new NativeMemoryStream(styledSelections.Sum(s => s.Count)))
                 using (var tw = new StreamWriter(ms, Encoding.ASCII))
                 {
                     var ansicpg = "";
+                    var codePage = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32();
                     if (codePage != NativeMethods.SC_CP_UTF8)
-                        ansicpg = @"\ansicpg" + codePage;
+                        ansicpg = @"\ansicpg" + codePage; // Experimental
 
-                    tw.WriteLine(@"{{\rtf1\ansi{0}\deff0\deftab{1}", ansicpg, twips);
+                    var tabWidth = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+                    var deftab = tabWidth * twips;
+
+                    tw.WriteLine(@"{{\rtf1\ansi{0}\deff0\deftab{1}", ansicpg, deftab);
+                    tw.Flush();
 
                     // Build the font table
                     tw.Write(@"{\fonttbl");
@@ -273,6 +286,7 @@ namespace ScintillaNET
 
                         if (styles[i].Used)
                         {
+                            // Not a completely unique list, but close enough
                             if (styles[i].FontName != styles[Style.Default].FontName)
                             {
                                 styles[i].FontIndex = fontIndex++;
@@ -301,6 +315,10 @@ namespace ScintillaNET
                             {
                                 styles[i].ForeColorIndex = colorIndex++;
                                 tw.Write(@"\red{0}\green{1}\blue{1};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
+                            }
+                            else
+                            {
+                                styles[i].ForeColorIndex = 0;
                             }
 
                             if (styles[i].BackColor != styles[Style.Default].BackColor)
@@ -350,7 +368,7 @@ namespace ScintillaNET
                                 }
 
                                 lastStyle = style;
-                                tw.Write(" ");
+                                tw.Write(" "); // Delimiter
                             }
 
                             switch (ch)
@@ -358,24 +376,93 @@ namespace ScintillaNET
                                 case (byte)'{':
                                     tw.Write(@"\{");
                                     break;
+
                                 case (byte)'}':
                                     tw.Write(@"\}");
                                     break;
+
                                 case (byte)'\\':
                                     tw.Write(@"\\");
                                     break;
+
                                 case (byte)'\t':
                                     tw.Write(@"\tab ");
                                     break;
-                                case (byte)'\n':
-                                    tw.WriteLine(@"\par"); // Because we normalized line breaks
-                                    break;
-                                default:
-                                    // Ignore control characters
-                                    if (ch < 20)
-                                        break;
 
-                                    // TODO Unicode
+                                case (byte)'\r':
+                                    if (i + 2 < endOffset)
+                                    {
+                                        if (selection.Array[i + 2] == (byte)'\n')
+                                            i += 2;
+                                    }
+                                    goto case (byte)'\n';
+
+                                case 0xC2:
+                                    if (i + 2 < endOffset)
+                                    {
+                                        if (selection.Array[i + 2] == 0x85) // NEL \u0085
+                                        {
+                                            i += 2;
+                                            goto case (byte)'\n';
+                                        }
+                                    }
+                                    goto default;
+
+                                case 0xE2:
+                                    if (i + 4 < endOffset)
+                                    {
+                                        if (selection.Array[i + 2] == 0x80 && selection.Array[i + 4] == 0xA8) // LS \u2028
+                                        {
+                                            i += 4;
+                                            goto case (byte)'\n';
+                                        }
+                                        else if (selection.Array[i + 2] == 0x80 && selection.Array[i + 4] == 0xA9) // PS \u2029
+                                        {
+                                            i += 4;
+                                            goto case (byte)'\n';
+                                        }
+                                    }
+                                    goto default;
+
+                                case (byte)'\n':
+                                    tw.WriteLine(@"\par");
+                                    break;
+
+                                default:
+                                    if (ch == 0)
+                                    {
+                                        // Scintilla behavior is to allow control characters except for
+                                        // NUL which will cause the Clipboard to truncate the string.
+                                        tw.Write(" ");
+                                        break;
+                                    }
+
+                                    if (ch > 0x7F && codePage == NativeMethods.SC_CP_UTF8)
+                                    {
+                                        int unicode = 0;
+                                        if (ch < 0xE0 && i + 2 < endOffset)
+                                        {
+                                            i += 2;
+                                            unicode |= ((0x1F & ch) << 6);
+                                            unicode |= (0x3F & selection.Array[i + 2]);
+                                            tw.Write(@"\u{0}", unicode);
+                                            break;
+                                        }
+                                        else if (ch < 0xF0 && i + 4 < endOffset)
+                                        {
+                                            i += 4;
+                                            unicode |= ((0xF & ch) << 12);
+                                            unicode |= ((0x3F & selection.Array[i + 2]) << 6);
+                                            unicode |= (0x3F & selection.Array[i + 4]);
+                                            tw.Write(@"\u{0}", unicode);
+                                            break;
+                                        }
+                                        else if (ch < 0xF8 && i + 6 < endOffset)
+                                        {
+                                        }
+                                    }
+
+                                    // Codepage char
                                     tw.Write((char)ch);
                                     break;
                             }
@@ -385,31 +472,17 @@ namespace ScintillaNET
                     tw.WriteLine("}"); // rtf1
                     tw.Flush();
 
-                    var tmp = GetString(ms.Pointer, (int)ms.Length, Encoding.ASCII);
-
-                    ms.FreeOnDispose = false; // Clipboard will free
+                    Debug.WriteLine(GetString(ms.Pointer, (int)ms.Length, Encoding.ASCII));
+                    if (NativeMethods.SetClipboardData(CF_RTF, ms.Pointer) != IntPtr.Zero)
+                        ms.FreeOnDispose = false; // Clipboard will free memory
                 }
             }
             catch (Exception ex)
             {
-                // Yes, we swallow the exception. That may seem like code smell but this matches
+                // Yes, we swallow any exceptions. That may seem like code smell but this matches
                 // the behavior of the Clipboard class, Windows Forms controls, and native Scintilla.
                 Debug.Fail(ex.Message, ex.ToString());
             }
-
-
-            // build the header
-            // index the fonts
-            // if allow line, do one line only
-            //    add line breaks
-            // foreach selection
-            // get span, if rect add line breaks
-            // translate each byte to ansi
-
-
-            // Clipboard.SetText(, TextDataFormat)
-            //length = 0;
-            //return IntPtr.Zero;
         }
 
         private static unsafe List<ArraySegment<byte>> GetStyledSelections(Scintilla scintilla, bool allowLine, int lineStartBytePos, int lineEndBytePos, out StyleData[] styles)
@@ -791,6 +864,98 @@ namespace ScintillaNET
             var str = new string(ptr, 0, length, encoding);
 
             return str;
+        }
+
+        public static int TranslateKeys(Keys keys)
+        {
+            int keyCode;
+
+            // For some reason Scintilla uses different values for these keys...
+            switch (keys & Keys.KeyCode)
+            {
+                case Keys.Down:
+                    keyCode = NativeMethods.SCK_DOWN;
+                    break;
+                case Keys.Up:
+                    keyCode = NativeMethods.SCK_UP;
+                    break;
+                case Keys.Left:
+                    keyCode = NativeMethods.SCK_LEFT;
+                    break;
+                case Keys.Right:
+                    keyCode = NativeMethods.SCK_RIGHT;
+                    break;
+                case Keys.Home:
+                    keyCode = NativeMethods.SCK_HOME;
+                    break;
+                case Keys.End:
+                    keyCode = NativeMethods.SCK_END;
+                    break;
+                case Keys.Prior:
+                    keyCode = NativeMethods.SCK_PRIOR;
+                    break;
+                case Keys.Next:
+                    keyCode = NativeMethods.SCK_NEXT;
+                    break;
+                case Keys.Delete:
+                    keyCode = NativeMethods.SCK_DELETE;
+                    break;
+                case Keys.Insert:
+                    keyCode = NativeMethods.SCK_INSERT;
+                    break;
+                case Keys.Escape:
+                    keyCode = NativeMethods.SCK_ESCAPE;
+                    break;
+                case Keys.Back:
+                    keyCode = NativeMethods.SCK_BACK;
+                    break;
+                case Keys.Tab:
+                    keyCode = NativeMethods.SCK_TAB;
+                    break;
+                case Keys.Return:
+                    keyCode = NativeMethods.SCK_RETURN;
+                    break;
+                case Keys.Add:
+                    keyCode = NativeMethods.SCK_ADD;
+                    break;
+                case Keys.Subtract:
+                    keyCode = NativeMethods.SCK_SUBTRACT;
+                    break;
+                case Keys.Divide:
+                    keyCode = NativeMethods.SCK_DIVIDE;
+                    break;
+                case Keys.LWin:
+                    keyCode = NativeMethods.SCK_WIN;
+                    break;
+                case Keys.RWin:
+                    keyCode = NativeMethods.SCK_RWIN;
+                    break;
+                case Keys.Apps:
+                    keyCode = NativeMethods.SCK_MENU;
+                    break;
+                case Keys.Oem2:
+                    keyCode = (byte)'/';
+                    break;
+                case Keys.Oem3:
+                    keyCode = (byte)'`';
+                    break;
+                case Keys.Oem4:
+                    keyCode = '[';
+                    break;
+                case Keys.Oem5:
+                    keyCode = '\\';
+                    break;
+                case Keys.Oem6:
+                    keyCode = ']';
+                    break;
+                default:
+                    keyCode = (int)(keys & Keys.KeyCode);
+                    break;
+            }
+
+            // No translation necessary for the modifiers. Just add them back in.
+            var keyDefinition = keyCode | (int)(keys & Keys.Modifiers);
+            return keyDefinition;
         }
 
         #endregion Methods

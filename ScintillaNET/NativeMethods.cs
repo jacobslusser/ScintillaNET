@@ -909,6 +909,28 @@ namespace ScintillaNET
         // public const int SCI_SETUSEPALETTE = 2039;
         // public const int SCI_GETUSEPALETTE = 2139;
 
+        // Keys
+        public const int SCK_DOWN = 300;
+        public const int SCK_UP = 301;
+        public const int SCK_LEFT = 302;
+        public const int SCK_RIGHT = 303;
+        public const int SCK_HOME = 304;
+        public const int SCK_END = 305;
+        public const int SCK_PRIOR = 306;
+        public const int SCK_NEXT = 307;
+        public const int SCK_DELETE = 308;
+        public const int SCK_INSERT = 309;
+        public const int SCK_ESCAPE = 7;
+        public const int SCK_BACK = 8;
+        public const int SCK_TAB = 9;
+        public const int SCK_RETURN = 13;
+        public const int SCK_ADD = 310;
+        public const int SCK_SUBTRACT = 311;
+        public const int SCK_DIVIDE = 312;
+        public const int SCK_WIN = 313;
+        public const int SCK_RWIN = 314;
+        public const int SCK_MENU = 315;
+
         // Notifications
         public const int SCN_STYLENEEDED = 2000;
         public const int SCN_CHARADDED = 2001;

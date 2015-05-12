@@ -143,7 +143,8 @@ namespace ScintillaNET
         /// <param name="sciCommand">The command to assign.</param>
         public void AssignCmdKey(Keys keyDefinition, Command sciCommand)
         {
-            DirectMessage(NativeMethods.SCI_ASSIGNCMDKEY, new IntPtr((int)keyDefinition), new IntPtr((int)sciCommand));
+            var keys = Helpers.TranslateKeys(keyDefinition);
+            DirectMessage(NativeMethods.SCI_ASSIGNCMDKEY, new IntPtr(keys), new IntPtr((int)sciCommand));
         }
 
         /// <summary>
@@ -433,7 +434,8 @@ namespace ScintillaNET
         /// <remarks>This is equivalent to binding the keys to <see cref="Command.Null" />.</remarks>
         public void ClearCmdKey(Keys keyDefinition)
         {
-            DirectMessage(NativeMethods.SCI_CLEARCMDKEY, new IntPtr((int)keyDefinition), IntPtr.Zero);
+            var keys = Helpers.TranslateKeys(keyDefinition);
+            DirectMessage(NativeMethods.SCI_CLEARCMDKEY, new IntPtr(keys));
         }
 
         /// <summary>
