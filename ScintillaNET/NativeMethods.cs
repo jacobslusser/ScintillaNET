@@ -126,6 +126,11 @@ namespace ScintillaNET
         public const int SC_EFF_QUALITY_ANTIALIASED = 2;
         public const int SC_EFF_QUALITY_LCD_OPTIMIZED = 3;
 
+        // End-of-line
+        public const int SC_EOL_CRLF = 0;
+        public const int SC_EOL_CR = 1;
+        public const int SC_EOL_LF = 2;
+
         // Margins
         public const int SC_MAX_MARGIN = 4;
 

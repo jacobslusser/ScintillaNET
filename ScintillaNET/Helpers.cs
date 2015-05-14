@@ -171,6 +171,7 @@ namespace ScintillaNET
                     CF_VSLINETAG = NativeMethods.RegisterClipboardFormat("VisualStudioEditorOperationsLineCutCopyClipboardTag");
                     CF_HTML = NativeMethods.RegisterClipboardFormat("HTML Format");
                     CF_RTF = NativeMethods.RegisterClipboardFormat("Rich Text Format");
+                    registeredFormats = true;
                 }
 
                 StyleData[] styles = null;

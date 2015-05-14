@@ -489,6 +489,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Changes all end-of-line characters in the document to the format specified.
+        /// </summary>
+        /// <param name="eolMode">One of the <see cref="Eol" /> enumeration values.</param>
+        public void ConvertEols(Eol eolMode)
+        {
+            var eol = (int)eolMode;
+            DirectMessage(NativeMethods.SCI_CONVERTEOLS, new IntPtr(eol));
+        }
+
+        /// <summary>
         /// Copies the selected text from the document and places it on the clipboard.
         /// </summary>
         public void Copy()
@@ -3047,36 +3057,6 @@ namespace ScintillaNET
             }
         }
 
-        internal Encoding Encoding
-        {
-            get
-            {
-                // Should always be UTF-8 unless someone has done an end run around us
-                int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
-                return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets whether vertical scrolling ends at the last line or can scroll past.
-        /// </summary>
-        /// <returns>true if the maximum vertical scroll position ends at the last line; otherwise, false. The default is true.</returns>
-        [DefaultValue(true)]
-        [Category("Scrolling")]
-        [Description("Determines whether the maximum vertical scroll position ends at the last line or can scroll past.")]
-        public bool EndAtLastLine
-        {
-            get
-            {
-                return (DirectMessage(NativeMethods.SCI_GETENDATLASTLINE) != IntPtr.Zero);
-            }
-            set
-            {
-                var endAtLastLine = (value ? new IntPtr(1) : IntPtr.Zero);
-                DirectMessage(NativeMethods.SCI_SETENDATLASTLINE, endAtLastLine);
-            }
-        }
-
         /// <summary>
         /// Gets or sets the background color to use when indicating long lines with
         /// <see cref="ScintillaNET.EdgeMode.Background" />.
@@ -3143,6 +3123,57 @@ namespace ScintillaNET
             {
                 var edgeMode = (int)value;
                 DirectMessage(NativeMethods.SCI_SETEDGEMODE, new IntPtr(edgeMode));
+            }
+        }
+
+        internal Encoding Encoding
+        {
+            get
+            {
+                // Should always be UTF-8 unless someone has done an end run around us
+                int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
+                return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether vertical scrolling ends at the last line or can scroll past.
+        /// </summary>
+        /// <returns>true if the maximum vertical scroll position ends at the last line; otherwise, false. The default is true.</returns>
+        [DefaultValue(true)]
+        [Category("Scrolling")]
+        [Description("Determines whether the maximum vertical scroll position ends at the last line or can scroll past.")]
+        public bool EndAtLastLine
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETENDATLASTLINE) != IntPtr.Zero);
+            }
+            set
+            {
+                var endAtLastLine = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETENDATLASTLINE, endAtLastLine);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the end-of-line mode, or rather, the characters added into
+        /// the document when the user presses the Enter key.
+        /// </summary>
+        /// <returns>One of the <see cref="Eol" /> enumeration values. The default is <see cref="Eol.CrLf" />.</returns>
+        [DefaultValue(Eol.CrLf)]
+        [Category("Line Endings")]
+        [Description("Determines the characters added into the document when the user presses the Enter key.")]
+        public Eol EolMode
+        {
+            get
+            {
+                return (Eol)DirectMessage(NativeMethods.SCI_GETEOLMODE);
+            }
+            set
+            {
+                var eolMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETEOLMODE, new IntPtr(eolMode));
             }
         }
 
@@ -3267,7 +3298,7 @@ namespace ScintillaNET
         /// <returns>The column number of the indentation guide to highlight or 0 if disabled.</returns>
         /// <remarks>Guides are highlighted in the <see cref="Style.BraceLight" /> style. Column numbers can be determined by calling <see cref="GetColumn" />.</remarks>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HighlightGuide
         {
             get
@@ -3649,12 +3680,12 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets or sets whether line breaks in pasted text are convereted to the documents <see cref="EolMode" />.
+        /// Gets or sets whether line endings in pasted text are convereted to the document <see cref="EolMode" />.
         /// </summary>
-        /// <returns>true to convert line breaks in pasted text; otherwise, false. The default is true.</returns>
+        /// <returns>true to convert line endings in pasted text; otherwise, false. The default is true.</returns>
         [DefaultValue(true)]
-        [Category("Behavior")]
-        [Description("Whether line breaks in pasted text are converted to match the document EOL mode.")]
+        [Category("Line Endings")]
+        [Description("Whether line endings in pasted text are converted to match the document end-of-line mode.")]
         public bool PasteConvertEndings
         {
             get
@@ -3714,7 +3745,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The zero-based document position of the rectangular selection anchor.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int RectangularSelectionAnchor
         {
             get
@@ -3738,7 +3769,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The amount of virtual space past the end of the line offsetting the rectangular selection anchor.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int RectangularSelectionAnchorVirtualSpace
         {
             get
@@ -3757,7 +3788,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The zero-based document position of the rectangular selection caret.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int RectangularSelectionCaret
         {
             get
@@ -3781,7 +3812,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The amount of virtual space past the end of the line offsetting the rectangular selection caret.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int RectangularSelectionCaretVirtualSpace
         {
             get
@@ -4167,6 +4198,26 @@ namespace ScintillaNET
             {
                 var useTabs = (value ? new IntPtr(1) : IntPtr.Zero);
                 DirectMessage(NativeMethods.SCI_SETUSETABS, useTabs);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the visibility of end-of-line characters.
+        /// </summary>
+        /// <returns>true to display end-of-line characters; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Line Endings")]
+        [Description("Display end-of-line characters.")]
+        public bool ViewEol
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETVIEWEOL) != IntPtr.Zero;
+            }
+            set
+            {
+                var visible = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETVIEWEOL, visible);
             }
         }
 

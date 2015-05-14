@@ -58,6 +58,7 @@
     <Compile Include="Document.cs" />
     <Compile Include="DwellEventArgs.cs" />
     <Compile Include="EdgeMode.cs" />
+    <Compile Include="Eol.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
     <Compile Include="FontQuality.cs" />
     <Compile Include="GapBuffer.cs" />
