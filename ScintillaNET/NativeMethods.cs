@@ -1327,6 +1327,20 @@ namespace ScintillaNET
         public const int SCE_SQL_QUOTEDIDENTIFIER = 23;
         public const int SCE_SQL_QOPERATOR = 24;
 
+        // R
+        public const int SCE_R_DEFAULT = 0;
+        public const int SCE_R_COMMENT = 1;
+        public const int SCE_R_KWORD = 2;
+        public const int SCE_R_BASEKWORD = 3;
+        public const int SCE_R_OTHERKWORD = 4;
+        public const int SCE_R_NUMBER = 5;
+        public const int SCE_R_STRING = 6;
+        public const int SCE_R_STRING2 = 7;
+        public const int SCE_R_OPERATOR = 8;
+        public const int SCE_R_IDENTIFIER = 9;
+        public const int SCE_R_INFIX = 10;
+        public const int SCE_R_INFIXEOL = 11;
+
         #endregion Lexer Constants
 
         #region Callbacks

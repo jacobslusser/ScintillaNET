@@ -54,6 +54,11 @@ namespace ScintillaNET
         /// <summary>
         /// The Markdown syntax lexer.
         /// </summary>
-        Markdown = NativeMethods.SCLEX_MARKDOWN
+        Markdown = NativeMethods.SCLEX_MARKDOWN,
+
+        /// <summary>
+        /// R programming language lexer.
+        /// </summary>
+        R = NativeMethods.SCLEX_R
     }
 }

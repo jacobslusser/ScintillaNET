@@ -1187,5 +1187,75 @@ namespace ScintillaNET
         }
 
         #endregion Markdown
+
+        #region R
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.R" /> lexer.
+        /// </summary>
+        public static class R
+        {
+            /// <summary>
+            /// Default style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_R_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_R_COMMENT;
+
+            /// <summary>
+            /// Keyword (set 0) style index.
+            /// </summary>
+            public const int KWord = NativeMethods.SCE_R_KWORD;
+
+            /// <summary>
+            /// Base keyword (set 1) style index.
+            /// </summary>
+            public const int BaseKWord = NativeMethods.SCE_R_BASEKWORD;
+
+            /// <summary>
+            /// Other keyword (set 2) style index.
+            /// </summary>
+            public const int OtherKWord = NativeMethods.SCE_R_OTHERKWORD;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_R_NUMBER;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_R_STRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int String2 = NativeMethods.SCE_R_STRING2;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_R_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_R_IDENTIFIER;
+
+            /// <summary>
+            /// Infix style index.
+            /// </summary>
+            public const int Infix = NativeMethods.SCE_R_INFIX;
+
+            /// <summary>
+            /// Unclosed infix EOL style index.
+            /// </summary>
+            public const int InfixEol = NativeMethods.SCE_R_INFIXEOL;
+        }
+
+        #endregion R
     }
 }
