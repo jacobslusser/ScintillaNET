@@ -522,6 +522,7 @@ namespace ScintillaNET
         /// <summary>
         /// Copies the selected text from the document, formats it as HTML, and places it on the clipboard.
         /// </summary>
+        /// <remarks>This method is provisional and may change in a future version.</remarks>
         public unsafe void CopyAsHtml()
         {
             // Copying HTML to the clipboard requires that the document be in UTF-8.
