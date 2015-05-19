@@ -1679,6 +1679,34 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets a global override to the fold margin color.
+        /// </summary>
+        /// <param name="use">true to override the fold margin color; otherwise, false.</param>
+        /// <param name="color">The global fold margin color.</param>
+        /// <seealso cref="SetFoldMarginHighlightColor" />
+        public void SetFoldMarginColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useFoldMarginColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETFOLDMARGINCOLOUR, useFoldMarginColour, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Sets a global override to the fold margin highlight color.
+        /// </summary>
+        /// <param name="use">true to override the fold margin highlight color; otherwise, false.</param>
+        /// <param name="color">The global fold margin highlight color.</param>
+        /// <seealso cref="SetFoldMarginColor" />
+        public void SetFoldMarginHighlightColor(bool use, Color color)
+        {
+            var colour = ColorTranslator.ToWin32(color);
+            var useFoldMarginHighlightColour = (use ? new IntPtr(1) : IntPtr.Zero);
+
+            DirectMessage(NativeMethods.SCI_SETFOLDMARGINHICOLOUR, useFoldMarginHighlightColour, new IntPtr(colour));
+        }
+
+        /// <summary>
         /// Updates a keyword set used by the current <see cref="Lexer" />.
         /// </summary>
         /// <param name="set">The zero-based index of the keyword set to update.</param>
