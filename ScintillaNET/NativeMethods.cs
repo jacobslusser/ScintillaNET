@@ -131,6 +131,10 @@ namespace ScintillaNET
         public const int SC_EOL_CR = 1;
         public const int SC_EOL_LF = 2;
 
+        // Line end type
+        public const int SC_LINE_END_TYPE_DEFAULT = 0;
+        public const int SC_LINE_END_TYPE_UNICODE = 1;
+
         // Margins
         public const int SC_MAX_MARGIN = 4;
 

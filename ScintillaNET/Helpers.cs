@@ -16,19 +16,6 @@ namespace ScintillaNET
     {
         #region Fields
 
-        private const string HTML_HEADER =
-            "Version:0.9\r\n" +
-            "StartHTML:00000097\r\n" +
-            "EndHTML:00000000\r\n" +
-            "StartFragment:00000000\r\n" +
-            "EndFragment:00000000\r\n";
-
-        private const int INDEX_START_FRAGMENT = 65;
-        private const int INDEX_END_FRAGMENT = 87;
-        private const int INDEX_END_HTML = 41;
-
-        private static readonly byte[] header = Encoding.ASCII.GetBytes(HTML_HEADER);
-
         private static bool registeredFormats;
         private static uint CF_HTML;
         private static uint CF_RTF;
@@ -147,26 +134,37 @@ namespace ScintillaNET
             return value;
         }
 
-        public static void Copy(Scintilla scintilla, CopyFormat format, bool allowLine)
+        public static void Copy(Scintilla scintilla, CopyFormat format, bool useSelection, bool allowLine, int startBytePos, int endBytePos)
         {
-            var defaultProcessing = false;
-
-            // Text (default processing)
+            // Plain text
             if ((format & CopyFormat.Text) > 0)
             {
-                defaultProcessing = true;
-
-                if (allowLine)
-                    scintilla.DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+                if (useSelection)
+                {
+                    if (allowLine)
+                        scintilla.DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+                    else
+                        scintilla.DirectMessage(NativeMethods.SCI_COPY);
+                }
                 else
-                    scintilla.DirectMessage(NativeMethods.SCI_COPY);
+                {
+                    scintilla.DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(startBytePos), new IntPtr(endBytePos));
+                }
             }
 
-            // RTF or HTML (custom processing)
+            // RTF and/or HTML
             if ((format & (CopyFormat.Rtf | CopyFormat.Html)) > 0)
             {
+                // If we ever allow more than UTF-8, this will have to be revisited
+                Debug.Assert(scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8);
+
                 if (!registeredFormats)
                 {
+                    // Register non-standard clipboard formats.
+                    // Scintilla -> ScintillaWin.cxx
+                    // NppExport -> HTMLExporter.h
+                    // NppExport -> RTFExporter.h
+
                     CF_LINESELECT = NativeMethods.RegisterClipboardFormat("MSDEVLineSelect");
                     CF_VSLINETAG = NativeMethods.RegisterClipboardFormat("VisualStudioEditorOperationsLineCutCopyClipboardTag");
                     CF_HTML = NativeMethods.RegisterClipboardFormat("HTML Format");
@@ -174,37 +172,40 @@ namespace ScintillaNET
                     registeredFormats = true;
                 }
 
-                StyleData[] styles = null;
-                List<ArraySegment<byte>> styledSelections = null;
-
                 var lineCopy = false;
-                var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
-                if (selIsEmpty)
-                {
-                    if (allowLine)
-                    {
-                        // Get the current line
-                        var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
-                        var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
-                        var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
-                        var lineStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
-                        var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+                StyleData[] styles = null;
+                List<ArraySegment<byte>> styledSegments = null;
 
-                        styledSelections = GetStyledSelections(scintilla, true, lineStartBytePos, (lineStartBytePos + lineLength), out styles);
-                        lineCopy = true;
+                if (useSelection)
+                {
+                    var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+                    if (selIsEmpty)
+                    {
+                        if (allowLine)
+                        {
+                            // Get the current line
+                            styledSegments = GetStyledSegments(scintilla, false, true, 0, 0, out styles);
+                            lineCopy = true;
+                        }
+                    }
+                    else
+                    {
+                        // Get every selection
+                        styledSegments = GetStyledSegments(scintilla, true, false, 0, 0, out styles);
                     }
                 }
-                else
+                else if (startBytePos != endBytePos)
                 {
-                    // Get every selection
-                    styledSelections = GetStyledSelections(scintilla, false, 0, 0, out styles);
+                    // User-specified range
+                    styledSegments = GetStyledSegments(scintilla, false, false, startBytePos, endBytePos, out styles);
                 }
 
-                // If we have selections and can open the clipboard
-                if (styledSelections != null && NativeMethods.OpenClipboard(scintilla.Handle))
+                // If we have segments and can open the clipboard
+                if (styledSegments != null && styledSegments.Count > 0 && NativeMethods.OpenClipboard(scintilla.Handle))
                 {
-                    if (!defaultProcessing)
+                    if ((format & CopyFormat.Text) == 0)
                     {
+                        // Do the things default (plain text) processing would normally give us
                         NativeMethods.EmptyClipboard();
 
                         if (lineCopy)
@@ -217,23 +218,249 @@ namespace ScintillaNET
 
                     // RTF
                     if ((format & CopyFormat.Rtf) > 0)
-                        CopyRtf(scintilla, styles, styledSelections);
+                        CopyRtf(scintilla, styles, styledSegments);
 
                     // HTML
                     if ((format & CopyFormat.Html) > 0)
-                        CopyHtml(scintilla, styles, styledSelections);
+                        CopyHtml(scintilla, styles, styledSegments);
 
                     NativeMethods.CloseClipboard();
                 }
             }
         }
 
-        private static unsafe void CopyHtml(Scintilla scintilla, StyleData[] usedStyles, List<ArraySegment<byte>> styledSelections)
+        private static unsafe void CopyHtml(Scintilla scintilla, StyleData[] styles, List<ArraySegment<byte>> styledSegments)
         {
+            // NppExport -> NppExport.cpp
+            // NppExport -> HTMLExporter.cpp
+            // http://blogs.msdn.com/b/jmstall/archive/2007/01/21/html-clipboard.aspx
+            // http://blogs.msdn.com/b/jmstall/archive/2007/01/21/sample-code-html-clipboard.aspx
+            // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649015.aspx
+
+            try
+            {
+                long pos = 0;
+                byte[] bytes;
+
+                // Write HTML
+                using (var ms = new NativeMemoryStream(styledSegments.Sum(s => s.Count)))
+                using (var tw = new StreamWriter(ms, new UTF8Encoding(false)))
+                {
+                    const int INDEX_START_HTML = 23;
+                    const int INDEX_START_FRAGMENT = 65;
+                    const int INDEX_END_FRAGMENT = 87;
+                    const int INDEX_END_HTML = 41;
+
+                    tw.WriteLine("Version:0.9");
+                    tw.WriteLine("StartHTML:00000000");
+                    tw.WriteLine("EndHTML:00000000");
+                    tw.WriteLine("StartFragment:00000000");
+                    tw.WriteLine("EndFragment:00000000");
+                    tw.Flush();
+
+                    // Patch header
+                    pos = ms.Position;
+                    ms.Seek(INDEX_START_HTML, SeekOrigin.Begin);
+                    ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
+                    ms.Seek(pos, SeekOrigin.Begin);
+
+                    tw.WriteLine("<html>");
+                    tw.WriteLine("<head>");
+                    tw.WriteLine(@"<meta charset=""utf-8"" />");
+                    tw.WriteLine(@"<title>ScintillaNET v{0}</title>", scintilla.GetType().Assembly.GetName().Version.ToString(3));
+                    tw.WriteLine("</head>");
+                    tw.WriteLine("<body>");
+                    tw.Flush();
+
+                    // Patch header
+                    pos = ms.Position;
+                    ms.Seek(INDEX_START_FRAGMENT, SeekOrigin.Begin);
+                    ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
+                    ms.Seek(pos, SeekOrigin.Begin);
+                    tw.WriteLine("<!--StartFragment -->");
+
+                    // Write the styles.
+                    // We're doing the style tag in the body to include it in the "fragment".
+                    tw.WriteLine(@"<style type=""text/css"" scoped="""">");
+                    tw.Write("div#segments {");
+                    tw.Write(" float: left;");
+                    tw.Write(" white-space: pre;");
+                    tw.Write(" line-height: {0}px;", scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
+                    tw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
+                    tw.WriteLine(" }");
+
+                    for (int i = 0; i < styles.Length; i++)
+                    {
+                        if (!styles[i].Used)
+                            continue;
+
+                        tw.Write("span.s{0} {{", i);
+                        tw.Write(@" font-family: ""{0}"";", styles[i].FontName);
+                        tw.Write(" font-size: {0}pt;", styles[i].SizeF);
+                        tw.Write(" font-weight: {0};", styles[i].Weight);
+                        if (styles[i].Italic != 0)
+                            tw.Write(" font-style: italic;");
+                        if (styles[i].Underline != 0)
+                            tw.Write(" text-decoration: underline;");
+                        tw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[i].BackColor >> 0) & 0xFF, (styles[i].BackColor >> 8) & 0xFF, (styles[i].BackColor >> 16) & 0xFF);
+                        tw.Write(" color: #{0:X2}{1:X2}{2:X2};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
+                        switch ((StyleCase)styles[i].Case)
+                        {
+                            case StyleCase.Upper:
+                                tw.Write(" text-transform: uppercase;");
+                                break;
+                            case StyleCase.Lower:
+                                tw.Write(" text-transform: lowercase;");
+                                break;
+                        }
+
+                        if (styles[i].Visible == 0)
+                            tw.Write(" visibility: hidden;");
+                        tw.WriteLine(" }");
+                    }
+
+                    tw.WriteLine("</style>");
+                    tw.Write(@"<div id=""segments""><span class=""s{0}"">", Style.Default);
+                    tw.Flush();
+
+                    var tabSize = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+                    var tab = new string(' ', tabSize);
+
+                    tw.AutoFlush = true;
+                    var lastStyle = Style.Default;
+                    var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
+                    foreach (var seg in styledSegments)
+                    {
+                        var endOffset = seg.Offset + seg.Count;
+                        for (int i = seg.Offset; i < endOffset; i += 2)
+                        {
+                            var ch = seg.Array[i];
+                            var style = seg.Array[i + 1];
+
+                            if (lastStyle != style)
+                            {
+                                tw.Write(@"</span><span class=""s{0}"">", style);
+                                lastStyle = style;
+                            }
+
+                            switch (ch)
+                            {
+                                case (byte)'<':
+                                    tw.Write("&lt;");
+                                    break;
+
+                                case (byte)'>':
+                                    tw.Write("&gt;");
+                                    break;
+
+                                case (byte)'&':
+                                    tw.Write("&amp;");
+                                    break;
+
+                                case (byte)'\t':
+                                    tw.Write(tab);
+                                    break;
+
+                                case (byte)'\r':
+                                    if (i + 2 < endOffset)
+                                    {
+                                        if (seg.Array[i + 2] == (byte)'\n')
+                                            i += 2;
+                                    }
+
+                                    // Either way, this is a line break
+                                    goto case (byte)'\n';
+
+                                case 0xC2:
+                                    if (unicodeLineEndings && i + 2 < endOffset)
+                                    {
+                                        if (seg.Array[i + 2] == 0x85) // NEL \u0085
+                                        {
+                                            i += 2;
+                                            goto case (byte)'\n';
+                                        }
+                                    }
+
+                                    // Not a Unicode line break
+                                    goto default;
+
+                                case 0xE2:
+                                    if (unicodeLineEndings && i + 4 < endOffset)
+                                    {
+                                        if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA8) // LS \u2028
+                                        {
+                                            i += 4;
+                                            goto case (byte)'\n';
+                                        }
+                                        else if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA9) // PS \u2029
+                                        {
+                                            i += 4;
+                                            goto case (byte)'\n';
+                                        }
+                                    }
+
+                                    // Not a Unicode line break
+                                    goto default;
+
+                                case (byte)'\n':
+                                    // All your line breaks are belong to us
+                                    tw.Write("\r\n");
+                                    break;
+
+                                default:
+
+                                    if (ch == 0)
+                                    {
+                                        // Scintilla behavior is to allow control characters except for
+                                        // NULL which will cause the Clipboard to truncate the string.
+                                        tw.Write(" "); // Replace with space
+                                        break;
+                                    }
+
+                                    ms.WriteByte(ch);
+                                    break;
+                            }
+                        }
+                    }
+
+                    tw.AutoFlush = false;
+                    tw.WriteLine("</span></div>");
+                    tw.Flush();
+
+                    // Patch header
+                    pos = ms.Position;
+                    ms.Seek(INDEX_END_FRAGMENT, SeekOrigin.Begin);
+                    ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
+                    ms.Seek(pos, SeekOrigin.Begin);
+                    tw.WriteLine("<!--EndFragment-->");
+
+                    tw.WriteLine("</body>");
+                    tw.WriteLine("</html>");
+                    tw.Flush();
+
+                    // Patch header
+                    pos = ms.Position;
+                    ms.Seek(INDEX_END_HTML, SeekOrigin.Begin);
+                    ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
+                    ms.Seek(pos, SeekOrigin.Begin);
+
+                    // Terminator
+                    ms.WriteByte(0);
+
+                    var str = GetString(ms.Pointer, (int)ms.Length, Encoding.UTF8);
+                    if (NativeMethods.SetClipboardData(CF_HTML, ms.Pointer) != IntPtr.Zero)
+                        ms.FreeOnDispose = false; // Clipboard will free memory
+                }
+            }
+            catch (Exception ex)
+            {
+                // Yes, we swallow any exceptions. That may seem like code smell but this matches
+                // the behavior of the Clipboard class, Windows Forms controls, and native Scintilla.
+                Debug.Fail(ex.Message, ex.ToString());
+            }
         }
 
-
-        private static unsafe void CopyRtf(Scintilla scintilla, StyleData[] styles, List<ArraySegment<byte>> styledSelections)
+        private static unsafe void CopyRtf(Scintilla scintilla, StyleData[] styles, List<ArraySegment<byte>> styledSegments)
         {
             // NppExport -> NppExport.cpp
             // NppExport -> RTFExporter.cpp
@@ -259,21 +486,17 @@ namespace ScintillaNET
                 {
                     var width = graphics.MeasureString(" ", font).Width;
                     twips = (int)((width / graphics.DpiX) * 1440);
+                    // TODO The twips value calculated seems too small on my computer
                 }
 
                 // Write RTF
-                using (var ms = new NativeMemoryStream(styledSelections.Sum(s => s.Count)))
+                using (var ms = new NativeMemoryStream(styledSegments.Sum(s => s.Count)))
                 using (var tw = new StreamWriter(ms, Encoding.ASCII))
                 {
-                    var ansicpg = "";
-                    var codePage = scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32();
-                    if (codePage != NativeMethods.SC_CP_UTF8)
-                        ansicpg = @"\ansicpg" + codePage; // Experimental
-
                     var tabWidth = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
                     var deftab = tabWidth * twips;
 
-                    tw.WriteLine(@"{{\rtf1\ansi{0}\deff0\deftab{1}", ansicpg, deftab);
+                    tw.WriteLine(@"{{\rtf1\ansi\deff0\deftab{0}", deftab);
                     tw.Flush();
 
                     // Build the font table
@@ -282,72 +505,84 @@ namespace ScintillaNET
                     var fontIndex = 1;
                     for (int i = 0; i < styles.Length; i++)
                     {
+                        if (!styles[i].Used)
+                            continue;
+
                         if (i == Style.Default)
                             continue;
 
-                        if (styles[i].Used)
+                        // Not a completely unique list, but close enough
+                        if (styles[i].FontName != styles[Style.Default].FontName)
                         {
-                            // Not a completely unique list, but close enough
-                            if (styles[i].FontName != styles[Style.Default].FontName)
-                            {
-                                styles[i].FontIndex = fontIndex++;
-                                tw.Write(@"{{\f{0} {1};}}", styles[i].FontIndex, styles[i].FontName);
-                            }
+                            styles[i].FontIndex = fontIndex++;
+                            tw.Write(@"{{\f{0} {1};}}", styles[i].FontIndex, styles[i].FontName);
                         }
                     }
                     tw.WriteLine("}"); // fonttbl
                     tw.Flush();
 
                     // Build the color table
-                    tw.Write(@"{\colortbl;");
-                    tw.Write(@"\red{0}\green{1}\blue{1};", (styles[Style.Default].ForeColor >> 0) & 0xFF, (styles[Style.Default].ForeColor >> 8) & 0xFF, (styles[Style.Default].ForeColor >> 16) & 0xFF);
-                    tw.Write(@"\red{0}\green{1}\blue{1};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
+                    tw.Write(@"{\colortbl");
+                    tw.Write(@"\red{0}\green{1}\blue{2};", (styles[Style.Default].ForeColor >> 0) & 0xFF, (styles[Style.Default].ForeColor >> 8) & 0xFF, (styles[Style.Default].ForeColor >> 16) & 0xFF);
+                    tw.Write(@"\red{0}\green{1}\blue{2};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
+                    styles[Style.Default].ForeColorIndex = 0;
                     styles[Style.Default].BackColorIndex = 1;
-
-                    var colorIndex = 0;
+                    var colorIndex = 2;
                     for (int i = 0; i < styles.Length; i++)
                     {
+                        if (!styles[i].Used)
+                            continue;
+
                         if (i == Style.Default)
                             continue;
 
-                        if (styles[i].Used)
+                        // Not a completely unique list, but close enough
+                        if (styles[i].ForeColor != styles[Style.Default].ForeColor)
                         {
-                            if (styles[i].ForeColor != styles[Style.Default].ForeColor)
-                            {
-                                styles[i].ForeColorIndex = colorIndex++;
-                                tw.Write(@"\red{0}\green{1}\blue{1};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
-                            }
-                            else
-                            {
-                                styles[i].ForeColorIndex = 0;
-                            }
+                            styles[i].ForeColorIndex = colorIndex++;
+                            tw.Write(@"\red{0}\green{1}\blue{2};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
+                        }
+                        else
+                        {
+                            styles[i].ForeColorIndex = styles[Style.Default].ForeColorIndex;
+                        }
 
-                            if (styles[i].BackColor != styles[Style.Default].BackColor)
-                            {
-                                styles[i].BackColorIndex = colorIndex++;
-                                tw.Write(@"\red{0}\green{1}\blue{1};", (styles[i].BackColor >> 0) & 0xFF, (styles[i].BackColor >> 8) & 0xFF, (styles[i].BackColor >> 16) & 0xFF);
-                            }
-                            else
-                            {
-                                styles[i].BackColorIndex = 1;
-                            }
+                        if (styles[i].BackColor != styles[Style.Default].BackColor)
+                        {
+                            styles[i].BackColorIndex = colorIndex++;
+                            tw.Write(@"\red{0}\green{1}\blue{2};", (styles[i].BackColor >> 0) & 0xFF, (styles[i].BackColor >> 8) & 0xFF, (styles[i].BackColor >> 16) & 0xFF);
+                        }
+                        else
+                        {
+                            styles[i].BackColorIndex = styles[Style.Default].BackColorIndex;
                         }
                     }
                     tw.WriteLine("}"); // colortbl
                     tw.Flush();
 
+                    // Start with the default style
+                    tw.Write(@"\f{0}\fs{1}\cf{2}\chshdng0\chcbpat{3}\cb{3} ", styles[Style.Default].FontIndex, (int)(styles[Style.Default].SizeF * 2), styles[Style.Default].ForeColorIndex, styles[Style.Default].BackColorIndex);
+                    if (styles[Style.Default].Italic != 0)
+                        tw.Write(@"\i");
+                    if (styles[Style.Default].Underline != 0)
+                        tw.Write(@"\ul");
+                    if (styles[Style.Default].Weight >= 700)
+                        tw.Write(@"\b");
+
+                    tw.AutoFlush = true;
                     var lastStyle = Style.Default;
-                    tw.Write(@"\f{0}\fs{1}\cf{2}\cb{3}\chshdng0\chcbpat{3} ", styles[Style.Default].FontIndex, (int)(styles[Style.Default].SizeF * 2), styles[Style.Default].ForeColorIndex, styles[Style.Default].BackColorIndex);
-                    foreach (var selection in styledSelections)
+                    var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
+                    foreach (var seg in styledSegments)
                     {
-                        var endOffset = selection.Offset + selection.Count;
-                        for (int i = selection.Offset; i < endOffset; i += 2)
+                        var endOffset = seg.Offset + seg.Count;
+                        for (int i = seg.Offset; i < endOffset; i += 2)
                         {
-                            var ch = selection.Array[i];
-                            var style = selection.Array[i + 1];
+                            var ch = seg.Array[i];
+                            var style = seg.Array[i + 1];
 
                             if (lastStyle != style)
                             {
+                                // Change the style
                                 if (styles[lastStyle].FontIndex != styles[style].FontIndex)
                                     tw.Write(@"\f{0}", styles[style].FontIndex);
                                 if (styles[lastStyle].SizeF != styles[style].SizeF)
@@ -355,7 +590,7 @@ namespace ScintillaNET
                                 if (styles[lastStyle].ForeColorIndex != styles[style].ForeColorIndex)
                                     tw.Write(@"\cf{0}", styles[style].ForeColorIndex);
                                 if (styles[lastStyle].BackColorIndex != styles[style].BackColorIndex)
-                                    tw.Write(@"\cb{0}\chshdng0\chcbpat{0}", styles[style].BackColorIndex);
+                                    tw.Write(@"\chshdng0\chcbpat{0}\cb{0}", styles[style].BackColorIndex);
                                 if (styles[lastStyle].Italic != styles[style].Italic)
                                     tw.Write(@"\i{0}", styles[style].Italic != 0 ? "" : "0");
                                 if (styles[lastStyle].Underline != styles[style].Underline)
@@ -367,6 +602,8 @@ namespace ScintillaNET
                                     else if (styles[style].Weight < 700 && styles[lastStyle].Weight >= 700)
                                         tw.Write(@"\b0");
                                 }
+
+                                // NOTE: We don't support StyleData.Visible and StyleData.Case in RTF
 
                                 lastStyle = style;
                                 tw.Write(" "); // Delimiter
@@ -393,87 +630,107 @@ namespace ScintillaNET
                                 case (byte)'\r':
                                     if (i + 2 < endOffset)
                                     {
-                                        if (selection.Array[i + 2] == (byte)'\n')
+                                        if (seg.Array[i + 2] == (byte)'\n')
                                             i += 2;
                                     }
+
+                                    // Either way, this is a line break
                                     goto case (byte)'\n';
 
                                 case 0xC2:
-                                    if (i + 2 < endOffset)
+                                    if (unicodeLineEndings && i + 2 < endOffset)
                                     {
-                                        if (selection.Array[i + 2] == 0x85) // NEL \u0085
+                                        if (seg.Array[i + 2] == 0x85) // NEL \u0085
                                         {
                                             i += 2;
                                             goto case (byte)'\n';
                                         }
                                     }
+
+                                    // Not a Unicode line break
                                     goto default;
 
                                 case 0xE2:
-                                    if (i + 4 < endOffset)
+                                    if (unicodeLineEndings && i + 4 < endOffset)
                                     {
-                                        if (selection.Array[i + 2] == 0x80 && selection.Array[i + 4] == 0xA8) // LS \u2028
+                                        if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA8) // LS \u2028
                                         {
                                             i += 4;
                                             goto case (byte)'\n';
                                         }
-                                        else if (selection.Array[i + 2] == 0x80 && selection.Array[i + 4] == 0xA9) // PS \u2029
+                                        else if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA9) // PS \u2029
                                         {
                                             i += 4;
                                             goto case (byte)'\n';
                                         }
                                     }
+
+                                    // Not a Unicode line break
                                     goto default;
 
                                 case (byte)'\n':
+                                    // All your line breaks are belong to us
                                     tw.WriteLine(@"\par");
                                     break;
 
                                 default:
+
                                     if (ch == 0)
                                     {
                                         // Scintilla behavior is to allow control characters except for
-                                        // NUL which will cause the Clipboard to truncate the string.
-                                        tw.Write(" ");
+                                        // NULL which will cause the Clipboard to truncate the string.
+                                        tw.Write(" "); // Replace with space
                                         break;
                                     }
 
-                                    if (ch > 0x7F && codePage == NativeMethods.SC_CP_UTF8)
+                                    if (ch > 0x7F)
                                     {
+                                        // Treat as UTF-8 code point
                                         int unicode = 0;
                                         if (ch < 0xE0 && i + 2 < endOffset)
                                         {
-                                            i += 2;
                                             unicode |= ((0x1F & ch) << 6);
-                                            unicode |= (0x3F & selection.Array[i + 2]);
-                                            tw.Write(@"\u{0}", unicode);
+                                            unicode |= (0x3F & seg.Array[i + 2]);
+                                            tw.Write(@"\u{0}?", unicode);
+                                            i += 2;
                                             break;
                                         }
                                         else if (ch < 0xF0 && i + 4 < endOffset)
                                         {
-                                            i += 4;
                                             unicode |= ((0xF & ch) << 12);
-                                            unicode |= ((0x3F & selection.Array[i + 2]) << 6);
-                                            unicode |= (0x3F & selection.Array[i + 4]);
-                                            tw.Write(@"\u{0}", unicode);
+                                            unicode |= ((0x3F & seg.Array[i + 2]) << 6);
+                                            unicode |= (0x3F & seg.Array[i + 4]);
+                                            tw.Write(@"\u{0}?", unicode);
+                                            i += 4;
                                             break;
                                         }
                                         else if (ch < 0xF8 && i + 6 < endOffset)
                                         {
+                                            unicode |= ((0x7 & ch) << 18);
+                                            unicode |= ((0x3F & seg.Array[i + 2]) << 12);
+                                            unicode |= ((0x3F & seg.Array[i + 4]) << 6);
+                                            unicode |= (0x3F & seg.Array[i + 6]);
+                                            tw.Write(@"\u{0}?", unicode);
+                                            i += 6;
+                                            break;
                                         }
                                     }
 
-                                    // Codepage char
-                                    tw.Write((char)ch);
+                                    // Regular ANSI char
+                                    ms.WriteByte(ch);
                                     break;
                             }
                         }
                     }
 
+                    tw.AutoFlush = false;
                     tw.WriteLine("}"); // rtf1
                     tw.Flush();
 
-                    Debug.WriteLine(GetString(ms.Pointer, (int)ms.Length, Encoding.ASCII));
+                    // Terminator
+                    ms.WriteByte(0);
+
+                    // var str = GetString(ms.Pointer, (int)ms.Length, Encoding.ASCII);
                     if (NativeMethods.SetClipboardData(CF_RTF, ms.Pointer) != IntPtr.Zero)
                         ms.FreeOnDispose = false; // Clipboard will free memory
                 }
@@ -486,16 +743,13 @@ namespace ScintillaNET
             }
         }
 
-        private static unsafe List<ArraySegment<byte>> GetStyledSelections(Scintilla scintilla, bool allowLine, int lineStartBytePos, int lineEndBytePos, out StyleData[] styles)
+        private static unsafe List<ArraySegment<byte>> GetStyledSegments(Scintilla scintilla, bool currentSelection, bool currentLine, int startBytePos, int endBytePos, out StyleData[] styles)
         {
-            var selections = new List<ArraySegment<byte>>();
-            if (allowLine)
+            var segments = new List<ArraySegment<byte>>();
+            if (currentSelection)
             {
-                var styledText = GetStyledText(scintilla, lineStartBytePos, lineEndBytePos, true);
-                selections.Add(styledText);
-            }
-            else
-            {
+                // Get each selection as a segment.
+                // Rectangular selections are ordered top to bottom and have line breaks appended.
                 var ranges = new List<Tuple<int, int>>();
                 var selCount = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
                 for (int i = 0; i < selCount; i++)
@@ -508,16 +762,31 @@ namespace ScintillaNET
 
                 var selIsRect = scintilla.DirectMessage(NativeMethods.SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
                 if (selIsRect)
-                {
-                    // Sort top to bottom
-                    ranges.OrderBy(r => r.Item1);
-                }
+                    ranges.OrderBy(r => r.Item1); // Sort top to bottom
 
                 foreach (var range in ranges)
                 {
                     var styledText = GetStyledText(scintilla, range.Item1, range.Item2, selIsRect);
-                    selections.Add(styledText);
+                    segments.Add(styledText);
                 }
+            }
+            else if (currentLine)
+            {
+                // Get the current line
+                var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
+                var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
+                var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
+                var lineStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+                var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+
+                var styledText = GetStyledText(scintilla, lineStartBytePos, (lineStartBytePos + lineLength), false);
+                segments.Add(styledText);
+            }
+            else // User-specified range
+            {
+                Debug.Assert(startBytePos != endBytePos);
+                var styledText = GetStyledText(scintilla, startBytePos, endBytePos, false);
+                segments.Add(styledText);
             }
 
             // Build a list of (used) styles
@@ -534,11 +803,11 @@ namespace ScintillaNET
             styles[Style.Default].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
             styles[Style.Default].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
 
-            foreach (var sel in selections)
+            foreach (var seg in segments)
             {
-                for (int i = 0; i < sel.Count; i += 2)
+                for (int i = 0; i < seg.Count; i += 2)
                 {
-                    var style = sel.Array[i + 1];
+                    var style = seg.Array[i + 1];
                     if (!styles[style].Used)
                     {
                         styles[style].Used = true;
@@ -555,13 +824,18 @@ namespace ScintillaNET
                 }
             }
 
-            return selections;
+            return segments;
         }
 
-        private static unsafe ArraySegment<byte> GetStyledText(Scintilla scintilla, int startBytePos, int endBytePos, bool normalizeLineBreaks)
+        private static unsafe ArraySegment<byte> GetStyledText(Scintilla scintilla, int startBytePos, int endBytePos, bool addLineBreak)
         {
+            Debug.Assert(endBytePos > startBytePos);
+
+            // Make sure the range is styled
+            scintilla.DirectMessage(NativeMethods.SCI_COLOURISE, new IntPtr(startBytePos), new IntPtr(endBytePos));
+
             var byteLength = (endBytePos - startBytePos);
-            var buffer = new byte[(byteLength * 2) + 2];
+            var buffer = new byte[(byteLength * 2) + (addLineBreak ? 4 : 0) + 2];
             fixed (byte* bp = buffer)
             {
                 NativeMethods.Sci_TextRange* tr = stackalloc NativeMethods.Sci_TextRange[1];
@@ -573,254 +847,23 @@ namespace ScintillaNET
                 byteLength *= 2;
             }
 
-            if (normalizeLineBreaks)
+            // Add a line break?
+            // We do this when this range is part of a rectangular selection.
+            if (addLineBreak)
             {
-                if (byteLength >= 2 && buffer[byteLength - 2] == (byte)'\r')
-                {
-                    // LF \u000A
-                    buffer[byteLength] = (byte)'\n';
-                    buffer[byteLength + 1] = buffer[byteLength - 1];
-                    byteLength += 2; // Write over the \0\0
-                }
-                else if (byteLength >= 2 && buffer[byteLength - 2] == (byte)'\n')
-                {
-                    // CR \u000D
-                    if (byteLength == 2 || (buffer[byteLength - 4] != (byte)'\r'))
-                    {
-                        buffer[byteLength - 2] = (byte)'\r';
-                        buffer[byteLength] = (byte)'\n';
-                        buffer[byteLength + 1] = buffer[byteLength - 1];
-                        byteLength += 2; // Write over the \0\0
-                    }
-                }
-                else if (byteLength >= 4 && buffer[byteLength - 4] == 0xC2 && buffer[byteLength - 2] == 0x85)
-                {
-                    // NEL \u0085
-                    buffer[byteLength - 4] = (byte)'\r';
-                    buffer[byteLength - 2] = (byte)'\n';
-                }
-                else if (byteLength >= 6 && buffer[byteLength - 6] == 0xE2 && buffer[byteLength - 4] == 0x80 && buffer[byteLength - 2] == 0xA8)
-                {
-                    // LS \u2028
-                    buffer[byteLength - 6] = (byte)'\r';
-                    buffer[byteLength - 4] = (byte)'\n';
-                    byteLength -= 2;
-                }
-                else if (byteLength >= 6 && buffer[byteLength - 6] == 0xE2 && buffer[byteLength - 4] == 0x80 && buffer[byteLength - 2] == 0xA9)
-                {
-                    // PS \u2029
-                    buffer[byteLength - 6] = (byte)'\r';
-                    buffer[byteLength - 4] = (byte)'\n';
-                    byteLength -= 2;
-                }
+                var style = buffer[byteLength - 1];
+
+                buffer[byteLength++] = (byte)'\r';
+                buffer[byteLength++] = style;
+                buffer[byteLength++] = (byte)'\n';
+                buffer[byteLength++] = style;
+
+                // Fix-up the NULL terminator just in case
+                buffer[byteLength] = 0;
+                buffer[byteLength + 1] = 0;
             }
 
             return new ArraySegment<byte>(buffer, 0, byteLength);
-        }
-
-        public static unsafe IntPtr ExportAsClipboardHtml(Scintilla scintilla, int byteStartPos, int byteEndPos, bool colorize, out int length)
-        {
-            // NppExport
-            // http://blogs.msdn.com/b/jmstall/archive/2007/01/21/html-clipboard.aspx
-            // http://blogs.msdn.com/b/jmstall/archive/2007/01/21/sample-code-html-clipboard.aspx
-            // https://msdn.microsoft.com/en-us/library/windows/desktop/ms649015.aspx
-
-            // I'm using native calls for most of this to make it as fast as possible...
-
-            var byteLength = byteEndPos - byteStartPos;
-
-            if (colorize)
-                scintilla.DirectMessage(NativeMethods.SCI_COLOURISE, new IntPtr(byteStartPos), new IntPtr(byteEndPos));
-
-            var buffer = new byte[(byteLength * 2) + 2];
-            fixed (byte* bp = buffer)
-            {
-                NativeMethods.Sci_TextRange* tr = stackalloc NativeMethods.Sci_TextRange[1];
-                tr->chrg.cpMin = byteStartPos;
-                tr->chrg.cpMax = byteEndPos;
-                tr->lpstrText = new IntPtr(bp);
-
-                scintilla.DirectMessage(NativeMethods.SCI_GETSTYLEDTEXT, IntPtr.Zero, new IntPtr(tr));
-            }
-
-            // Build a list of (used) styles
-            var styles = new StyleData[NativeMethods.STYLE_MAX + 1];
-
-            styles[Style.Default].Used = true;
-            styles[Style.Default].FontName = scintilla.Styles[Style.Default].Font;
-            styles[Style.Default].SizeF = scintilla.Styles[Style.Default].SizeF;
-            styles[Style.Default].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-            styles[Style.Default].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-
-            for (int i = 0; i < byteLength; i++)
-            {
-                var style = buffer[(i * 2) + 1];
-                if (!styles[style].Used)
-                {
-                    styles[style].Used = true;
-                    styles[style].FontName = scintilla.Styles[style].Font;
-                    styles[style].SizeF = scintilla.Styles[style].SizeF;
-                    styles[style].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                }
-            }
-
-            long pos = 0;
-            byte[] bytes;
-            using (var ms = new NativeMemoryStream(byteLength))
-            using (var tw = new StreamWriter(ms, new UTF8Encoding(false)))
-            {
-                ms.Write(header, 0, header.Length);
-
-                tw.WriteLine("<html>");
-                tw.WriteLine("<head>");
-                tw.WriteLine(@"<meta charset=""utf-8"" />");
-                tw.WriteLine("<title>ScintillaNET Export</title>");
-                tw.WriteLine("</head>");
-                tw.WriteLine("<body>");
-                tw.Flush();
-
-                // Patch header
-                pos = ms.Position;
-                ms.Seek(INDEX_START_FRAGMENT, SeekOrigin.Begin);
-                ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
-                ms.Seek(pos, SeekOrigin.Begin);
-                tw.WriteLine("<!--StartFragment -->");
-
-                // Write the styles used.
-                // We're doing the style tag in the body to include it in the "fragment".
-                tw.WriteLine(@"<style type=""text/css"" scoped="""">");
-                tw.Write("div#ScintillaNET {");
-                tw.Write(" float: left;");
-                tw.Write(" white-space: pre;");
-                tw.Write(" line-height: {0}px;", scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
-                tw.Write(" background: {0};", ColorTranslator.ToHtml(ColorTranslator.FromWin32(styles[Style.Default].BackColor)));
-                tw.WriteLine(" }");
-
-                for (int i = 0; i < styles.Length; i++)
-                {
-                    if (!styles[i].Used)
-                        continue;
-
-                    tw.Write("span.s{0} {{", i);
-                    tw.Write(@" font-family: ""{0}"";", styles[i].FontName);
-                    tw.Write(" font-size: {0}pt;", styles[i].SizeF);
-                    tw.Write(" font-weight: {0};", styles[i].Weight);
-                    if (styles[i].Italic != 0)
-                        tw.Write(" font-style: italic;");
-                    if (styles[i].Underline != 0)
-                        tw.Write(" text-decoration: underline;");
-                    tw.Write(" background-color: {0};", ColorTranslator.ToHtml(ColorTranslator.FromWin32(styles[i].BackColor)));
-                    tw.Write(" color: {0};", ColorTranslator.ToHtml(ColorTranslator.FromWin32(styles[i].ForeColor)));
-                    switch ((StyleCase)styles[i].Case)
-                    {
-                        case StyleCase.Upper:
-                            tw.Write(" text-transform: uppercase;");
-                            break;
-                        case StyleCase.Lower:
-                            tw.Write(" text-transform: lowercase;");
-                            break;
-                    }
-
-                    if (styles[i].Visible == 0)
-                        tw.Write(" visibility: hidden;");
-                    tw.WriteLine(" }");
-                }
-
-                tw.WriteLine("</style>");
-                tw.Write(@"<div id=""ScintillaNET"">");
-                tw.Flush();
-
-                var tabSize = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
-                var tab = new string(' ', tabSize);
-
-                byte ch;
-                var openSpan = false;
-                var lastStyle = -1;
-                tw.AutoFlush = true;
-                for (int i = 0; i < byteLength; i++)
-                {
-                    // Print new span if style changes
-                    if (buffer[(i * 2) + 1] != lastStyle)
-                    {
-                        if (openSpan)
-                            tw.Write("</span>");
-
-                        lastStyle = buffer[(i * 2) + 1];
-                        tw.Write(@"<span class=""s{0}"">", lastStyle);
-                        openSpan = true;
-                    }
-
-                    ch = buffer[i * 2];
-                    switch (ch)
-                    {
-                        case (byte)'\r':
-                        case (byte)'\n':
-                            ms.WriteByte(ch);
-                            break;
-
-                        case (byte)'<':
-                            tw.Write("&lt;");
-                            break;
-
-                        case (byte)'>':
-                            tw.Write("&gt;");
-                            break;
-
-                        case (byte)'&':
-                            tw.Write("&amp;");
-                            break;
-
-                        case (byte)'\t':
-                            tw.Write(tab);
-                            break;
-
-                        default:
-                            if (ch >= 0x20) // Skip control chars
-                                ms.WriteByte(ch);
-                            break;
-                    }
-                }
-
-                tw.AutoFlush = false;
-                if (openSpan)
-                    tw.Write("</span>");
-
-                tw.WriteLine("</div>");
-                tw.Flush();
-
-                // Patch header
-                pos = ms.Position;
-                ms.Seek(INDEX_END_FRAGMENT, SeekOrigin.Begin);
-                ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
-                ms.Seek(pos, SeekOrigin.Begin);
-                tw.WriteLine("<!--EndFragment-->");
-
-                tw.WriteLine("</body>");
-                tw.WriteLine("</html>");
-                tw.Flush();
-
-                // Patch header
-                pos = ms.Position;
-                ms.Seek(INDEX_END_HTML, SeekOrigin.Begin);
-                ms.Write((bytes = Encoding.ASCII.GetBytes(ms.Length.ToString("D8"))), 0, bytes.Length);
-                ms.Seek(pos, SeekOrigin.Begin);
-
-                // Terminator
-                ms.WriteByte(0);
-                length = (int)ms.Length;
-                return ms.Pointer;
-            }
         }
 
         public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)

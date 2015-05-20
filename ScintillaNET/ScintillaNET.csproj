@@ -73,6 +73,7 @@
     <Compile Include="Lexer.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineCollection.cs" />
+    <Compile Include="LineEndType.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Margin.cs" />
     <Compile Include="MarginClickEventArgs.cs" />

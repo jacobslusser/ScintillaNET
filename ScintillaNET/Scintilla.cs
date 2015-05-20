@@ -508,6 +508,15 @@ namespace ScintillaNET
 
         /// <summary>
         /// Copies the selected text from the document and places it on the clipboard.
+        /// </summary>
+        /// <param name="format">One of the <see cref="CopyFormat" /> enumeration values.</param>
+        public void Copy(CopyFormat format)
+        {
+            Helpers.Copy(this, format, true, false, 0, 0);
+        }
+
+        /// <summary>
+        /// Copies the selected text from the document and places it on the clipboard.
         /// If the selection is empty the current line is copied.
         /// </summary>
         /// <remarks>
@@ -520,54 +529,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Copies the selected text from the document, formats it as HTML, and places it on the clipboard.
+        /// Copies the selected text from the document and places it on the clipboard.
+        /// If the selection is empty the current line is copied.
         /// </summary>
-        /// <remarks>This method is provisional and may change in a future version.</remarks>
-        public unsafe void CopyAsHtml()
+        /// <param name="format">One of the <see cref="CopyFormat" /> enumeration values.</param>
+        /// <remarks>
+        /// If the selection is empty and the current line copied, an extra "MSDEVLineSelect" marker is added to the
+        /// clipboard which is then used in <see cref="Paste" /> to paste the whole line before the current line.
+        /// </remarks>
+        public void CopyAllowLine(CopyFormat format)
         {
-            // Copying HTML to the clipboard requires that the document be in UTF-8.
-            // That's all we officially support, but do a sanity check just in case.
-            if (Encoding.CodePage != NativeMethods.SC_CP_UTF8)
-                return;
-
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Start();
-
-            var selStart = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
-            var selEnd = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
-
-            if (selStart != selEnd)
-            {
-                // Using Win32 instead of the Clipboard class so we can avoid the overhead
-                // of converting to string.
-
-                var format = NativeMethods.RegisterClipboardFormat(NativeMethods.CF_HTML);
-                if (format == 0)
-                    throw new Win32Exception(); // Calls GetLastError
-
-                if (!NativeMethods.OpenClipboard(Handle))
-                    throw new Win32Exception(); // Calls GetLastError
-
-                if (!NativeMethods.EmptyClipboard())
-                    throw new Win32Exception(); // Calls GetLastError
-
-                int len;
-                var hMem = Helpers.ExportAsClipboardHtml(this, selStart, selEnd, true, out len);
-                //var str = new string((sbyte*)hMem, 0, len, Encoding.UTF8);
-                //Debug.WriteLine(str);
-
-                if (NativeMethods.SetClipboardData(format, hMem) == IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(hMem);
-                    throw new Win32Exception(); // Calls GetLastError 
-                }
-
-                if (!NativeMethods.CloseClipboard())
-                    throw new Win32Exception(); // Calls GetLastError
-            }
-
-            //stopwatch.Stop();
-            //Debug.WriteLine("Time to copy HTML: " + stopwatch.Elapsed);
+            Helpers.Copy(this, format, true, true, 0, 0);
         }
 
         /// <summary>
@@ -586,6 +558,27 @@ namespace ScintillaNET
             end = Lines.CharToBytePosition(end);
 
             DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(start), new IntPtr(end));
+        }
+
+        /// <summary>
+        /// Copies the specified range of text to the clipboard.
+        /// </summary>
+        /// <param name="start">The zero-based character position in the document to start copying.</param>
+        /// <param name="end">The zero-based character position (exclusive) in the document to stop copying.</param>
+        /// <param name="format">One of the <see cref="CopyFormat" /> enumeration values.</param>
+        public void CopyRange(int start, int end, CopyFormat format)
+        {
+            var textLength = TextLength;
+            start = Helpers.Clamp(start, 0, textLength);
+            end = Helpers.Clamp(end, 0, textLength);
+            if (start == end)
+                return;
+
+            // Convert to byte positions
+            start = Lines.CharToBytePosition(start);
+            end = Lines.CharToBytePosition(end);
+
+            Helpers.Copy(this, format, false, false, start, end);
         }
 
         /// <summary>
@@ -3502,6 +3495,60 @@ namespace ScintillaNET
                     fixed (byte* bp = bytes)
                         DirectMessage(NativeMethods.SCI_SETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the combined result of the <see cref="LineEndTypesSupported" /> and <see cref="LineEndTypesAllowed" />
+        /// properties to report the line end types actively being interpreted.
+        /// </summary>
+        /// <returns>A bitwise combination of the <see cref="LineEndType" /> enumeration.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public LineEndType LineEndTypesActive
+        {
+            get
+            {
+                return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the line ending types interpreted by the <see cref="Scintilla" /> control.
+        /// </summary>
+        /// <returns>
+        /// A bitwise combination of the <see cref="LineEndType" /> enumeration.
+        /// The default is <see cref="LineEndType.Default" />.
+        /// </returns>
+        /// <remarks>The line ending types allowed must also be supported by the current lexer to be effective.</remarks>
+        [DefaultValue(LineEndType.Default)]
+        [Category("Line Endings")]
+        [Description("Line endings types interpreted by the control.")]
+        [TypeConverter(typeof(FlagsEnumTypeConverter.FlagsEnumConverter))]
+        public LineEndType LineEndTypesAllowed
+        {
+            get
+            {
+                return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESALLOWED);
+            }
+            set
+            {
+                var lineEndBitsSet = (int)value;
+                DirectMessage(NativeMethods.SCI_SETLINEENDTYPESALLOWED, new IntPtr(lineEndBitsSet));
+            }
+        }
+
+        /// <summary>
+        /// Gets the different types of line ends supported by the current lexer.
+        /// </summary>
+        /// <returns>A bitwise combination of the <see cref="LineEndType" /> enumeration.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public LineEndType LineEndTypesSupported
+        {
+            get
+            {
+                return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESSUPPORTED);
             }
         }
 
