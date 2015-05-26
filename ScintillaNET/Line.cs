@@ -315,7 +315,6 @@ namespace ScintillaNET
         /// <see cref="MarginType.Text" /> or <see cref="MarginType.RightText" />.
         /// </summary>
         /// <returns>The text displayed in the line margin.</returns>
-        /// <remarks>The margin text cannot contain any Unicode characters or it will not render correctly.</remarks>
         public unsafe string MarginText
         {
             get
