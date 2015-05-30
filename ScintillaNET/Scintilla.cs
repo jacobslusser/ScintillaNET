@@ -50,6 +50,7 @@ namespace ScintillaNET
         private static readonly object dwellStartEventKey = new object();
         private static readonly object dwellEndEventKey = new object();
         private static readonly object borderStyleChangedEventKey = new object();
+        private static readonly object doubleClickEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1241,6 +1242,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="DoubleClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="DoubleClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnDoubleClick(DoubleClickEventArgs e)
+        {
+            var handler = Events[doubleClickEventKey] as EventHandler<DoubleClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="DwellEnd" /> event.
         /// </summary>
         /// <param name="e">A <see cref="DwellEventArgs" /> that contains the event data.</param>
@@ -1511,6 +1523,16 @@ namespace ScintillaNET
         private void ResetAdditionalCaretForeColor()
         {
             AdditionalCaretForeColor = Color.FromArgb(127, 127, 127);
+        }
+
+        private void ScnDoubleClick(ref NativeMethods.SCNotification scn)
+        {
+            var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
+            var eventArgs = new DoubleClickEventArgs(this, keys, scn.position, scn.line);
+            OnDoubleClick(eventArgs);
+
+            // Also raise the standard DoubleClick event
+            OnDoubleClick(EventArgs.Empty);
         }
 
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
@@ -2066,6 +2088,10 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_DWELLEND:
                         OnDwellEnd(new DwellEventArgs(this, scn.position, scn.x, scn.y));
+                        break;
+
+                    case NativeMethods.SCN_DOUBLECLICK:
+                        ScnDoubleClick(ref scn);
                         break;
 
                     default:
@@ -4730,6 +4756,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(deleteEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the <see cref="Scintilla" /> control is double-clicked.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the editor is double clicked.")]
+        public new event EventHandler<DoubleClickEventArgs> DoubleClick
+        {
+            add
+            {
+                Events.AddHandler(doubleClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(doubleClickEventKey, value);
             }
         }
 

@@ -69,6 +69,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="CopyFormat.cs" />
     <Compile Include="Document.cs" />
+    <Compile Include="DoubleClickEventArgs.cs" />
     <Compile Include="DwellEventArgs.cs" />
     <Compile Include="EdgeMode.cs" />
     <Compile Include="Eol.cs" />
