@@ -30,7 +30,10 @@ namespace ScintillaNET
         /// <summary>
         /// Gets the zero-based document position of the text double clicked.
         /// </summary>
-        /// <returns>The zero-based character position within the document of the double clicked text.</returns>
+        /// <returns>
+        /// The zero-based character position within the document of the double clicked text;
+        /// otherwise, -1 if not a document position.
+        /// </returns>
         public int Position
         {
             get
@@ -55,6 +58,9 @@ namespace ScintillaNET
             this.bytePosition = bytePosition;
             Modifiers = modifiers;
             Line = line;
+
+            if (bytePosition == -1)
+                position = -1;
         }
     }
 }

@@ -743,6 +743,50 @@ namespace ScintillaNET
             }
         }
 
+        public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
+        {
+            if (string.IsNullOrEmpty(text))
+                return new byte[0];
+
+            int count = encoding.GetByteCount(text);
+            byte[] buffer = new byte[count + (zeroTerminated ? 1 : 0)];
+
+            fixed (byte* bp = buffer)
+            fixed (char* ch = text)
+            {
+                encoding.GetBytes(ch, text.Length, bp, count);
+            }
+
+            if (zeroTerminated)
+                buffer[buffer.Length - 1] = 0;
+
+            return buffer;
+        }
+
+        public static unsafe byte[] GetBytes(char[] text, int length, Encoding encoding, bool zeroTerminated)
+        {
+            fixed (char* cp = text)
+            {
+                var count = encoding.GetByteCount(cp, length);
+                var buffer = new byte[count + (zeroTerminated ? 1 : 0)];
+                fixed (byte* bp = buffer)
+                    encoding.GetBytes(cp, length, bp, buffer.Length);
+
+                if (zeroTerminated)
+                    buffer[buffer.Length - 1] = 0;
+
+                return buffer;
+            }
+        }
+
+        public static unsafe string GetString(IntPtr bytes, int length, Encoding encoding)
+        {
+            var ptr = (sbyte*)bytes;
+            var str = new string(ptr, 0, length, encoding);
+
+            return str;
+        }
+
         private static unsafe List<ArraySegment<byte>> GetStyledSegments(Scintilla scintilla, bool currentSelection, bool currentLine, int startBytePos, int endBytePos, out StyleData[] styles)
         {
             var segments = new List<ArraySegment<byte>>();
@@ -864,50 +908,6 @@ namespace ScintillaNET
             }
 
             return new ArraySegment<byte>(buffer, 0, byteLength);
-        }
-
-        public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
-        {
-            if (string.IsNullOrEmpty(text))
-                return new byte[0];
-
-            int count = encoding.GetByteCount(text);
-            byte[] buffer = new byte[count + (zeroTerminated ? 1 : 0)];
-
-            fixed (byte* bp = buffer)
-            fixed (char* ch = text)
-            {
-                encoding.GetBytes(ch, text.Length, bp, count);
-            }
-
-            if (zeroTerminated)
-                buffer[buffer.Length - 1] = 0;
-
-            return buffer;
-        }
-
-        public static unsafe byte[] GetBytes(char[] text, int length, Encoding encoding, bool zeroTerminated)
-        {
-            fixed (char* cp = text)
-            {
-                var count = encoding.GetByteCount(cp, length);
-                var buffer = new byte[count + (zeroTerminated ? 1 : 0)];
-                fixed (byte* bp = buffer)
-                    encoding.GetBytes(cp, length, bp, buffer.Length);
-
-                if (zeroTerminated)
-                    buffer[buffer.Length - 1] = 0;
-
-                return buffer;
-            }
-        }
-
-        public static unsafe string GetString(IntPtr bytes, int length, Encoding encoding)
-        {
-            var ptr = (sbyte*)bytes;
-            var str = new string(ptr, 0, length, encoding);
-
-            return str;
         }
 
         public static int TranslateKeys(Keys keys)

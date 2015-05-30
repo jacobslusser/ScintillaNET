@@ -56,12 +56,16 @@ namespace ScintillaNET
         private IntPtr sciPtr;
         private BorderStyle borderStyle;
 
+        // Set style 
         private int stylingPosition;
         private int stylingBytePosition;
 
         // Modified event optimization
         private int? cachedPosition = null;
         private string cachedText = null;
+
+        // Double-click
+        private bool doubleClick;
 
         /// <summary>
         /// A constant used to specify an infinite mouse dwell wait time.
@@ -1349,6 +1353,29 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the MouseUp event.
+        /// </summary>
+        /// <param name="e">A MouseEventArgs that contains the event data.</param>
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            // Borrowed this from TextBoxBase.OnMouseUp
+            if (!doubleClick)
+            {
+                OnClick(e);
+                OnMouseClick(e);
+            }
+            else
+            {
+                var doubleE = new MouseEventArgs(e.Button, 2, e.X, e.Y, e.Delta);
+                OnDoubleClick(doubleE);
+                OnMouseDoubleClick(doubleE);
+                doubleClick = false;
+            }
+
+            base.OnMouseUp(e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="SavePointLeft" /> event.
         /// </summary>
         /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
@@ -1530,9 +1557,6 @@ namespace ScintillaNET
             var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
             var eventArgs = new DoubleClickEventArgs(this, keys, scn.position, scn.line);
             OnDoubleClick(eventArgs);
-
-            // Also raise the standard DoubleClick event
-            OnDoubleClick(EventArgs.Empty);
         }
 
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
@@ -2113,6 +2137,13 @@ namespace ScintillaNET
                 case (NativeMethods.WM_REFLECT + NativeMethods.WM_NOTIFY):
                     WmReflectNotify(ref m);
                     break;
+
+                case NativeMethods.WM_LBUTTONDBLCLK:
+                case NativeMethods.WM_RBUTTONDBLCLK:
+                case NativeMethods.WM_MBUTTONDBLCLK:
+                case NativeMethods.WM_XBUTTONDBLCLK:
+                    doubleClick = true;
+                    goto default;
 
                 default:
                     base.WndProc(ref m);

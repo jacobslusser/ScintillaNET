@@ -1028,6 +1028,10 @@ namespace ScintillaNET
         // Window messages
         public const int WM_CREATE = 0x0001;
         public const int WM_NOTIFY = 0x004E;
+        public const int WM_LBUTTONDBLCLK = 0x0203;
+        public const int WM_RBUTTONDBLCLK = 0x0206;
+        public const int WM_MBUTTONDBLCLK = 0x0209;
+        public const int WM_XBUTTONDBLCLK = 0x020D;
         public const int WM_USER = 0x0400;
         public const int WM_REFLECT = WM_USER + 0x1C00;
 
