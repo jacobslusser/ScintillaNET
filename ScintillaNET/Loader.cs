@@ -9,8 +9,9 @@ namespace ScintillaNET
     internal sealed class Loader : ILoader
     {
         private readonly IntPtr self;
+        private readonly NativeMethods.ILoaderVTable32 loader32;
+        private readonly NativeMethods.ILoaderVTable64 loader64;
         private readonly Encoding encoding;
-        private readonly NativeMethods.ILoaderVTable loader;
 
         public unsafe bool AddData(char[] data, int length)
         {
@@ -20,7 +21,7 @@ namespace ScintillaNET
                 var bytes = Helpers.GetBytes(data, length, encoding, zeroTerminated: false);
                 fixed (byte* bp = bytes)
                 {
-                    var status = loader.AddData(self, bp, bytes.Length);
+                    var status = (IntPtr.Size == 4 ? loader32.AddData(self, bp, bytes.Length) : loader64.AddData(self, bp, bytes.Length));
                     if (status != NativeMethods.SC_STATUS_OK)
                         return false;
                 }
@@ -31,14 +32,14 @@ namespace ScintillaNET
 
         public Document ConvertToDocument()
         {
-            var ptr = loader.ConvertToDocument(self);
+            var ptr = (IntPtr.Size == 4 ? loader32.ConvertToDocument(self) : loader64.ConvertToDocument(self));
             var document = new Document { Value = ptr };
             return document;
         }
 
         public int Release()
         {
-            var count = loader.Release(self);
+            var count = (IntPtr.Size == 4 ? loader32.Release(self) : loader64.Release(self));
             return count;
         }
 
@@ -56,10 +57,14 @@ namespace ScintillaNET
             // containing the addresses of each function. The first call below gets the vtable
             // address by following the object ptr to the vptr to the vtable. The second call
             // casts the vtable to a structure with the same memory layout so we can easily
-            // invoke each function without having to do any pointer arithmetic.
+            // invoke each function without having to do any pointer arithmetic. Depending on the
+            // architecture, the function calling conventions can be different.
 
             IntPtr vfptr = *(IntPtr*)ptr;
-            this.loader = (NativeMethods.ILoaderVTable)Marshal.PtrToStructure(vfptr, typeof(NativeMethods.ILoaderVTable));
+            if(IntPtr.Size == 4)
+                loader32 = (NativeMethods.ILoaderVTable32)Marshal.PtrToStructure(vfptr, typeof(NativeMethods.ILoaderVTable32));
+            else
+                loader64 = (NativeMethods.ILoaderVTable64)Marshal.PtrToStructure(vfptr, typeof(NativeMethods.ILoaderVTable64));
         }
     }
 }

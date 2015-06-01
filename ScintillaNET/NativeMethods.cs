@@ -1397,23 +1397,40 @@ namespace ScintillaNET
         #region Structures
 
         // http://www.openrce.org/articles/full_view/23
-        // It's worth noting that this structure represents the ILoader class virtual function
-        // table (vtable), not the ILoader interface defined in ILexer.h. In this case they are
-        // identical because the ILoader class contains only functions.
+        // It's worth noting that this structure (and the 64-bit version below) represents the ILoader
+        // class virtual function table (vtable), NOT the ILoader interface defined in ILexer.h.
+        // In this case they are identical because the ILoader class contains only functions.
         [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct ILoaderVTable
+        public unsafe struct ILoaderVTable32
         {
             public ReleaseDelegate Release;
             public AddDataDelegate AddData;
             public ConvertToDocumentDelegate ConvertToDocument;
 
-            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
             public delegate int ReleaseDelegate(IntPtr self);
 
-            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
             public delegate int AddDataDelegate(IntPtr self, byte* data, int length);
 
-            [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+            public delegate IntPtr ConvertToDocumentDelegate(IntPtr self);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public unsafe struct ILoaderVTable64
+        {
+            public ReleaseDelegate Release;
+            public AddDataDelegate AddData;
+            public ConvertToDocumentDelegate ConvertToDocument;
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            public delegate int ReleaseDelegate(IntPtr self);
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            public delegate int AddDataDelegate(IntPtr self, byte* data, int length);
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             public delegate IntPtr ConvertToDocumentDelegate(IntPtr self);
         }
 
