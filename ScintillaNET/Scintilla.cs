@@ -2138,6 +2138,10 @@ namespace ScintillaNET
                     WmReflectNotify(ref m);
                     break;
 
+                case NativeMethods.WM_SETCURSOR:
+                    DefWndProc(ref m);
+                    break;
+
                 case NativeMethods.WM_LBUTTONDBLCLK:
                 case NativeMethods.WM_RBUTTONDBLCLK:
                 case NativeMethods.WM_MBUTTONDBLCLK:
@@ -3075,6 +3079,23 @@ namespace ScintillaNET
                 value = Helpers.Clamp(value, 0, TextLength);
                 var bytePos = Lines.CharToBytePosition(value);
                 DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(bytePos));
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override Cursor Cursor
+        {
+            get
+            {
+                return base.Cursor;
+            }
+            set
+            {
+                base.Cursor = value;
             }
         }
 
@@ -4335,6 +4356,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use the wait cursor for the current control.
+        /// </summary>
+        /// <returns>true to use the wait cursor for the current control; otherwise, false. The default is false.</returns>
+        public new bool UseWaitCursor
+        {
+            get
+            {
+                return base.UseWaitCursor;
+            }
+            set
+            {
+                base.UseWaitCursor = value;
+                var cursor = (value ? NativeMethods.SC_CURSORWAIT : NativeMethods.SC_CURSORNORMAL);
+                DirectMessage(NativeMethods.SCI_SETCURSOR, new IntPtr(cursor));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the visibility of end-of-line characters.
         /// </summary>
         /// <returns>true to display end-of-line characters; otherwise, false. The default is false.</returns>
@@ -4689,6 +4728,57 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler BackColorChanged
+        {
+            add
+            {
+                base.BackColorChanged += value;
+            }
+            remove
+            {
+                base.BackColorChanged -= value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler BackgroundImageChanged
+        {
+            add
+            {
+                base.BackgroundImageChanged += value;
+            }
+            remove
+            {
+                base.BackgroundImageChanged -= value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler BackgroundImageLayoutChanged
+        {
+            add
+            {
+                base.BackgroundImageLayoutChanged += value;
+            }
+            remove
+            {
+                base.BackgroundImageLayoutChanged -= value;
+            }
+        }
+
+        /// <summary>
         /// Occurs when text is about to be deleted.
         /// </summary>
         [Category("Notifications")]
@@ -4774,6 +4864,23 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler CursorChanged
+        {
+            add
+            {
+                base.CursorChanged += value;
+            }
+            remove
+            {
+                base.CursorChanged -= value;
+            }
+        }
+
+        /// <summary>
         /// Occurs when text has been deleted from the document.
         /// </summary>
         [Category("Notifications")]
@@ -4838,6 +4945,40 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(dwellStartEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler FontChanged
+        {
+            add
+            {
+                base.FontChanged += value;
+            }
+            remove
+            {
+                base.FontChanged -= value;
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event EventHandler ForeColorChanged
+        {
+            add
+            {
+                base.ForeColorChanged += value;
+            }
+            remove
+            {
+                base.ForeColorChanged -= value;
             }
         }
 
@@ -4920,6 +5061,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(scNotificationEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new event PaintEventHandler Paint
+        {
+            add
+            {
+                base.Paint += value;
+            }
+            remove
+            {
+                base.Paint -= value;
             }
         }
 
