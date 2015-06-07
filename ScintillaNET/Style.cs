@@ -976,7 +976,7 @@ namespace ScintillaNET
             public const int Number = NativeMethods.SCE_SQL_NUMBER;
 
             /// <summary>
-            /// Keyword list 1 style index.
+            /// Keyword list 1 (index 0) style index.
             /// </summary>
             public const int Word = NativeMethods.SCE_SQL_WORD;
 
@@ -991,7 +991,7 @@ namespace ScintillaNET
             public const int Character = NativeMethods.SCE_SQL_CHARACTER;
 
             /// <summary>
-            /// Keyword from the SQL*Plus list style index.
+            /// Keyword from the SQL*Plus list (index 3) style index.
             /// </summary>
             public const int SqlPlus = NativeMethods.SCE_SQL_SQLPLUS;
 
@@ -1021,7 +1021,7 @@ namespace ScintillaNET
             public const int CommentLineDoc = NativeMethods.SCE_SQL_COMMENTLINEDOC;
 
             /// <summary>
-            /// Keyword list 2 style index.
+            /// Keyword list 2 (index 1) style index.
             /// </summary>
             public const int Word2 = NativeMethods.SCE_SQL_WORD2;
 
@@ -1036,22 +1036,22 @@ namespace ScintillaNET
             public const int CommentDocKeywordError = NativeMethods.SCE_SQL_COMMENTDOCKEYWORDERROR;
 
             /// <summary>
-            /// Keyword user-list 1 style index.
+            /// Keyword user-list 1 (index 4) style index.
             /// </summary>
             public const int User1 = NativeMethods.SCE_SQL_USER1;
 
             /// <summary>
-            /// Keyword user-list 2 style index.
+            /// Keyword user-list 2 (index 5) style index.
             /// </summary>
             public const int User2 = NativeMethods.SCE_SQL_USER2;
 
             /// <summary>
-            /// Keyword user-list 3 style index.
+            /// Keyword user-list 3 (index 6) style index.
             /// </summary>
             public const int User3 = NativeMethods.SCE_SQL_USER3;
 
             /// <summary>
-            /// Keyword user-list 4 style index.
+            /// Keyword user-list 4 (index 7) style index.
             /// </summary>
             public const int User4 = NativeMethods.SCE_SQL_USER4;
 
@@ -1257,5 +1257,120 @@ namespace ScintillaNET
         }
 
         #endregion R
+
+        #region Lua
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Lua" /> lexer.
+        /// </summary>
+        public static class Lua
+        {
+            /// <summary>
+            /// Default style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_LUA_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_LUA_COMMENT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_LUA_COMMENTLINE;
+
+            /// <summary>
+            /// Documentation comment style index.
+            /// </summary>
+            public const int CommentDoc = NativeMethods.SCE_LUA_COMMENTDOC;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_LUA_NUMBER;
+
+            /// <summary>
+            /// Keyword list 1 (index 0) style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_LUA_WORD;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_LUA_STRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int Character = NativeMethods.SCE_LUA_CHARACTER;
+
+            /// <summary>
+            /// Literal string style index.
+            /// </summary>
+            public const int LiteralString = NativeMethods.SCE_LUA_LITERALSTRING;
+
+            /// <summary>
+            /// Preprocessor style index.
+            /// </summary>
+            public const int Preprocessor = NativeMethods.SCE_LUA_PREPROCESSOR;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_LUA_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifer = NativeMethods.SCE_LUA_IDENTIFIER;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_LUA_STRINGEOL;
+
+            /// <summary>
+            /// Keywords list 2 (index 1) style index.
+            /// </summary>
+            public const int Word2 = NativeMethods.SCE_LUA_WORD2;
+
+            /// <summary>
+            /// Keywords list 3 (index 2) style index.
+            /// </summary>
+            public const int Word3 = NativeMethods.SCE_LUA_WORD3;
+
+            /// <summary>
+            /// Keywords list 4 (index 3) style index.
+            /// </summary>
+            public const int Word4 = NativeMethods.SCE_LUA_WORD4;
+
+            /// <summary>
+            /// Keywords list 5 (index 4) style index.
+            /// </summary>
+            public const int Word5 = NativeMethods.SCE_LUA_WORD5;
+
+            /// <summary>
+            /// Keywords list 6 (index 5) style index.
+            /// </summary>
+            public const int Word6 = NativeMethods.SCE_LUA_WORD6;
+
+            /// <summary>
+            /// Keywords list 7 (index 6) style index.
+            /// </summary>
+            public const int Word7 = NativeMethods.SCE_LUA_WORD7;
+
+            /// <summary>
+            /// Keywords list 8 (index 7) style index.
+            /// </summary>
+            public const int Word8 = NativeMethods.SCE_LUA_WORD8;
+
+            /// <summary>
+            /// Label style index.
+            /// </summary>
+            public const int Label = NativeMethods.SCE_LUA_LABEL;
+        }
+
+        #endregion Lua
     }
 }

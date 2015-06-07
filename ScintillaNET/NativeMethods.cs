@@ -1349,6 +1349,29 @@ namespace ScintillaNET
         public const int SCE_R_INFIX = 10;
         public const int SCE_R_INFIXEOL = 11;
 
+        // Lua
+        public const int SCE_LUA_DEFAULT = 0;
+        public const int SCE_LUA_COMMENT = 1;
+        public const int SCE_LUA_COMMENTLINE = 2;
+        public const int SCE_LUA_COMMENTDOC = 3;
+        public const int SCE_LUA_NUMBER = 4;
+        public const int SCE_LUA_WORD = 5;
+        public const int SCE_LUA_STRING = 6;
+        public const int SCE_LUA_CHARACTER = 7;
+        public const int SCE_LUA_LITERALSTRING = 8;
+        public const int SCE_LUA_PREPROCESSOR = 9;
+        public const int SCE_LUA_OPERATOR = 10;
+        public const int SCE_LUA_IDENTIFIER = 11;
+        public const int SCE_LUA_STRINGEOL = 12;
+        public const int SCE_LUA_WORD2 = 13;
+        public const int SCE_LUA_WORD3 = 14;
+        public const int SCE_LUA_WORD4 = 15;
+        public const int SCE_LUA_WORD5 = 16;
+        public const int SCE_LUA_WORD6 = 17;
+        public const int SCE_LUA_WORD7 = 18;
+        public const int SCE_LUA_WORD8 = 19;
+        public const int SCE_LUA_LABEL = 20;
+
         #endregion Lexer Constants
 
         #region Callbacks

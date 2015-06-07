@@ -42,12 +42,12 @@ namespace ScintillaNET
         BlitzBasic = NativeMethods.SCLEX_BLITZBASIC,
 
         /// <summary>
-        /// The XML lexer.
+        /// The Extensible Markup Language (XML) lexer.
         /// </summary>
         Xml = NativeMethods.SCLEX_XML,
 
         /// <summary>
-        /// The SQL lexer.
+        /// The Structured Query Language (SQL) lexer.
         /// </summary>
         Sql = NativeMethods.SCLEX_SQL,
 
@@ -57,8 +57,13 @@ namespace ScintillaNET
         Markdown = NativeMethods.SCLEX_MARKDOWN,
 
         /// <summary>
-        /// R programming language lexer.
+        /// The R programming language lexer.
         /// </summary>
-        R = NativeMethods.SCLEX_R
+        R = NativeMethods.SCLEX_R,
+
+        /// <summary>
+        /// The Lua scripting language lexer.
+        /// </summary>
+        Lua = NativeMethods.SCLEX_LUA
     }
 }
