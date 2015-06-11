@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -858,10 +859,11 @@ namespace ScintillaNET
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
-                                var resource = string.Format(CultureInfo.InvariantCulture, "ScintillaNET.{0}.SciLexer.dll", (IntPtr.Size == 4 ? "x86" : "x64"));
-                                var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource); // Don't close the resource stream
+                                var resource = string.Format(CultureInfo.InvariantCulture, "ScintillaNET.{0}.SciLexer.dll.gz", (IntPtr.Size == 4 ? "x86" : "x64"));
+                                using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
+                                using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
                                 using (var fileStream = File.Create(modulePath))
-                                    resourceStream.CopyTo(fileStream);
+                                    gzipStream.CopyTo(fileStream);
                             }
                         }
                         finally

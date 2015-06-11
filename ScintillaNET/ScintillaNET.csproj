@@ -128,15 +128,18 @@
     <Compile Include="WrapVisualFlagLocation.cs" />
     <Compile Include="WrapVisualFlags.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="x64\SciLexer.dll.gz" />
+    <EmbeddedResource Include="x86\SciLexer.dll.gz" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="x64\License.txt" />
-    <EmbeddedResource Include="x64\SciLexer.dll" />
+    <Content Include="x64\SciLexer.dll" />
     <Content Include="x64\SciLexer.pdb" />
     <Content Include="x64\version.txt" />
     <Content Include="x86\License.txt" />
     <Content Include="x86\version.txt" />
-    <EmbeddedResource Include="x86\SciLexer.dll" />
+    <Content Include="x86\SciLexer.dll" />
     <Content Include="x86\SciLexer.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
