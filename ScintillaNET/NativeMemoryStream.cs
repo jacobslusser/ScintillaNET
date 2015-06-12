@@ -81,7 +81,7 @@ namespace ScintillaNET
 
             Marshal.Copy(buffer, offset, ptr + position, count);
             position += count;
-            length += count;
+            length = Math.Max(length, position);
         }
 
         #endregion Methods
