@@ -52,6 +52,7 @@ namespace ScintillaNET
         private static readonly object dwellEndEventKey = new object();
         private static readonly object borderStyleChangedEventKey = new object();
         private static readonly object doubleClickEventKey = new object();
+        private static readonly object paintedEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1151,7 +1152,7 @@ namespace ScintillaNET
         /// <summary>
         /// Raises the <see cref="AutoCCancelled" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
         protected virtual void OnAutoCCancelled(EventArgs e)
         {
             var handler = Events[autoCCancelledEventKey] as EventHandler<EventArgs>;
@@ -1162,7 +1163,7 @@ namespace ScintillaNET
         /// <summary>
         /// Raises the <see cref="AutoCCharDeleted" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
         protected virtual void OnAutoCCharDeleted(EventArgs e)
         {
             var handler = Events[autoCCharDeletedEventKey] as EventHandler<EventArgs>;
@@ -1346,7 +1347,7 @@ namespace ScintillaNET
         /// <summary>
         /// Raises the <see cref="ModifyAttempt" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
         protected virtual void OnModifyAttempt(EventArgs e)
         {
             var handler = Events[modifyAttemptEventKey] as EventHandler<EventArgs>;
@@ -1378,9 +1379,20 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="Painted" /> event.
+        /// </summary>
+        /// <param name="e">An EventArgs that contains the event data.</param>
+        protected virtual void OnPainted(EventArgs e)
+        {
+            var handler = Events[paintedEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="SavePointLeft" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
         protected virtual void OnSavePointLeft(EventArgs e)
         {
             var handler = Events[savePointLeftEventKey] as EventHandler<EventArgs>;
@@ -1391,7 +1403,7 @@ namespace ScintillaNET
         /// <summary>
         /// Raises the <see cref="SavePointReached" /> event.
         /// </summary>
-        /// <param name="e">An <see cref="EventArgs" /> that contains the event data.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
         protected virtual void OnSavePointReached(EventArgs e)
         {
             var handler = Events[savePointReachedEventKey] as EventHandler<EventArgs>;
@@ -2064,6 +2076,10 @@ namespace ScintillaNET
 
                 switch (scn.nmhdr.code)
                 {
+                    case NativeMethods.SCN_PAINTED:
+                        OnPainted(EventArgs.Empty);
+                        break;
+
                     case NativeMethods.SCN_MODIFIED:
                         ScnModified(ref scn);
                         break;
@@ -5080,6 +5096,23 @@ namespace ScintillaNET
             remove
             {
                 base.Paint -= value;
+            }
+        }
+
+        /// <summary>
+        /// Occurs when painting has just been done.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the control is painted.")]
+        public event EventHandler<EventArgs> Painted
+        {
+            add
+            {
+                Events.AddHandler(paintedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(paintedEventKey, value);
             }
         }
 
