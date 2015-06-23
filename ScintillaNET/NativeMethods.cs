@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -1163,26 +1163,49 @@ namespace ScintillaNET
         public const int SCLEX_IHEX = 118;
         public const int SCLEX_TEHEX = 119;
         public const int SCLEX_AUTOMATIC = 1000;
+        //Ada
+        public const int SCE_ADA_DEFAULT = 0;
+        public const int SCE_ADA_WORD = 1;
+        public const int SCE_ADA_IDENTIFIER = 2;
+        public const int SCE_ADA_NUMBER = 3;
+        public const int SCE_ADA_DELIMITER = 4;
+        public const int SCE_ADA_CHARACTER = 5;
+        public const int SCE_ADA_CHARACTEREOL = 6;
+        public const int SCE_ADA_STRING = 7;
+        public const int SCE_ADA_STRINGEOL = 8;
+        public const int SCE_ADA_LABEL = 9;
+        public const int SCE_ADA_COMMENTLINE = 10;
+        public const int SCE_ADA_ILLEGAL = 11;
+        
+        
+        //Assembly
+        public const int SCE_ASM_DEFAULT = 0;
+        public const int SCE_ASM_COMMENT = 1;
+        public const int SCE_ASM_NUMBER = 2;
+        public const int SCE_ASM_STRING = 3;
+        public const int SCE_ASM_OPERATOR = 4;
+        public const int SCE_ASM_IDENTIFIER = 5;
+        public const int SCE_ASM_CPUINSTRUCTION = 6;
+        public const int SCE_ASM_MATHINSTRUCTION = 7;
+        public const int SCE_ASM_REGISTER = 8;
+        public const int SCE_ASM_DIRECTIVE = 9;
+        public const int SCE_ASM_DIRECTIVEOPERAND = 10;
+        public const int SCE_ASM_COMMENTBLOCK = 11;
+        public const int SCE_ASM_CHARACTER = 12;
+        public const int SCE_ASM_STRINGEOL = 13;
+        public const int SCE_ASM_EXTINSTRUCTION = 14;
+              
+        //Batch
+        public const int SCE_BAT_DEFAULT = 0;
+        public const int SCE_BAT_COMMENT = 1;
+        public const int SCE_BAT_WORD = 2;
+        public const int SCE_BAT_LABEL = 3;
+        public const int SCE_BAT_HIDE = 4;
+        public const int SCE_BAT_COMMAND = 5;
+        public const int SCE_BAT_IDENTIFIER = 6;
+        public const int SCE_BAT_OPERATOR =  7;
 
-        // Python
-        public const int SCE_P_DEFAULT = 0;
-        public const int SCE_P_COMMENTLINE = 1;
-        public const int SCE_P_NUMBER = 2;
-        public const int SCE_P_STRING = 3;
-        public const int SCE_P_CHARACTER = 4;
-        public const int SCE_P_WORD = 5;
-        public const int SCE_P_TRIPLE = 6;
-        public const int SCE_P_TRIPLEDOUBLE = 7;
-        public const int SCE_P_CLASSNAME = 8;
-        public const int SCE_P_DEFNAME = 9;
-        public const int SCE_P_OPERATOR = 10;
-        public const int SCE_P_IDENTIFIER = 11;
-        public const int SCE_P_COMMENTBLOCK = 12;
-        public const int SCE_P_STRINGEOL = 13;
-        public const int SCE_P_WORD2 = 14;
-        public const int SCE_P_DECORATOR = 15;
-
-        // Cpp
+        // Cpp/Java/C#/C/JavaScript/Pascal
         public const int SCE_C_DEFAULT = 0;
         public const int SCE_C_COMMENT = 1;
         public const int SCE_C_COMMENTLINE = 2;
@@ -1237,8 +1260,230 @@ namespace ScintillaNET
         public const int SCE_CSS_EXTENDED_PSEUDOELEMENT = 21;
         public const int SCE_CSS_MEDIA = 22;
         public const int SCE_CSS_VARIABLE = 23;
-
-        // Basic
+        
+        //Fortran
+        public const int SCE_F_DEFAULT = 0;
+        public const int SCE_F_COMMENT = 1;
+        public const int SCE_F_NUMBER = 2;
+        public const int SCE_F_STRING1 = 3;
+        public const int SCE_F_STRING2 = 4;
+        public const int SCE_F_STRINGEOL = 5;
+        public const int SCE_F_OPERATOR = 6;
+        public const int SCE_F_IDENTIFIER = 7;
+        public const int SCE_F_WORD = 8;
+        public const int SCE_F_WORD2 = 9;
+        public const int SCE_F_WORD3 = 10;
+        public const int SCE_F_PREPROCESSOR = 11;
+        public const int SCE_F_OPERATOR2 = 12;
+        public const int SCE_F_LABEL = 13;
+        public const int SCE_F_CONTINUATION = 14;
+        
+        // HTML/XML / YAML
+        public const int SCE_H_DEFAULT = 0;
+        public const int SCE_H_TAG = 1;
+        public const int SCE_H_TAGUNKNOWN = 2;
+        public const int SCE_H_ATTRIBUTE = 3;
+        public const int SCE_H_ATTRIBUTEUNKNOWN = 4;
+        public const int SCE_H_NUMBER = 5;
+        public const int SCE_H_DOUBLESTRING = 6;
+        public const int SCE_H_SINGLESTRING = 7;
+        public const int SCE_H_OTHER = 8;
+        public const int SCE_H_COMMENT = 9;
+        public const int SCE_H_ENTITY = 10;
+        public const int SCE_H_TAGEND = 11;
+        public const int SCE_H_XMLSTART = 12;
+        public const int SCE_H_XMLEND = 13;
+        public const int SCE_H_SCRIPT = 14;
+        public const int SCE_H_ASP = 15;
+        public const int SCE_H_ASPAT = 16;
+        public const int SCE_H_CDATA = 17;
+        public const int SCE_H_QUESTION = 18;
+        public const int SCE_H_VALUE = 19;
+        public const int SCE_H_XCCOMMENT = 20;
+   
+        //Lisp
+        public const int SCE_LISP_DEFAULT = 0;
+        public const int SCE_LISP_COMMENT = 1;
+        public const int SCE_LISP_NUMBER = 2;
+        public const int SCE_LISP_KEYWORD = 3;
+        public const int SCE_LISP_KEYWORD_KW = 4;
+        public const int SCE_LISP_SYMBOL = 5;
+        public const int SCE_LISP_STRING = 6;
+        public const int SCE_LISP_STRINGEOL = 8;
+        public const int SCE_LISP_IDENTIFIER = 9;
+        public const int SCE_LISP_OPERATOR = 10;
+        public const int SCE_LISP_SPECIAL = 11;
+        public const int SCE_LISP_MULTI_COMMENT = 12;
+        
+        // Lua
+        public const int SCE_LUA_DEFAULT = 0;
+        public const int SCE_LUA_COMMENT = 1;
+        public const int SCE_LUA_COMMENTLINE = 2;
+        public const int SCE_LUA_COMMENTDOC = 3;
+        public const int SCE_LUA_NUMBER = 4;
+        public const int SCE_LUA_WORD = 5;
+        public const int SCE_LUA_STRING = 6;
+        public const int SCE_LUA_CHARACTER = 7;
+        public const int SCE_LUA_LITERALSTRING = 8;
+        public const int SCE_LUA_PREPROCESSOR = 9;
+        public const int SCE_LUA_OPERATOR = 10;
+        public const int SCE_LUA_IDENTIFIER = 11;
+        public const int SCE_LUA_STRINGEOL = 12;
+        public const int SCE_LUA_WORD2 = 13;
+        public const int SCE_LUA_WORD3 = 14;
+        public const int SCE_LUA_WORD4 = 15;
+        public const int SCE_LUA_WORD5 = 16;
+        public const int SCE_LUA_WORD6 = 17;
+        public const int SCE_LUA_WORD7 = 18;
+        public const int SCE_LUA_WORD8 = 19;
+        public const int SCE_LUA_LABEL = 20;
+        
+        //Perl
+        public const int SCE_PL_DEFAULT = 0;
+        public const int SCE_PL_ERROR = 1;
+        public const int SCE_PL_COMMENTLINE = 2;
+        public const int SCE_PL_POD = 3;
+        public const int SCE_PL_NUMBER = 4;
+        public const int SCE_PL_WORD = 5;
+        public const int SCE_PL_STRING = 6;
+        public const int SCE_PL_CHARACTER = 7;
+        public const int SCE_PL_PUNCTUATION = 8;
+        public const int SCE_PL_PREPROCESSOR = 9;
+        public const int SCE_PL_OPERATOR = 10;
+        public const int SCE_PL_IDENTIFIER = 11;
+        public const int SCE_PL_SCALAR = 12;
+        public const int SCE_PL_ARRAY = 13;
+        public const int SCE_PL_HASH = 14;
+        public const int SCE_PL_SYMBOLTABLE = 15;
+        public const int SCE_PL_VARIABLE_INDEXER = 16;
+        public const int SCE_PL_REGEX = 17;
+        public const int SCE_PL_REGSUBST = 18;
+        public const int SCE_PL_LONGQUOTE = 19;
+        public const int SCE_PL_BACKTICKS = 20;
+        public const int SCE_PL_DATASECTION = 21;
+        public const int SCE_PL_HERE_DELIM = 22;
+        public const int SCE_PL_HERE_Q = 23;
+        public const int SCE_PL_HERE_QQ = 24;
+        public const int SCE_PL_HERE_QX = 25;
+        public const int SCE_PL_STRING_Q = 26;
+        public const int SCE_PL_STRING_QQ = 27;
+        public const int SCE_PL_STRING_QX = 28;
+        public const int SCE_PL_STRING_QR = 29;
+        public const int SCE_PL_STRING_QW = 30;
+        public const int SCE_PL_POD_VERB = 31;
+               
+        //PHP Script
+        public const int SCE_HPHP_COMPLEX_VARIABLE = 104;
+        public const int SCE_HPHP_DEFAULT = 118;
+        public const int SCE_HPHP_HSTRING = 119;
+        public const int SCE_HPHP_SIMPLESTRING = 120;
+        public const int SCE_HPHP_WORD = 121;
+        public const int SCE_HPHP_NUMBER = 122;
+        public const int SCE_HPHP_VARIABLE = 123;
+        public const int SCE_HPHP_COMMENT = 124;
+        public const int SCE_HPHP_COMMENTLINE = 125;
+        public const int SCE_HPHP_HSTRING_VARIABLE = 126;
+        public const int SCE_HPHP_OPERATOR = 127;
+        
+        // SQL
+        public const int SCE_SQL_DEFAULT = 0;
+        public const int SCE_SQL_COMMENT = 1;
+        public const int SCE_SQL_COMMENTLINE = 2;
+        public const int SCE_SQL_COMMENTDOC = 3;
+        public const int SCE_SQL_NUMBER = 4;
+        public const int SCE_SQL_WORD = 5;
+        public const int SCE_SQL_STRING = 6;
+        public const int SCE_SQL_CHARACTER = 7;
+        public const int SCE_SQL_SQLPLUS = 8;
+        public const int SCE_SQL_SQLPLUS_PROMPT = 9;
+        public const int SCE_SQL_OPERATOR = 10;
+        public const int SCE_SQL_IDENTIFIER = 11;
+        public const int SCE_SQL_SQLPLUS_COMMENT = 13;
+        public const int SCE_SQL_COMMENTLINEDOC = 15;
+        public const int SCE_SQL_WORD2 = 16;
+        public const int SCE_SQL_COMMENTDOCKEYWORD = 17;
+        public const int SCE_SQL_COMMENTDOCKEYWORDERROR = 18;
+        public const int SCE_SQL_USER1 = 19;
+        public const int SCE_SQL_USER2 = 20;
+        public const int SCE_SQL_USER3 = 21;
+        public const int SCE_SQL_USER4 = 22;
+        public const int SCE_SQL_QUOTEDIDENTIFIER = 23;
+        public const int SCE_SQL_QOPERATOR = 24;
+        
+        // Python
+        public const int SCE_P_DEFAULT = 0;
+        public const int SCE_P_COMMENTLINE = 1;
+        public const int SCE_P_NUMBER = 2;
+        public const int SCE_P_STRING = 3;
+        public const int SCE_P_CHARACTER = 4;
+        public const int SCE_P_WORD = 5;
+        public const int SCE_P_TRIPLE = 6;
+        public const int SCE_P_TRIPLEDOUBLE = 7;
+        public const int SCE_P_CLASSNAME = 8;
+        public const int SCE_P_DEFNAME = 9;
+        public const int SCE_P_OPERATOR = 10;
+        public const int SCE_P_IDENTIFIER = 11;
+        public const int SCE_P_COMMENTBLOCK = 12;
+        public const int SCE_P_STRINGEOL = 13;
+        public const int SCE_P_WORD2 = 14;
+        public const int SCE_P_DECORATOR = 15;
+        
+        //Ruby
+        public const int SCE_RB_DEFAULT = 0;
+        public const int SCE_RB_ERROR = 1;
+        public const int SCE_RB_COMMENTLINE = 2;
+        public const int SCE_RB_POD = 3;
+        public const int SCE_RB_NUMBER = 4;
+        public const int SCE_RB_WORD = 5;
+        public const int SCE_RB_STRING = 6;
+        public const int SCE_RB_CHARACTER = 7;
+        public const int SCE_RB_CLASSNAME = 8;
+        public const int SCE_RB_DEFNAME = 9;
+        public const int SCE_RB_OPERATOR = 10;
+        public const int SCE_RB_IDENTIFIER = 11;
+        public const int SCE_RB_REGEX = 12;
+        public const int SCE_RB_GLOBAL = 13;
+        public const int SCE_RB_SYMBOL = 14;
+        public const int SCE_RB_MODULE_NAME = 15;
+        public const int SCE_RB_INSTANCE_VAR = 16;
+        public const int SCE_RB_CLASS_VAR = 17;
+        public const int SCE_RB_BACKTICKS = 18;
+        public const int SCE_RB_DATASECTION = 19;
+        public const int SCE_RB_HERE_DELIM = 20;
+        public const int SCE_RB_HERE_Q = 21;
+        public const int SCE_RB_HERE_QQ = 22;
+        public const int SCE_RB_HERE_QX = 23;
+        public const int SCE_RB_STRING_Q = 24;
+        public const int SCE_RB_STRING_QQ = 25;
+        public const int SCE_RB_STRING_QX = 26;
+        public const int SCE_RB_STRING_QR = 27;
+        public const int SCE_RB_STRING_QW = 28;
+        public const int SCE_RB_WORD_DEMOTED = 29;
+        public const int SCE_RB_STDIN = 30;
+        public const int SCE_RB_STDOUT = 31;
+        public const int SCE_RB_STDERR = 40;
+        public const int SCE_RB_UPPER_BOUND = 41;
+        
+        //SmallTalk
+        public const int SCE_ST_DEFAULT = 0;
+        public const int SCE_ST_STRING = 1;
+        public const int SCE_ST_NUMBER = 2;
+        public const int SCE_ST_COMMENT = 3;
+        public const int SCE_ST_SYMBOL = 4;
+        public const int SCE_ST_BINARY = 5;
+        public const int SCE_ST_BOOL = 6;
+        public const int SCE_ST_SELF = 7;
+        public const int SCE_ST_SUPER = 8;
+        public const int SCE_ST_NIL = 9;
+        public const int SCE_ST_GLOBAL = 10;
+        public const int SCE_ST_RETURN = 11;
+        public const int SCE_ST_SPECIAL = 12;
+        public const int SCE_ST_KWSEND = 13;
+        public const int SCE_ST_ASSIGN = 14;
+        public const int SCE_ST_CHARACTER = 15;
+        public const int SCE_ST_SPEC_SEL = 16;
+        
+        // Basic / VB
         public const int SCE_B_DEFAULT = 0;
         public const int SCE_B_COMMENT = 1;
         public const int SCE_B_NUMBER = 2;
@@ -1263,28 +1508,22 @@ namespace ScintillaNET
         public const int SCE_B_DOCBLOCK = 21;
         public const int SCE_B_DOCKEYWORD = 22;
 
-        // HTML/XML
-        public const int SCE_H_DEFAULT = 0;
-        public const int SCE_H_TAG = 1;
-        public const int SCE_H_TAGUNKNOWN = 2;
-        public const int SCE_H_ATTRIBUTE = 3;
-        public const int SCE_H_ATTRIBUTEUNKNOWN = 4;
-        public const int SCE_H_NUMBER = 5;
-        public const int SCE_H_DOUBLESTRING = 6;
-        public const int SCE_H_SINGLESTRING = 7;
-        public const int SCE_H_OTHER = 8;
-        public const int SCE_H_COMMENT = 9;
-        public const int SCE_H_ENTITY = 10;
-        public const int SCE_H_TAGEND = 11;
-        public const int SCE_H_XMLSTART = 12;
-        public const int SCE_H_XMLEND = 13;
-        public const int SCE_H_SCRIPT = 14;
-        public const int SCE_H_ASP = 15;
-        public const int SCE_H_ASPAT = 16;
-        public const int SCE_H_CDATA = 17;
-        public const int SCE_H_QUESTION = 18;
-        public const int SCE_H_VALUE = 19;
-        public const int SCE_H_XCCOMMENT = 20;
+        ////VB
+        //public const int SCE_B_DEFAULT = 0;
+        //public const int SCE_B_COMMENT = 1;
+        //public const int SCE_B_NUMBER = 2;
+        //public const int SCE_B_KEYWORD = 3;
+        //public const int SCE_B_STRING = 4;
+        //public const int SCE_B_PREPROCESSOR = 5;
+        //public const int SCE_B_OPERATOR = 6;
+        //public const int SCE_B_IDENTIFIER = 7;
+        //public const int SCE_B_DATE = 8;
+        //public const int SCE_B_STRINGEOL = 9;
+        //public const int SCE_B_KEYWORD2 = 10;
+        //public const int SCE_B_KEYWORD3 = 11;
+        //public const int SCE_B_KEYWORD4 = 12;
+        //public const int SCE_B_CONSTANT = 13;
+        //public const int SCE_B_BINNUMBER = 18;
 
         // Markdown
         public const int SCE_MARKDOWN_DEFAULT = 0;
@@ -1310,30 +1549,7 @@ namespace ScintillaNET
         public const int SCE_MARKDOWN_CODE2 = 20;
         public const int SCE_MARKDOWN_CODEBK = 21;
 
-        // SQL
-        public const int SCE_SQL_DEFAULT = 0;
-        public const int SCE_SQL_COMMENT = 1;
-        public const int SCE_SQL_COMMENTLINE = 2;
-        public const int SCE_SQL_COMMENTDOC = 3;
-        public const int SCE_SQL_NUMBER = 4;
-        public const int SCE_SQL_WORD = 5;
-        public const int SCE_SQL_STRING = 6;
-        public const int SCE_SQL_CHARACTER = 7;
-        public const int SCE_SQL_SQLPLUS = 8;
-        public const int SCE_SQL_SQLPLUS_PROMPT = 9;
-        public const int SCE_SQL_OPERATOR = 10;
-        public const int SCE_SQL_IDENTIFIER = 11;
-        public const int SCE_SQL_SQLPLUS_COMMENT = 13;
-        public const int SCE_SQL_COMMENTLINEDOC = 15;
-        public const int SCE_SQL_WORD2 = 16;
-        public const int SCE_SQL_COMMENTDOCKEYWORD = 17;
-        public const int SCE_SQL_COMMENTDOCKEYWORDERROR = 18;
-        public const int SCE_SQL_USER1 = 19;
-        public const int SCE_SQL_USER2 = 20;
-        public const int SCE_SQL_USER3 = 21;
-        public const int SCE_SQL_USER4 = 22;
-        public const int SCE_SQL_QUOTEDIDENTIFIER = 23;
-        public const int SCE_SQL_QOPERATOR = 24;
+        
 
         // R
         public const int SCE_R_DEFAULT = 0;
@@ -1349,28 +1565,7 @@ namespace ScintillaNET
         public const int SCE_R_INFIX = 10;
         public const int SCE_R_INFIXEOL = 11;
 
-        // Lua
-        public const int SCE_LUA_DEFAULT = 0;
-        public const int SCE_LUA_COMMENT = 1;
-        public const int SCE_LUA_COMMENTLINE = 2;
-        public const int SCE_LUA_COMMENTDOC = 3;
-        public const int SCE_LUA_NUMBER = 4;
-        public const int SCE_LUA_WORD = 5;
-        public const int SCE_LUA_STRING = 6;
-        public const int SCE_LUA_CHARACTER = 7;
-        public const int SCE_LUA_LITERALSTRING = 8;
-        public const int SCE_LUA_PREPROCESSOR = 9;
-        public const int SCE_LUA_OPERATOR = 10;
-        public const int SCE_LUA_IDENTIFIER = 11;
-        public const int SCE_LUA_STRINGEOL = 12;
-        public const int SCE_LUA_WORD2 = 13;
-        public const int SCE_LUA_WORD3 = 14;
-        public const int SCE_LUA_WORD4 = 15;
-        public const int SCE_LUA_WORD5 = 16;
-        public const int SCE_LUA_WORD6 = 17;
-        public const int SCE_LUA_WORD7 = 18;
-        public const int SCE_LUA_WORD8 = 19;
-        public const int SCE_LUA_LABEL = 20;
+        
 
         #endregion Lexer Constants
 
