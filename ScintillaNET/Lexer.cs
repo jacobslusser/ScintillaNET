@@ -22,57 +22,47 @@ namespace ScintillaNET
         Null = NativeMethods.SCLEX_NULL,
 
         /// <summary>
-        /// The Ada lexer.
+        /// The Ada (95) language lexer.
         /// </summary>
         Ada = NativeMethods.SCLEX_ADA,
 
         /// <summary>
-        /// The Assembly lexer.
+        /// The assembly language lexer.
         /// </summary>
-        Assembly = NativeMethods.SCLEX_ASM,
+        Asm = NativeMethods.SCLEX_ASM,
 
         /// <summary>
-        /// The Batch lexer.
+        /// The batch file lexer.
         /// </summary>
         Batch = NativeMethods.SCLEX_BATCH,
 
         /// <summary>
-        /// The C# (C++) lexer.
-        /// </summary>
-        CSharp = NativeMethods.SCLEX_CPP,
-
-        /// <summary>
         /// The C language family (C++, C, C#, Java, JavaScript, etc...) lexer.
         /// </summary>
-        CPP = NativeMethods.SCLEX_CPP,
+        Cpp = NativeMethods.SCLEX_CPP,
 
         /// <summary>
         /// The Cascading Style Sheets (CSS, SCSS) lexer.
         /// </summary>
-        CSS = NativeMethods.SCLEX_CSS,
+        Css = NativeMethods.SCLEX_CSS,
 
         /// <summary>
-        /// The Fortran lexer.
+        /// The Fortran language lexer.
         /// </summary>
         Fortran = NativeMethods.SCLEX_FORTRAN,
 
         /// <summary>
-        /// The HTML lexer.
+        /// The FreeBASIC language lexer.
         /// </summary>
-        HTML = NativeMethods.SCLEX_HTML,
+        FreeBasic = NativeMethods.SCLEX_FREEBASIC,
 
         /// <summary>
-        /// The Java (C++) lexer.
+        /// The HyperText Markup Language (HTML) lexer.
         /// </summary>
-        Java = NativeMethods.SCLEX_CPP,
+        Html = NativeMethods.SCLEX_HTML,
 
         /// <summary>
-        /// The JavaScript (C++) lexer.
-        /// </summary>
-        JavaScript = NativeMethods.SCLEX_CPP,
-
-        /// <summary>
-        /// The Lisp lexer.
+        /// The Lisp language lexer.
         /// </summary>
         Lisp = NativeMethods.SCLEX_LISP,
 
@@ -82,24 +72,24 @@ namespace ScintillaNET
         Lua = NativeMethods.SCLEX_LUA,
 
         /// <summary>
-        /// The Pascal lexer.
+        /// The Pascal language lexer.
         /// </summary>
         Pascal = NativeMethods.SCLEX_PASCAL,
 
         /// <summary>
-        /// The Perl lexer.
+        /// The Perl language lexer.
         /// </summary>
         Perl = NativeMethods.SCLEX_PERL,
 
         /// <summary>
-        /// The PHP lexer.
+        /// The PHP: Hypertext Preprocessor (PHP) script lexer.
         /// </summary>
-        PHP = NativeMethods.SCLEX_PHPSCRIPT,
+        PhpScript = NativeMethods.SCLEX_PHPSCRIPT,
 
         /// <summary>
-        /// The PostgreSQL lexer.
+        /// The PureBasic language lexer.
         /// </summary>
-        PostgreSQL = NativeMethods.SCLEX_SQL,
+        PureBasic = NativeMethods.SCLEX_PUREBASIC,
 
         /// <summary>
         /// The Python language lexer.
@@ -107,40 +97,39 @@ namespace ScintillaNET
         Python = NativeMethods.SCLEX_PYTHON,
 
         /// <summary>
-        /// The Ruby lexer.
+        /// The Ruby language lexer.
         /// </summary>
         Ruby = NativeMethods.SCLEX_RUBY,
 
         /// <summary>
-        /// The SmallTalk lexer.
+        /// The SmallTalk language lexer.
         /// </summary>
-        SmallTalk = NativeMethods.SCLEX_SMALLTALK,
+        Smalltalk = NativeMethods.SCLEX_SMALLTALK,
 
         /// <summary>
         /// The Structured Query Language (SQL) lexer.
         /// </summary>
-        SQL = NativeMethods.SCLEX_SQL,
+        Sql = NativeMethods.SCLEX_SQL,
 
         /// <summary>
-        /// The VB lexer.
+        /// The Visual Basic (VB) lexer.
         /// </summary>
-        VB = NativeMethods.SCLEX_VB,
+        Vb = NativeMethods.SCLEX_VB,
+
+        /// <summary>
+        /// The Visual Basic Script (VBScript) lexer.
+        /// </summary>
+        VbScript = NativeMethods.SCLEX_VBSCRIPT,
 
         /// <summary>
         /// The Extensible Markup Language (XML) lexer.
         /// </summary>
-        XML = NativeMethods.SCLEX_XML,
+        Xml = NativeMethods.SCLEX_XML,
 
-        /// <summary>
-        /// The YAML (XML) lexer.
-        /// </summary>
-        YAML = NativeMethods.SCLEX_XML,
-        
         /// <summary>
         /// The Blitz (Blitz3D, BlitzMax, etc...) variant of Basic lexer.
         /// </summary>
         BlitzBasic = NativeMethods.SCLEX_BLITZBASIC,
-                 
 
         /// <summary>
         /// The Markdown syntax lexer.
@@ -151,7 +140,5 @@ namespace ScintillaNET
         /// The R programming language lexer.
         /// </summary>
         R = NativeMethods.SCLEX_R
-
-        
     }
 }
