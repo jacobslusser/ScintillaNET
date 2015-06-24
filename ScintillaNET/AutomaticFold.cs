@@ -18,7 +18,7 @@ namespace ScintillaNET
         None = 0,
 
         /// <summary>
-        /// Automatically show lines as needed. The <see cref="Scintilla.NeedsShown" /> event is not raised when this value is used.
+        /// Automatically show lines as needed. The <see cref="Scintilla.NeedShown" /> event is not raised when this value is used.
         /// </summary>
         Show = NativeMethods.SC_AUTOMATICFOLD_SHOW,
 

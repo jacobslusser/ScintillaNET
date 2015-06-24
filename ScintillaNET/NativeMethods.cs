@@ -131,6 +131,25 @@ namespace ScintillaNET
         public const int SC_EOL_CR = 1;
         public const int SC_EOL_LF = 2;
 
+        // Fold action
+        public const int SC_FOLDACTION_CONTRACT = 0;
+        public const int SC_FOLDACTION_EXPAND = 1;
+        public const int SC_FOLDACTION_TOGGLE = 2;
+
+        // Fold level
+        public const int SC_FOLDLEVELBASE = 0x400;
+        public const int SC_FOLDLEVELWHITEFLAG = 0x1000;
+        public const int SC_FOLDLEVELHEADERFLAG = 0x2000;
+        public const int SC_FOLDLEVELNUMBERMASK = 0x0FFF;
+
+        // Fold flags
+        public const int SC_FOLDFLAG_LINEBEFORE_EXPANDED = 0x0002;
+        public const int SC_FOLDFLAG_LINEBEFORE_CONTRACTED = 0x0004;
+        public const int SC_FOLDFLAG_LINEAFTER_EXPANDED = 0x0008;
+        public const int SC_FOLDFLAG_LINEAFTER_CONTRACTED = 0x0010;
+        public const int SC_FOLDFLAG_LEVELNUMBERS = 0x0040;
+        public const int SC_FOLDFLAG_LINESTATE = 0x0080;
+
         // Line end type
         public const int SC_LINE_END_TYPE_DEFAULT = 0;
         public const int SC_LINE_END_TYPE_UNICODE = 1;
