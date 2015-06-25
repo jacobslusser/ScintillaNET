@@ -13,6 +13,8 @@ namespace ScintillaNET
     /// </summary>
     public class LineCollection : IEnumerable<Line>
     {
+        #region Fields
+
         private readonly Scintilla scintilla;
         private GapBuffer<PerLine> perLineData;
 
@@ -20,6 +22,10 @@ namespace ScintillaNET
         // to delay the updating of every line start when text is inserted/deleted.
         private int stepLine;
         private int stepLength;
+
+        #endregion Fields
+
+        #region Methods
 
         /// <summary>
         /// Adjust the number of CHARACTERS in a line.
@@ -400,6 +406,22 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Methods
+
+        #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether all the document lines are visible (not hidden).
+        /// </summary>
+        /// <returns>true if all the lines are visible; otherwise, false.</returns>
+        public bool AllLinesVisible
+        {
+            get
+            {
+                return (scintilla.DirectMessage(NativeMethods.SCI_GETALLLINESVISIBLE) != IntPtr.Zero);
+            }
+        }
+
         /// <summary>
         /// Gets the number of lines.
         /// </summary>
@@ -439,6 +461,10 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LineCollection" /> class.
         /// </summary>
@@ -450,6 +476,10 @@ namespace ScintillaNET
 
             RebuildLineData();
         }
+
+        #endregion Constructors
+
+        #region Types
 
         /// <summary>
         /// Stuff we track for each line.
@@ -474,5 +504,7 @@ namespace ScintillaNET
             Unkown,
             Yes
         }
+
+        #endregion Types
     }
 }

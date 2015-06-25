@@ -10,7 +10,58 @@ namespace ScintillaNET
     /// </summary>
     public class Line
     {
+        #region Fields
+
         private readonly Scintilla scintilla;
+
+        #endregion Fields
+
+        #region Methods
+
+        /// <summary>
+        /// Expands any parent folds to ensure the line is visible.
+        /// </summary>
+        public void EnsureVisible()
+        {
+            scintilla.DirectMessage(NativeMethods.SCI_ENSUREVISIBLE, new IntPtr(Index));
+        }
+
+        //public void ExpandChildren(int level)
+        //{
+        //}
+
+        /// <summary>
+        /// Performs the specified fold action on the current line and all child lines.
+        /// </summary>
+        /// <param name="action">One of the <see cref="FoldAction" /> enumeration values.</param>
+        public void FoldChildren(FoldAction action)
+        {
+            scintilla.DirectMessage(NativeMethods.SCI_FOLDCHILDREN, new IntPtr(Index), new IntPtr((int)action));
+        }
+
+        /// <summary>
+        /// Performs the specified fold action on the current line.
+        /// </summary>
+        /// <param name="action">One of the <see cref="FoldAction" /> enumeration values.</param>
+        public void FoldLine(FoldAction action)
+        {
+            scintilla.DirectMessage(NativeMethods.SCI_FOLDLINE, new IntPtr(Index), new IntPtr((int)action));
+        }
+
+        /// <summary>
+        /// Searches for the next line that has a folding level that is less than or equal to <paramref name="level" />
+        /// and returns the previous line index.
+        /// </summary>
+        /// <param name="level">The level of the line to search for. A value of -1 will use the current line <see cref="FoldLevel" />.</param>
+        /// <returns>
+        /// The zero-based index of the next line that has a <see cref="FoldLevel" /> less than or equal
+        /// to <paramref name="level" />. If the current line is a fold point and <paramref name="level"/> is -1 the
+        /// index returned is the last line that would be made visible or hidden by toggling the fold state.
+        /// </returns>
+        public int GetLastChild(int level)
+        {
+            return scintilla.DirectMessage(NativeMethods.SCI_GETLASTCHILD, new IntPtr(Index), new IntPtr(level)).ToInt32();
+        }
 
         /// <summary>
         /// Navigates the caret to the start of the line.
@@ -88,6 +139,19 @@ namespace ScintillaNET
             var mask = unchecked((int)markerMask);
             return scintilla.DirectMessage(NativeMethods.SCI_MARKERPREVIOUS, new IntPtr(Index), new IntPtr(mask)).ToInt32();
         }
+
+        /// <summary>
+        /// Toggles the folding state of the line; expanding or contracting all child lines.
+        /// </summary>
+        /// <remarks>The line must be set as a <see cref="ScintillaNET.FoldLevelFlags.Header" />.</remarks>
+        public void ToggleFold()
+        {
+            scintilla.DirectMessage(NativeMethods.SCI_TOGGLEFOLD, new IntPtr(Index));
+        }
+
+        #endregion Methods
+
+        #region Properties
 
         /// <summary>
         /// Gets the number of annotation lines of text.
@@ -209,6 +273,33 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Searches from the current line to find the index of the next contracted fold header.
+        /// </summary>
+        /// <returns>The zero-based line index of the next contracted folder header.</returns>
+        /// <remarks>If the current line is contracted the current line index is returned.</remarks>
+        public int ContractedFoldNext
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_CONTRACTEDFOLDNEXT, new IntPtr(Index)).ToInt32();
+            }
+        }
+
+        /// <summary>
+        /// Gets the zero-based index of the line as displayed in a <see cref="Scintilla" /> control
+        /// taking into consideration folded (hidden) lines.
+        /// </summary>
+        /// <returns>The zero-based display line index.</returns>
+        /// <seealso cref="Scintilla.DocLineFromVisible" />
+        public int DisplayIndex
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_VISIBLEFROMDOCLINE, new IntPtr(Index)).ToInt32();
+            }
+        }
+
+        /// <summary>
         /// Gets the zero-based character position in the document where the line ends (exclusive).
         /// </summary>
         /// <returns>The equivalent of <see cref="Position" /> + <see cref="Length" />.</returns>
@@ -217,6 +308,80 @@ namespace ScintillaNET
             get
             {
                 return Position + Length;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the expanded state (not the visible state) of the line.
+        /// </summary>
+        /// <remarks>
+        /// For toggling the fold state of a single line the <see cref="ToggleFold" /> method should be used.
+        /// This property is useful for toggling the state of many folds without updating the display until finished.
+        /// </remarks>
+        /// <seealso cref="ToggleFold" />
+        public bool Expanded
+        {
+            get
+            {
+                return (scintilla.DirectMessage(NativeMethods.SCI_GETFOLDEXPANDED, new IntPtr(Index)) != IntPtr.Zero);
+            }
+            set
+            {
+                var expanded = (value ? new IntPtr(1) : IntPtr.Zero);
+                scintilla.DirectMessage(NativeMethods.SCI_SETFOLDEXPANDED, new IntPtr(Index), expanded);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the fold level of the line.
+        /// </summary>
+        /// <returns>The fold level ranging from 0 to 4095. The default is 1024.</returns>
+        public int FoldLevel
+        {
+            get
+            {
+                var level = scintilla.DirectMessage(NativeMethods.SCI_GETFOLDLEVEL, new IntPtr(Index)).ToInt32();
+                return (level & NativeMethods.SC_FOLDLEVELNUMBERMASK);
+            }
+            set
+            {
+                var bits = (int)FoldLevelFlags;
+                bits |= value;
+
+                scintilla.DirectMessage(NativeMethods.SCI_SETFOLDLEVEL, new IntPtr(Index), new IntPtr(bits));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the fold level flags.
+        /// </summary>
+        /// <returns>A bitwise combination of the <see cref="FoldLevelFlags" /> enumeration.</returns>
+        public FoldLevelFlags FoldLevelFlags
+        {
+            get
+            {
+                var flags = scintilla.DirectMessage(NativeMethods.SCI_GETFOLDLEVEL, new IntPtr(Index)).ToInt32();
+                return (FoldLevelFlags)(flags & ~NativeMethods.SC_FOLDLEVELNUMBERMASK);
+            }
+            set
+            {
+                var bits = FoldLevel;
+                bits |= (int)value;
+
+                scintilla.DirectMessage(NativeMethods.SCI_SETFOLDLEVEL, new IntPtr(Index), new IntPtr(bits));
+            }
+        }
+
+        /// <summary>
+        /// Gets the zero-based line index of the first line before the current line that is marked as
+        /// <see cref="ScintillaNET.FoldLevelFlags.Header" /> and has a <see cref="FoldLevel" /> less than the current line.
+        /// </summary>
+        /// <returns>The zero-based line index of the fold parent if present; otherwise, -1.</returns>
+        public int FoldParent
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_GETFOLDPARENT, new IntPtr(Index)).ToInt32();
             }
         }
 
@@ -379,6 +544,20 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets a value indicating whether the line is visible.
+        /// </summary>
+        /// <returns>true if the line is visible; otherwise, false.</returns>
+        /// <seealso cref="Scintilla.ShowLines" />
+        /// <seealso cref="Scintilla.HideLines" />
+        public bool Visible
+        {
+            get
+            {
+                return (scintilla.DirectMessage(NativeMethods.SCI_GETLINEVISIBLE, new IntPtr(Index)) != IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
         /// Gets the number of display lines this line would occupy when wrapping is enabled.
         /// </summary>
         /// <returns>The number of display lines needed to wrap the current document line.</returns>
@@ -390,6 +569,10 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Line" /> class.
         /// </summary>
@@ -400,5 +583,7 @@ namespace ScintillaNET
             this.scintilla = scintilla;
             Index = index;
         }
+
+        #endregion Constructors
     }
 }

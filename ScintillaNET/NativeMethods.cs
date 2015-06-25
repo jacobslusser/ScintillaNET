@@ -131,6 +131,25 @@ namespace ScintillaNET
         public const int SC_EOL_CR = 1;
         public const int SC_EOL_LF = 2;
 
+        // Fold action
+        public const int SC_FOLDACTION_CONTRACT = 0;
+        public const int SC_FOLDACTION_EXPAND = 1;
+        public const int SC_FOLDACTION_TOGGLE = 2;
+
+        // Fold level
+        public const int SC_FOLDLEVELBASE = 0x400;
+        public const int SC_FOLDLEVELWHITEFLAG = 0x1000;
+        public const int SC_FOLDLEVELHEADERFLAG = 0x2000;
+        public const int SC_FOLDLEVELNUMBERMASK = 0x0FFF;
+
+        // Fold flags
+        public const int SC_FOLDFLAG_LINEBEFORE_EXPANDED = 0x0002;
+        public const int SC_FOLDFLAG_LINEBEFORE_CONTRACTED = 0x0004;
+        public const int SC_FOLDFLAG_LINEAFTER_EXPANDED = 0x0008;
+        public const int SC_FOLDFLAG_LINEAFTER_CONTRACTED = 0x0010;
+        public const int SC_FOLDFLAG_LEVELNUMBERS = 0x0040;
+        public const int SC_FOLDFLAG_LINESTATE = 0x0080;
+
         // Line end type
         public const int SC_LINE_END_TYPE_DEFAULT = 0;
         public const int SC_LINE_END_TYPE_UNICODE = 1;
@@ -1163,7 +1182,8 @@ namespace ScintillaNET
         public const int SCLEX_IHEX = 118;
         public const int SCLEX_TEHEX = 119;
         public const int SCLEX_AUTOMATIC = 1000;
-        //Ada
+
+        // Ada
         public const int SCE_ADA_DEFAULT = 0;
         public const int SCE_ADA_WORD = 1;
         public const int SCE_ADA_IDENTIFIER = 2;
@@ -1176,9 +1196,8 @@ namespace ScintillaNET
         public const int SCE_ADA_LABEL = 9;
         public const int SCE_ADA_COMMENTLINE = 10;
         public const int SCE_ADA_ILLEGAL = 11;
-        
-        
-        //Assembly
+
+        // ASM
         public const int SCE_ASM_DEFAULT = 0;
         public const int SCE_ASM_COMMENT = 1;
         public const int SCE_ASM_NUMBER = 2;
@@ -1194,8 +1213,9 @@ namespace ScintillaNET
         public const int SCE_ASM_CHARACTER = 12;
         public const int SCE_ASM_STRINGEOL = 13;
         public const int SCE_ASM_EXTINSTRUCTION = 14;
-              
-        //Batch
+        public const int SCE_ASM_COMMENTDIRECTIVE = 15;
+
+        // Batch
         public const int SCE_BAT_DEFAULT = 0;
         public const int SCE_BAT_COMMENT = 1;
         public const int SCE_BAT_WORD = 2;
@@ -1205,7 +1225,7 @@ namespace ScintillaNET
         public const int SCE_BAT_IDENTIFIER = 6;
         public const int SCE_BAT_OPERATOR =  7;
 
-        // Cpp/Java/C#/C/JavaScript/Pascal
+        // CPP
         public const int SCE_C_DEFAULT = 0;
         public const int SCE_C_COMMENT = 1;
         public const int SCE_C_COMMENTLINE = 2;
@@ -1235,7 +1255,7 @@ namespace ScintillaNET
         public const int SCE_C_TASKMARKER = 26;
         public const int SCE_C_ESCAPESEQUENCE = 27;
 
-        // Css
+        // CSS
         public const int SCE_CSS_DEFAULT = 0;
         public const int SCE_CSS_TAG = 1;
         public const int SCE_CSS_CLASS = 2;
@@ -1260,8 +1280,8 @@ namespace ScintillaNET
         public const int SCE_CSS_EXTENDED_PSEUDOELEMENT = 21;
         public const int SCE_CSS_MEDIA = 22;
         public const int SCE_CSS_VARIABLE = 23;
-        
-        //Fortran
+
+        // Fortran
         public const int SCE_F_DEFAULT = 0;
         public const int SCE_F_COMMENT = 1;
         public const int SCE_F_NUMBER = 2;
@@ -1277,8 +1297,8 @@ namespace ScintillaNET
         public const int SCE_F_OPERATOR2 = 12;
         public const int SCE_F_LABEL = 13;
         public const int SCE_F_CONTINUATION = 14;
-        
-        // HTML/XML / YAML
+
+        // HTML
         public const int SCE_H_DEFAULT = 0;
         public const int SCE_H_TAG = 1;
         public const int SCE_H_TAGUNKNOWN = 2;
@@ -1300,8 +1320,8 @@ namespace ScintillaNET
         public const int SCE_H_QUESTION = 18;
         public const int SCE_H_VALUE = 19;
         public const int SCE_H_XCCOMMENT = 20;
-   
-        //Lisp
+
+        // Lisp
         public const int SCE_LISP_DEFAULT = 0;
         public const int SCE_LISP_COMMENT = 1;
         public const int SCE_LISP_NUMBER = 2;
@@ -1314,7 +1334,7 @@ namespace ScintillaNET
         public const int SCE_LISP_OPERATOR = 10;
         public const int SCE_LISP_SPECIAL = 11;
         public const int SCE_LISP_MULTI_COMMENT = 12;
-        
+
         // Lua
         public const int SCE_LUA_DEFAULT = 0;
         public const int SCE_LUA_COMMENT = 1;
@@ -1337,8 +1357,8 @@ namespace ScintillaNET
         public const int SCE_LUA_WORD7 = 18;
         public const int SCE_LUA_WORD8 = 19;
         public const int SCE_LUA_LABEL = 20;
-        
-        //Perl
+
+        // Perl
         public const int SCE_PL_DEFAULT = 0;
         public const int SCE_PL_ERROR = 1;
         public const int SCE_PL_COMMENTLINE = 2;
@@ -1371,8 +1391,21 @@ namespace ScintillaNET
         public const int SCE_PL_STRING_QR = 29;
         public const int SCE_PL_STRING_QW = 30;
         public const int SCE_PL_POD_VERB = 31;
-               
-        //PHP Script
+        public const int SCE_PL_SUB_PROTOTYPE = 40;
+        public const int SCE_PL_FORMAT_IDENT = 41;
+        public const int SCE_PL_FORMAT = 42;
+        public const int SCE_PL_STRING_VAR = 43;
+        public const int SCE_PL_XLAT = 44;
+        public const int SCE_PL_REGEX_VAR = 54;
+        public const int SCE_PL_REGSUBST_VAR = 55;
+        public const int SCE_PL_BACKTICKS_VAR = 57;
+        public const int SCE_PL_HERE_QQ_VAR = 61;
+        public const int SCE_PL_HERE_QX_VAR = 62;
+        public const int SCE_PL_STRING_QQ_VAR = 64;
+        public const int SCE_PL_STRING_QX_VAR = 65;
+        public const int SCE_PL_STRING_QR_VAR = 66;
+
+        // PHP script
         public const int SCE_HPHP_COMPLEX_VARIABLE = 104;
         public const int SCE_HPHP_DEFAULT = 118;
         public const int SCE_HPHP_HSTRING = 119;
@@ -1384,7 +1417,7 @@ namespace ScintillaNET
         public const int SCE_HPHP_COMMENTLINE = 125;
         public const int SCE_HPHP_HSTRING_VARIABLE = 126;
         public const int SCE_HPHP_OPERATOR = 127;
-        
+
         // SQL
         public const int SCE_SQL_DEFAULT = 0;
         public const int SCE_SQL_COMMENT = 1;
@@ -1409,7 +1442,7 @@ namespace ScintillaNET
         public const int SCE_SQL_USER4 = 22;
         public const int SCE_SQL_QUOTEDIDENTIFIER = 23;
         public const int SCE_SQL_QOPERATOR = 24;
-        
+
         // Python
         public const int SCE_P_DEFAULT = 0;
         public const int SCE_P_COMMENTLINE = 1;
@@ -1427,8 +1460,8 @@ namespace ScintillaNET
         public const int SCE_P_STRINGEOL = 13;
         public const int SCE_P_WORD2 = 14;
         public const int SCE_P_DECORATOR = 15;
-        
-        //Ruby
+
+        // Ruby
         public const int SCE_RB_DEFAULT = 0;
         public const int SCE_RB_ERROR = 1;
         public const int SCE_RB_COMMENTLINE = 2;
@@ -1463,8 +1496,8 @@ namespace ScintillaNET
         public const int SCE_RB_STDOUT = 31;
         public const int SCE_RB_STDERR = 40;
         public const int SCE_RB_UPPER_BOUND = 41;
-        
-        //SmallTalk
+
+        // Smalltalk
         public const int SCE_ST_DEFAULT = 0;
         public const int SCE_ST_STRING = 1;
         public const int SCE_ST_NUMBER = 2;
@@ -1508,23 +1541,6 @@ namespace ScintillaNET
         public const int SCE_B_DOCBLOCK = 21;
         public const int SCE_B_DOCKEYWORD = 22;
 
-        ////VB
-        //public const int SCE_B_DEFAULT = 0;
-        //public const int SCE_B_COMMENT = 1;
-        //public const int SCE_B_NUMBER = 2;
-        //public const int SCE_B_KEYWORD = 3;
-        //public const int SCE_B_STRING = 4;
-        //public const int SCE_B_PREPROCESSOR = 5;
-        //public const int SCE_B_OPERATOR = 6;
-        //public const int SCE_B_IDENTIFIER = 7;
-        //public const int SCE_B_DATE = 8;
-        //public const int SCE_B_STRINGEOL = 9;
-        //public const int SCE_B_KEYWORD2 = 10;
-        //public const int SCE_B_KEYWORD3 = 11;
-        //public const int SCE_B_KEYWORD4 = 12;
-        //public const int SCE_B_CONSTANT = 13;
-        //public const int SCE_B_BINNUMBER = 18;
-
         // Markdown
         public const int SCE_MARKDOWN_DEFAULT = 0;
         public const int SCE_MARKDOWN_LINE_BEGIN = 1;
@@ -1549,8 +1565,6 @@ namespace ScintillaNET
         public const int SCE_MARKDOWN_CODE2 = 20;
         public const int SCE_MARKDOWN_CODEBK = 21;
 
-        
-
         // R
         public const int SCE_R_DEFAULT = 0;
         public const int SCE_R_COMMENT = 1;
@@ -1564,8 +1578,6 @@ namespace ScintillaNET
         public const int SCE_R_IDENTIFIER = 9;
         public const int SCE_R_INFIX = 10;
         public const int SCE_R_INFIXEOL = 11;
-
-        
 
         #endregion Lexer Constants
 

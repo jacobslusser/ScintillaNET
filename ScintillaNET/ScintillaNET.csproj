@@ -72,6 +72,9 @@
     <Compile Include="EdgeMode.cs" />
     <Compile Include="Eol.cs" />
     <Compile Include="FlagsEnumConverter.cs" />
+    <Compile Include="FoldAction.cs" />
+    <Compile Include="FoldFlags.cs" />
+    <Compile Include="FoldLevelFlags.cs" />
     <Compile Include="FontQuality.cs" />
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
@@ -102,6 +105,7 @@
     <Compile Include="MultiPaste.cs" />
     <Compile Include="NativeMemoryStream.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="NeedShownEventArgs.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Phases.cs" />
     <Compile Include="ProjectionEqualityComparer.cs" />

@@ -53,6 +53,7 @@ namespace ScintillaNET
         private static readonly object borderStyleChangedEventKey = new object();
         private static readonly object doubleClickEventKey = new object();
         private static readonly object paintedEventKey = new object();
+        private static readonly object needShownEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -718,6 +719,18 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Returns the zero-based document line index from the specified display line index.
+        /// </summary>
+        /// <param name="displayLine">The zero-based display line index.</param>
+        /// <returns>The zero-based document line index.</returns>
+        /// <seealso cref="Line.DisplayIndex" />
+        public int DocLineFromVisible(int displayLine)
+        {
+            displayLine = Helpers.Clamp(displayLine, 0, Lines.Count);
+            return DirectMessage(NativeMethods.SCI_DOCLINEFROMVISIBLE, new IntPtr(displayLine)).ToInt32();
+        }
+
+        /// <summary>
         /// If there are multiple selections, removes the specified selection.
         /// </summary>
         /// <param name="selection">The zero-based selection index.</param>
@@ -754,6 +767,16 @@ namespace ScintillaNET
         {
             var cmd = (int)sciCommand;
             DirectMessage(cmd);
+        }
+
+        /// <summary>
+        /// Performs the specified fold action on the entire document.
+        /// </summary>
+        /// <param name="action">One of the <see cref="FoldAction" /> enumeration values.</param>
+        /// <remarks>When using <see cref="FoldAction.Toggle" /> the first fold header in the document is examined to decide whether to expand or contract.</remarks>
+        public void FoldAll(FoldAction action)
+        {
+            DirectMessage(NativeMethods.SCI_FOLDALL, new IntPtr((int)action));
         }
 
         /// <summary>
@@ -1017,6 +1040,21 @@ namespace ScintillaNET
             position = Helpers.Clamp(position, 0, TextLength);
             position = Lines.CharToBytePosition(position);
             DirectMessage(NativeMethods.SCI_GOTOPOS, new IntPtr(position));
+        }
+
+        /// <summary>
+        /// Hides the range of lines specified.
+        /// </summary>
+        /// <param name="lineStart">The zero-based index of the line range to start hiding.</param>
+        /// <param name="lineEnd">The zero-based index of the line range to end hiding.</param>
+        /// <seealso cref="ShowLines" />
+        /// <seealso cref="Line.Visible" />
+        public void HideLines(int lineStart, int lineEnd)
+        {
+            lineStart = Helpers.Clamp(lineStart, 0, Lines.Count);
+            lineEnd = Helpers.Clamp(lineEnd, lineStart, Lines.Count);
+
+            DirectMessage(NativeMethods.SCI_HIDELINES, new IntPtr(lineStart), new IntPtr(lineEnd));
         }
 
         /// <summary>
@@ -1379,6 +1417,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="NeedShown" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="NeedShownEventArgs" /> that contains the event data.</param>
+        protected virtual void OnNeedShown(NeedShownEventArgs e)
+        {
+            var handler = Events[needShownEventKey] as EventHandler<NeedShownEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="Painted" /> event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
@@ -1732,6 +1781,15 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets additional options for displaying folds.
+        /// </summary>
+        /// <param name="flags">A bitwise combination of the <see cref="FoldFlags" /> enumeration.</param>
+        public void SetFoldFlags(FoldFlags flags)
+        {
+            DirectMessage(NativeMethods.SCI_SETFOLDFLAGS, new IntPtr((int)flags));
+        }
+
+        /// <summary>
         /// Sets a global override to the fold margin color.
         /// </summary>
         /// <param name="use">true to override the fold margin color; otherwise, false.</param>
@@ -1994,6 +2052,21 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Shows the range of lines specified.
+        /// </summary>
+        /// <param name="lineStart">The zero-based index of the line range to start showing.</param>
+        /// <param name="lineEnd">The zero-based index of the line range to end showing.</param>
+        /// <seealso cref="HideLines" />
+        /// <seealso cref="Line.Visible" />
+        public void ShowLines(int lineStart, int lineEnd)
+        {
+            lineStart = Helpers.Clamp(lineStart, 0, Lines.Count);
+            lineEnd = Helpers.Clamp(lineEnd, lineStart, Lines.Count);
+
+            DirectMessage(NativeMethods.SCI_SHOWLINES, new IntPtr(lineStart), new IntPtr(lineEnd));
+        }
+
+        /// <summary>
         /// Prepares for styling by setting the styling <paramref name="position" /> to start at.
         /// </summary>
         /// <param name="position">The zero-based character position in the document to start styling.</param>
@@ -2134,6 +2207,10 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_DOUBLECLICK:
                         ScnDoubleClick(ref scn);
+                        break;
+
+                    case NativeMethods.SCN_NEEDSHOWN:
+                        OnNeedShown(new NeedShownEventArgs(this, scn.position, scn.length));
                         break;
 
                     default:
@@ -5067,6 +5144,24 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(modifyAttemptEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the control determines hidden text needs to be shown.
+        /// </summary>
+        /// <remarks>An example of when this event might be raised is if the end of line of a contracted fold point is deleted.</remarks>
+        [Category("Notifications")]
+        [Description("Occurs when hidden (folded) text should be shown.")]
+        public event EventHandler<NeedShownEventArgs> NeedShown
+        {
+            add
+            {
+                Events.AddHandler(needShownEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(needShownEventKey, value);
             }
         }
 
