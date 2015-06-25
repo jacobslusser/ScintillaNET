@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -1030,6 +1030,18 @@ namespace ScintillaNET
             return version;
         }
 
+        ///<summary>
+        /// Gets the word from the position specified.
+        /// </summary>
+        /// <param name="position">The zero-based document character position to get the word from.</param>
+        /// <returns>The word at the specified position.</returns>
+        public string GetWordFromPosition(int position)
+        {
+            int startPosition = WordStartPosition(position, true);
+            int endPosition = WordEndPosition(position, true);
+            return GetTextRange(startPosition, endPosition);
+        }
+
         /// <summary>
         /// Navigates the caret to the document position specified.
         /// </summary>
@@ -1041,7 +1053,7 @@ namespace ScintillaNET
             position = Lines.CharToBytePosition(position);
             DirectMessage(NativeMethods.SCI_GOTOPOS, new IntPtr(position));
         }
-
+        
         /// <summary>
         /// Hides the range of lines specified.
         /// </summary>
