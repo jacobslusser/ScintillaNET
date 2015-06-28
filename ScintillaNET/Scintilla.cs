@@ -1132,6 +1132,32 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Determines whether the specified <paramref name="start" /> and <paramref name="end" /> positions are
+        /// at the beginning and end of a word, respectively.
+        /// </summary>
+        /// <param name="start">The zero-based document position of the possible word start.</param>
+        /// <param name="end">The zero-based document position of the possible word end.</param>
+        /// <returns>
+        /// true if <paramref name="start" /> and <paramref name="end" /> are at the beginning and end of a word, respectively;
+        /// otherwise, false.
+        /// </returns>
+        /// <remarks>
+        /// This method does not check whether there is whitespace in the search range,
+        /// only that the <paramref name="start" /> and <paramref name="end" /> are at word boundaries.
+        /// </remarks>
+        public bool IsRangeWord(int start, int end)
+        {
+            var textLength = TextLength;
+            start = Helpers.Clamp(start, 0, textLength);
+            end = Helpers.Clamp(end, 0, textLength);
+
+            start = Lines.CharToBytePosition(start);
+            end = Lines.CharToBytePosition(end);
+
+            return (DirectMessage(NativeMethods.SCI_ISRANGEWORD, new IntPtr(start), new IntPtr(end)) != IntPtr.Zero);
+        }
+
+        /// <summary>
         /// Returns the line that contains the document position specified.
         /// </summary>
         /// <param name="position">The zero-based document character position.</param>
@@ -1197,6 +1223,34 @@ namespace ScintillaNET
         public int MarkerLineFromHandle(MarkerHandle markerHandle)
         {
             return DirectMessage(NativeMethods.SCI_MARKERLINEFROMHANDLE, markerHandle.Value).ToInt32();
+        }
+
+        /// <summary>
+        /// Searches for all instances of the main selection within the <see cref="TargetStart" /> and <see cref="TargetEnd" />
+        /// range and adds any matches to the selection.
+        /// </summary>
+        /// <remarks>
+        /// The <see cref="SearchFlags" /> property is respected when searching, allowing additional
+        /// selections to match on different case sensitivity and word search options.
+        /// </remarks>
+        /// <seealso cref="MultipleSelectAddNext" />
+        public void MultipleSelectAddEach()
+        {
+            DirectMessage(NativeMethods.SCI_MULTIPLESELECTADDEACH);
+        }
+
+        /// <summary>
+        /// Searches for the next instance of the main selection within the <see cref="TargetStart" /> and <see cref="TargetEnd" />
+        /// range and adds any match to the selection.
+        /// </summary>
+        /// <remarks>
+        /// The <see cref="SearchFlags" /> property is respected when searching, allowing additional
+        /// selections to match on different case sensitivity and word search options.
+        /// </remarks>
+        /// <seealso cref="MultipleSelectAddNext" />
+        public void MultipleSelectAddNext()
+        {
+            DirectMessage(NativeMethods.SCI_MULTIPLESELECTADDNEXT);
         }
 
         /// <summary>
@@ -1625,6 +1679,14 @@ namespace ScintillaNET
         private void ResetAdditionalCaretForeColor()
         {
             AdditionalCaretForeColor = Color.FromArgb(127, 127, 127);
+        }
+
+        /// <summary>
+        /// Makes the next selection the main selection.
+        /// </summary>
+        public void RotateSelection()
+        {
+            DirectMessage(NativeMethods.SCI_ROTATESELECTION);
         }
 
         private void ScnDoubleClick(ref NativeMethods.SCNotification scn)
@@ -2117,11 +2179,27 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Moves the caret to the opposite end of the main selection.
+        /// </summary>
+        public void SwapMainAnchorCaret()
+        {
+            DirectMessage(NativeMethods.SCI_SWAPMAINANCHORCARET);
+        }
+
+        /// <summary>
         /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> to the start and end positions of the selection.
         /// </summary>
         public void TargetFromSelection()
         {
             DirectMessage(NativeMethods.SCI_TARGETFROMSELECTION);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="TargetStart" /> to the start of the document and <see cref="TargetEnd" /> to the end of the document.
+        /// </summary>
+        public void TargetWholeDocument()
+        {
+            DirectMessage(NativeMethods.SCI_TARGETWHOLEDOCUMENT);
         }
 
         /// <summary>
