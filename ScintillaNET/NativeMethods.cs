@@ -553,6 +553,7 @@ namespace ScintillaNET
         public const int SCI_GETMOUSEDWELLTIME = 2265;
         public const int SCI_WORDSTARTPOSITION = 2266;
         public const int SCI_WORDENDPOSITION = 2267;
+        public const int SCI_ISRANGEWORD = 2691;
         public const int SCI_SETWRAPMODE = 2268;
         public const int SCI_GETWRAPMODE = 2269;
         public const int SCI_SETWRAPVISUALFLAGS = 2460;
@@ -587,6 +588,7 @@ namespace ScintillaNET
         public const int SCI_GETMULTIPASTE = 2615;
         public const int SCI_GETTAG = 2616;
         public const int SCI_TARGETFROMSELECTION = 2287;
+        public const int SCI_TARGETWHOLEDOCUMENT = 2690;
         public const int SCI_LINESJOIN = 2288;
         public const int SCI_LINESSPLIT = 2289;
         public const int SCI_SETFOLDMARGINCOLOUR = 2290;
@@ -873,6 +875,8 @@ namespace ScintillaNET
         public const int SCI_GETADDITIONALCARETFORE = 2605;
         public const int SCI_ROTATESELECTION = 2606;
         public const int SCI_SWAPMAINANCHORCARET = 2607;
+        public const int SCI_MULTIPLESELECTADDNEXT = 2688;
+        public const int SCI_MULTIPLESELECTADDEACH = 2689;
         public const int SCI_CHANGELEXERSTATE = 2617;
         public const int SCI_CONTRACTEDFOLDNEXT = 2618;
         public const int SCI_VERTICALCENTRECARET = 2619;

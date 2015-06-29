@@ -551,6 +551,26 @@ namespace ScintillaNET
         /// <summary>
         /// Command equivalent to <see cref="Scintilla.Redo" />.
         /// </summary>
-        Redo = NativeMethods.SCI_REDO
+        Redo = NativeMethods.SCI_REDO,
+
+        /// <summary>
+        /// Command equivalent to <see cref="Scintilla.SwapMainAnchorCaret" />
+        /// </summary>
+        SwapMainAnchorCaret = NativeMethods.SCI_SWAPMAINANCHORCARET,
+
+        /// <summary>
+        /// Command equivalent to <see cref="Scintilla.RotateSelection" />
+        /// </summary>
+        RotateSelection = NativeMethods.SCI_ROTATESELECTION,
+
+        /// <summary>
+        /// Command equivalent to <see cref="Scintilla.MultipleSelectAddNext" />
+        /// </summary>
+        MultipleSelectAddNext = NativeMethods.SCI_MULTIPLESELECTADDNEXT,
+
+        /// <summary>
+        /// Command equivalent to <see cref="Scintilla.MultipleSelectAddEach" />
+        /// </summary>
+        MultipleSelectAddEach = NativeMethods.SCI_MULTIPLESELECTADDEACH
     }
 }

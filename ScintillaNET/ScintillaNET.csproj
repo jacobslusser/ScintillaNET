@@ -146,6 +146,12 @@
     <Content Include="x86\SciLexer.dll" />
     <Content Include="x86\SciLexer.pdb" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="x64\SciLexer.exp" />
+    <Content Include="x64\SciLexer.lib" />
+    <Content Include="x86\SciLexer.exp" />
+    <Content Include="x86\SciLexer.lib" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(ProjectDir)..\LICENSE" "$(TargetDir)" /D /F /K /R /Y</PostBuildEvent>
