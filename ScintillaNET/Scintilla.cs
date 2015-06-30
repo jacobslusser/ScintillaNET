@@ -1043,6 +1043,15 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Navigates to the line specified
+        /// </summary>
+        /// <param name="line">The line to navigate to</param>
+        public void GotoLine(int line)
+        {
+           DirectMessage(NativeMethods.SCI_GOTOLINE, new IntPtr(line));
+        }
+
+        /// <summary>
         /// Navigates the caret to the document position specified.
         /// </summary>
         /// <param name="position">The zero-based document character position to navigate to.</param>
