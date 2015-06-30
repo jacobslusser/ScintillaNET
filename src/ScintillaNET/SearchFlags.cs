@@ -34,11 +34,12 @@ namespace ScintillaNET
 
         /// <summary>
         /// The search string should be interpreted as a regular expression.
+        /// Regular expressions will only match ranges within a single line, never matching over multiple lines.
         /// </summary>
         Regex = NativeMethods.SCFIND_REGEXP,
 
         /// <summary>
-        /// Treat regular expression in a more POSIX compatible manner by interpreting bare ( and ) for tagged sections rather than \( and \).
+        /// Treat regular expression in a more POSIX compatible manner by interpreting bare '(' and ')' for tagged sections rather than "\(" and "\)".
         /// </summary>
         Posix = NativeMethods.SCFIND_POSIX
     }

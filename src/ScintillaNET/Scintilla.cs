@@ -996,6 +996,27 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Returns the capture group text of the most recent regular expression search.
+        /// </summary>
+        /// <param name="tagNumber">The capture group (1 through 9) to get the text for.</param>
+        /// <returns>A String containing the capture group text if it participated in the match; otherwise, an empty string.</returns>
+        /// <seealso cref="SearchInTarget" />
+        public unsafe string GetTag(int tagNumber)
+        {
+            tagNumber = Helpers.Clamp(tagNumber, 1, 9);
+            var length = DirectMessage(NativeMethods.SCI_GETTAG, new IntPtr(tagNumber), IntPtr.Zero).ToInt32();
+            if (length <= 0)
+                return string.Empty;
+
+            var bytes = new byte[length + 1];
+            fixed (byte* bp = bytes)
+            {
+                DirectMessage(NativeMethods.SCI_GETTAG, new IntPtr(tagNumber), new IntPtr(bp));
+                return Helpers.GetString(new IntPtr(bp), length, Encoding);
+            }
+        }
+
+        /// <summary>
         /// Gets a range of text from the document.
         /// </summary>
         /// <param name="position">The zero-based starting character position of the range to get.</param>
@@ -1676,6 +1697,47 @@ namespace ScintillaNET
                 DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
         }
 
+        /// <summary>
+        /// Replaces the target defined by <see cref="TargetStart" /> and <see cref="TargetEnd" /> with the specified <paramref name="text" />.
+        /// </summary>
+        /// <param name="text">The text that will replace the current target.</param>
+        /// <returns>The length of the replaced text.</returns>
+        /// <remarks>
+        /// The <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties will be updated to the start and end positions of the replaced text.
+        /// The recommended way to delete text in the document is to set the target range to be removed and replace the target with an empty string.
+        /// </remarks>
+        public unsafe int ReplaceTarget(string text)
+        {
+            if (text == null)
+                text = string.Empty;
+
+            var bytes = Helpers.GetBytes(text, Encoding, false);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_REPLACETARGET, new IntPtr(bytes.Length), new IntPtr(bp));
+
+            return text.Length;
+        }
+
+        /// <summary>
+        /// Replaces the target text defined by <see cref="TargetStart" /> and <see cref="TargetEnd" /> with the specified value after first substituting
+        /// "\1" through "\9" macros in the <paramref name="text" /> with the most recent regular expression capture groups.
+        /// </summary>
+        /// <param name="text">The text containing "\n" macros that will be substituted with the most recent regular expression capture groups and then replace the current target.</param>
+        /// <returns>The length of the replaced text.</returns>
+        /// <remarks>
+        /// The "\0" macro will be substituted by the entire matched text from the most recent search.
+        /// The <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties will be updated to the start and end positions of the replaced text.
+        /// </remarks>
+        /// <seealso cref="GetTag" />
+        public unsafe int ReplaceTargetRe(string text)
+        {
+            var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, false);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_REPLACETARGETRE, new IntPtr(bytes.Length), new IntPtr(bp));
+
+            return Math.Abs(TargetEnd - TargetStart);
+        }
+
         private void ResetAdditionalCaretForeColor()
         {
             AdditionalCaretForeColor = Color.FromArgb(127, 127, 127);
@@ -1805,15 +1867,18 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Searches for the first occurrence of the specified pattern in the target defined by <see cref="TargetStart" /> and <see cref="TargetEnd" />.
+        /// Searches for the first occurrence of the specified text in the target defined by <see cref="TargetStart" /> and <see cref="TargetEnd" />.
         /// </summary>
-        /// <param name="pattern">The text pattern to search for. The interpretation of the pattern is defined by the <see cref="SearchFlags" />.</param>
+        /// <param name="text">The text to search for. The interpretation of the text (i.e. whether it is a regular expression) is defined by the <see cref="SearchFlags" /> property.</param>
         /// <returns>The zero-based start position of the matched text within the document if successful; otherwise, -1.</returns>
-        /// <remarks>If successful, the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties will be updated to start and end positions of the matched text.</remarks>
-        public unsafe int SearchInTarget(string pattern)
+        /// <remarks>
+        /// If successful, the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties will be updated to the start and end positions of the matched text.
+        /// Searching can be performed in reverse using a <see cref="TargetStart" /> greater than the <see cref="TargetEnd" />.
+        /// </remarks>
+        public unsafe int SearchInTarget(string text)
         {
             int bytePos = 0;
-            var bytes = Helpers.GetBytes(pattern ?? string.Empty, Encoding, zeroTerminated: false);
+            var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
             fixed (byte* bp = bytes)
                 bytePos = DirectMessage(NativeMethods.SCI_SEARCHINTARGET, new IntPtr(bytes.Length), new IntPtr(bp)).ToInt32();
 
@@ -2070,7 +2135,7 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties
+        /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> properties in a single call.
         /// </summary>
         /// <param name="start">The zero-based character position within the document to start a search or replace operation.</param>
         /// <param name="end">The zero-based character position within the document to end a search or replace operation.</param>
@@ -2189,14 +2254,16 @@ namespace ScintillaNET
         /// <summary>
         /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> to the start and end positions of the selection.
         /// </summary>
+        /// <seealso cref="TargetWholeDocument" />
         public void TargetFromSelection()
         {
             DirectMessage(NativeMethods.SCI_TARGETFROMSELECTION);
         }
 
         /// <summary>
-        /// Sets the <see cref="TargetStart" /> to the start of the document and <see cref="TargetEnd" /> to the end of the document.
+        /// Sets the <see cref="TargetStart" /> and <see cref="TargetEnd" /> to the start and end positions of the document.
         /// </summary>
+        /// <seealso cref="TargetFromSelection" />
         public void TargetWholeDocument()
         {
             DirectMessage(NativeMethods.SCI_TARGETWHOLEDOCUMENT);
@@ -4335,28 +4402,22 @@ namespace ScintillaNET
         /// <returns>The zero-based character position within the document to end a search or replace operation.</returns>
         /// <seealso cref="TargetStart"/>
         /// <seealso cref="SearchInTarget" />
-        /// <seealso cref="ReplaceInTarget" />
+        /// <seealso cref="ReplaceTarget" />
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TargetEnd
         {
             get
             {
-                // The position can become stale. If it's beyond the end of the document
-                // report the end of the document; otherwise, we can't convert it.
-                var bytePos = DirectMessage(NativeMethods.SCI_GETTARGETEND).ToInt32();
-                var byteLength = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
-                if (bytePos >= byteLength)
-                    return TextLength;
-
+                // The position can become stale and point to a place outside of the document so we must clamp it
+                var bytePos = Helpers.Clamp(DirectMessage(NativeMethods.SCI_GETTARGETEND).ToInt32(), 0, DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32());
                 return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
                 value = Helpers.Clamp(value, 0, TextLength);
-
-                var bytePos = Lines.CharToBytePosition(value);
-                DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(bytePos));
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(value));
             }
         }
 
@@ -4366,27 +4427,22 @@ namespace ScintillaNET
         /// <returns>The zero-based character position within the document to start a search or replace operation.</returns>
         /// <seealso cref="TargetEnd"/>
         /// <seealso cref="SearchInTarget" />
-        /// <seealso cref="ReplaceInTarget" />
+        /// <seealso cref="ReplaceTarget" />
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TargetStart
         {
             get
             {
-                // See above
-                var bytePos = DirectMessage(NativeMethods.SCI_GETTARGETSTART).ToInt32();
-                var byteLength = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
-                if (bytePos >= byteLength)
-                    return TextLength;
-
+                // The position can become stale and point to a place outside of the document so we must clamp it
+                var bytePos = Helpers.Clamp(DirectMessage(NativeMethods.SCI_GETTARGETSTART).ToInt32(), 0, DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32());
                 return Lines.ByteToCharPosition(bytePos);
             }
             set
             {
                 value = Helpers.Clamp(value, 0, TextLength);
-
-                var bytePos = Lines.CharToBytePosition(value);
-                DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(bytePos));
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(value));
             }
         }
 
@@ -4403,11 +4459,6 @@ namespace ScintillaNET
         {
             get
             {
-                // I'm unsure whether it's better to use the actual SCI_GETTARGETTEXT call which creates a intermediate buffer or
-                // implement our own equivalent using SCI_GETTARGETSTART, SCI_GETTARGETEND, and SCI_GETRANGEPOINTER. For now we'll
-                // stick SCI_GETTARGETTEXT because there is a lot of work in range checking the target start and end that we don't
-                // have to do if we use that.
-
                 var length = DirectMessage(NativeMethods.SCI_GETTARGETTEXT).ToInt32();
                 if (length == 0)
                     return string.Empty;

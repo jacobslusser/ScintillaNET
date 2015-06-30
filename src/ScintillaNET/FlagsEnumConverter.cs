@@ -1,4 +1,5 @@
 ﻿// http://www.codeproject.com/Articles/14518/Bit-Flags-Type-Converter
+#pragma warning disable 1573
 
 using System;
 using System.ComponentModel;
@@ -185,3 +186,5 @@ namespace FlagsEnumTypeConverter
 		#endregion
 	}
 }
+
+#pragma warning restore 1573
