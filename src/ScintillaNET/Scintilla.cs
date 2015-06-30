@@ -616,6 +616,15 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the current line number
+        /// </summary>
+        /// <returns>The line number of the current line</returns>
+        public int CurrentLine()
+        {
+            return LineFromPosition(CurrentPosition);
+        }
+
+        /// <summary>
         /// Cuts the selected text from the document and places it on the clipboard.
         /// </summary>
         public void Cut()
