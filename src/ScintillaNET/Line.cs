@@ -544,10 +544,10 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Sets or gets the line indention.
+        /// Sets or gets the line indentation.
         /// </summary>
         /// <returns>The indentation measured in character columns, which corresponds to the width of space characters.</returns>
-        public int Indention
+        public int Indentation
         {
             get
             {
