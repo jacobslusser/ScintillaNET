@@ -4340,20 +4340,26 @@ namespace ScintillaNET
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public unsafe string SelectedText {
-	get {
-		// NOTE: For some reason the length returned by this API includes the terminating NULL
-		dynamic length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
-		if (length <= 0) {
-			return string.Empty;
-		}
+	get
+            {
+                // NOTE: For some reason the length returned by this API includes the terminating NULL
+                var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
+                if (length <= 0)
+                    return string.Empty;
 
-		dynamic bytes = new byte[length + 1];
-		DirectMessage(NativeMethods.SCI_GETSELTEXT, IntPtr.Zero, new IntPtr(bp));
-		return Helpers.GetString(new IntPtr(bp), length, Encoding);
-
+                var bytes = new byte[length + 1];
+                fixed (byte* bp = bytes)
+                {
+                    DirectMessage(NativeMethods.SCI_GETSELTEXT, IntPtr.Zero, new IntPtr(bp));
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding);
+                }
+            }
+	set 
+	{ 
+		DirectMessage(Constants.SCI_REPLACESEL, IntPtr.Zero, Text); 
+		
 	}
-	set { DirectMessage(Constants.SCI_REPLACESEL, IntPtr.Zero, Text); }
-}
+	}
 
         /// <summary>
         /// Gets or sets whether to fill past the end of a line with the selection background color.
