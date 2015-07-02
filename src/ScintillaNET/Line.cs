@@ -544,6 +544,21 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets or gets the current line indention.
+        /// </summary>
+        public int Indention
+        {
+            get
+            {
+                return (scintilla.DirectMessage(NativeMethods.SCI_GETLINEINDENTATION, new IntPtr(Index)).ToInt32());
+            }
+            set
+            {
+                scintilla.DirectMessage(NativeMethods.SCI_SETLINEINDENTATION, new IntPtr(Index), new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the line is visible.
         /// </summary>
         /// <returns>true if the line is visible; otherwise, false.</returns>
