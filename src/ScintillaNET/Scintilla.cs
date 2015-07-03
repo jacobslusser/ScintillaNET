@@ -616,15 +616,6 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets the current line number
-        /// </summary>
-        /// <returns>The line number of the current line</returns>
-        public int CurrentLine()
-        {
-            return LineFromPosition(CurrentPosition);
-        }
-
-        /// <summary>
         /// Cuts the selected text from the document and places it on the clipboard.
         /// </summary>
         public void Cut()
@@ -3314,6 +3305,22 @@ namespace ScintillaNET
                 }
 
                 return cp;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current line index.
+        /// </summary>
+        /// <returns>The zero-based line index containing the <see cref="CurrentPosition" />.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int CurrentLine
+        {
+            get
+            {
+                var currentPos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+                var line = DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(currentPos)).ToInt32();
+                return line;
             }
         }
 
