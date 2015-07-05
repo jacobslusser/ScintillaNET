@@ -1362,6 +1362,22 @@ namespace ScintillaNET
         public const int SCE_LUA_WORD8 = 19;
         public const int SCE_LUA_LABEL = 20;
 
+        public const int SCE_PAS_DEFAULT = 0;
+        public const int SCE_PAS_IDENTIFIER = 1;
+        public const int SCE_PAS_COMMENT = 2;
+        public const int SCE_PAS_COMMENT2 = 3;
+        public const int SCE_PAS_COMMENTLINE = 4;
+        public const int SCE_PAS_PREPROCESSOR = 5;
+        public const int SCE_PAS_PREPROCESSOR2 = 6;
+        public const int SCE_PAS_NUMBER = 7;
+        public const int SCE_PAS_HEXNUMBER = 8;
+        public const int SCE_PAS_WORD = 9;
+        public const int SCE_PAS_STRING = 10;
+        public const int SCE_PAS_STRINGEOL = 11;
+        public const int SCE_PAS_CHARACTER = 12;
+        public const int SCE_PAS_OPERATOR = 13;
+        public const int SCE_PAS_ASM = 14;
+
         // Perl
         public const int SCE_PL_DEFAULT = 0;
         public const int SCE_PL_ERROR = 1;
