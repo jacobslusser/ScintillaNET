@@ -41,16 +41,41 @@ You can be notified when a user clicks on text that is tagged with an indicator 
 
 A somewhat less useful event is `ChangeIndicator`. This will notify you when an indicator has been "filled" or "cleared". Presumably, however, you wouldn't need to be notified about this because you just called `IndicatorFillRange` or `IndicatorClearRange`.
 
-TODO
-
 ## Navigating Indicators
 
-It may be useful a times to iterate through text which has been tagged with a specific indicator. The `IndicatorStart` and `IndicatorEnd` methods allow you to do this.
+It may be useful a times to iterate through text which has been tagged with a specific indicator. The `Indicator.Start` and `Indicator.End` methods allow you to do this. Using these methods, however, can be tricky. Each accepts a document position as an input argument and depending on whether that document position is using the indicator in question, the result of these methods will either tell you where the use of that indicator starts and stops or where the *absence* of that indicator starts and stops. Thus, depending on where you start your search you might get the complete opposite answer from what you wanted. Instead of learning where the indicator is, you will be learning where it is not.
 
-TODO
+The `Scintilla.IndicatorAllOnFor` method, when used in conjunction with `Indicator.Start` and `Indicator.End`, can help solve this problem. With it you can test wherther a position uses a specific indicator. It does this by returning a bitmap. Each bit in the map corresponds to one of the 32 possible indicator indexes.
+
+Putting that all together, we can iterate through all the cleared and filled ranges for a given indicator like this:
+
+```cs
+var textLength = scintilla.TextLength;
+var indicator = scintilla.Indicators[8];
+var bitmapFlag = (1 << indicator.Index);
+
+var startPos = 0;
+var endPos = 0;
+
+do
+{
+    startPos = indicator.Start(endPos);
+    endPos = indicator.End(startPos);
+
+    // Is this range filled with our indicator (8)?
+    var bitmap = scintilla.IndicatorAllOnFor(startPos);
+    var filled = ((bitmapFlag & bitmap) == bitmapFlag);
+    if (filled)
+    {
+        // Do stuff with indicator range
+        Debug.WriteLine(scintilla.GetTextRange(startPos, (endPos - startPos)));
+    }
+
+} while (endPos != 0 && endPos < textLength);
+```
 
 ## Indicator Values
 
-A somewhat advanced feature is the ability for a range of text tagged with an indicator to also store an arbitrary integer value. Similar to the `Scintilla.IndicatorCurrent` property is a `Scintila.IndicatorValue` property. As just mentioned, the value specified here is completely user-defined and will also be stored along with the tagged text when using the `IndicatorFillRange` and `IndicatorClearRange` methods. The value stored at these ranges can then be retrieved by calling the `IndicatorValueAt` method.
+A somewhat advanced feature is the ability for a range of text tagged with an indicator to also store an arbitrary integer value. Similar to the `Scintilla.IndicatorCurrent` property is a `Scintila.IndicatorValue` property. As just mentioned, the value specified here is completely user-defined and will also be stored along with the tagged text when using the `IndicatorFillRange` method. The value stored at these ranges can then be retrieved by calling the `IndicatorValueAt` method.
 
-One possible use case for this technology is to store 
+TODO

@@ -11,7 +11,13 @@ namespace ScintillaNET
     /// </summary>
     public class Indicator
     {
+        #region Fields
+
         private readonly Scintilla scintilla;
+
+        #endregion Fields
+
+        #region Constants
 
         /// <summary>
         /// An OR mask to use with <see cref="Scintilla.IndicatorValue" /> and <see cref="IndicatorFlags.ValueFore" /> to indicate
@@ -24,29 +30,47 @@ namespace ScintillaNET
         /// </summary>
         public const int ValueMask = NativeMethods.SC_INDICVALUEMASK;
 
-        /*
+        #endregion Constants
+
+        #region Methods
+
         /// <summary>
-        /// Given a position within a text range using this indicator, will return
-        /// the end position of that range.
+        /// Given a document position which is filled with this indicator, will return the document position
+        /// where the use of this indicator ends.
         /// </summary>
-        /// <param name="position">Any zero-based byte position with the range using this indicator.</param>
-        /// <returns>The end position byte index.</returns>
-        public int FindEnd(int position)
+        /// <param name="position">A zero-based document position using this indicator.</param>
+        /// <returns>The zero-based document position where the use of this indicator ends.</returns>
+        /// <remarks>
+        /// Specifying a <paramref name="position" /> which is not filled with this indicator will cause this method
+        /// to return the end position of the range where this indicator is not in use (the negative space). If this
+        /// indicator is not in use anywhere within the document the return value will be 0.
+        /// </remarks>
+        public int End(int position)
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_INDICATOREND, new IntPtr(Index), new IntPtr(position)).ToInt32();
+            position = Helpers.Clamp(position, 0, scintilla.TextLength);
+            position = scintilla.Lines.CharToBytePosition(position);
+            position = scintilla.DirectMessage(NativeMethods.SCI_INDICATOREND, new IntPtr(Index), new IntPtr(position)).ToInt32();
+            return scintilla.Lines.ByteToCharPosition(position);
         }
 
         /// <summary>
-        /// Given a position within a text range using this indicator, will return
-        /// the start position of that range.
+        /// Given a document position which is filled with this indicator, will return the document position
+        /// where the use of this indicator starts.
         /// </summary>
-        /// <param name="position">Any zero-based byte position with the range using this indicator.</param>
-        /// <returns>The start position byte index.</returns>
-        public int FindStart(int position)
+        /// <param name="position">A zero-based document position using this indicator.</param>
+        /// <returns>The zero-based document position where the use of this indicator starts.</returns>
+        /// <remarks>
+        /// Specifying a <paramref name="position" /> which is not filled with this indicator will cause this method
+        /// to return the start position of the range where this indicator is not in use (the negative space). If this
+        /// indicator is not in use anywhere within the document the return value will be 0.
+        /// </remarks>
+        public int Start(int position)
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_INDICATORSTART, new IntPtr(Index), new IntPtr(position)).ToInt32();
+            position = Helpers.Clamp(position, 0, scintilla.TextLength);
+            position = scintilla.Lines.CharToBytePosition(position);
+            position = scintilla.DirectMessage(NativeMethods.SCI_INDICATORSTART, new IntPtr(Index), new IntPtr(position)).ToInt32();
+            return scintilla.Lines.ByteToCharPosition(position);
         }
-        */
 
         /// <summary>
         /// Returns the user-defined value for the indicator at the specified position.
@@ -60,6 +84,10 @@ namespace ScintillaNET
 
             return scintilla.DirectMessage(NativeMethods.SCI_INDICATORVALUEAT, new IntPtr(Index), new IntPtr(position)).ToInt32();
         }
+
+        #endregion Methods
+
+        #region Properties
 
         /// <summary>
         /// Gets or sets the alpha transparency of the indicator.
@@ -229,6 +257,10 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Indicator" /> class.
         /// </summary>
@@ -239,5 +271,7 @@ namespace ScintillaNET
             this.scintilla = scintilla;
             Index = index;
         }
+
+        #endregion Constructors
     }
 }

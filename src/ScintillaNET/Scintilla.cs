@@ -1091,6 +1091,20 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Returns a bitmap representing the 32 indicators in use at the specified position.
+        /// </summary>
+        /// <param name="position">The zero-based character position within the document to test.</param>
+        /// <returns>A bitmap indicating which of the 32 indicators are in use at the specified <paramref name="position" />.</returns>
+        public uint IndicatorAllOnFor(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+
+            var bitmap = DirectMessage(NativeMethods.SCI_INDICATORALLONFOR, new IntPtr(position)).ToInt32();
+            return unchecked((uint)bitmap);
+        }
+
+        /// <summary>
         /// Removes the <see cref="IndicatorCurrent" /> indicator (and user-defined value) from the specified range of text.
         /// </summary>
         /// <param name="position">The zero-based character position within the document to start clearing.</param>
