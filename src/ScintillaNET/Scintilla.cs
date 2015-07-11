@@ -70,6 +70,9 @@ namespace ScintillaNET
         // Double-click
         private bool doubleClick;
 
+        // Pinned data
+        private IntPtr fillUpChars;
+
         /// <summary>
         /// A constant used to specify an infinite mouse dwell wait time.
         /// </summary>
@@ -192,6 +195,39 @@ namespace ScintillaNET
             var bytes = Helpers.GetBytes(select, Encoding, zeroTerminated: true);
             fixed (byte* bp = bytes)
                 DirectMessage(NativeMethods.SCI_AUTOCSELECT, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Sets the characters that, when typed, cause the autocompletion item to be added to the document.
+        /// </summary>
+        /// <param name="chars">A string of characters that trigger autocompletion. The default is null.</param>
+        /// <remarks>Common fillup characters are '(', '[', and '.' depending on the language.</remarks>
+        public unsafe void AutoCSetFillUps(string chars)
+        {
+            // Apparently Scintilla doesn't make a copy of our fill up string; it just keeps a pointer to it....
+            // That means we need to keep a copy of the string around for the life of the control AND put it
+            // in a place where it won't get moved by the GC.
+
+            if (chars == null)
+                chars = string.Empty;
+
+            if (fillUpChars != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(fillUpChars);
+                fillUpChars = IntPtr.Zero;
+            }
+
+            var count = (Encoding.GetByteCount(chars) + 1);
+            IntPtr newFillUpChars = Marshal.AllocHGlobal(count);
+            fixed (char* ch = chars)
+                Encoding.GetBytes(ch, chars.Length, (byte*)newFillUpChars, count);
+
+            ((byte*)newFillUpChars)[count - 1] = 0; // Null terminate
+            fillUpChars = newFillUpChars;
+
+            // var str = new String((sbyte*)fillUpChars, 0, count, Encoding);
+
+            DirectMessage(NativeMethods.SCI_AUTOCSETFILLUPS, IntPtr.Zero, fillUpChars);
         }
 
         /// <summary>
@@ -716,6 +752,24 @@ namespace ScintillaNET
             // Like Win32 SendMessage but directly to Scintilla
             var result = directFunction(sciPtr, msg, wParam, lParam);
             return result;
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the Control and its child controls and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (fillUpChars != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(fillUpChars);
+                    fillUpChars = IntPtr.Zero;
+                }
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
