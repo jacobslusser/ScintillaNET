@@ -1458,6 +1458,91 @@ namespace ScintillaNET
 
         #endregion Lua
 
+        #region Pascal
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Pascal" /> lexer.
+        /// </summary>
+        public static class Pascal
+        {
+            /// <summary>
+            /// Default style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_PAS_DEFAULT;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_PAS_IDENTIFIER;
+
+            /// <summary>
+            /// Comment style '{' index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_PAS_COMMENT;
+
+            /// <summary>
+            /// Comment style 2 "(*" index.
+            /// </summary>
+            public const int Comment2 = NativeMethods.SCE_PAS_COMMENT2;
+
+            /// <summary>
+            /// Comment line style "//" index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_PAS_COMMENTLINE;
+
+            /// <summary>
+            /// Preprocessor style "{$" index.
+            /// </summary>
+            public const int Preprocessor = NativeMethods.SCE_PAS_PREPROCESSOR;
+
+            /// <summary>
+            /// Preprocessor style 2 "(*$" index.
+            /// </summary>
+            public const int Preprocessor2 = NativeMethods.SCE_PAS_PREPROCESSOR2;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_PAS_NUMBER;
+
+            /// <summary>
+            /// Hexadecimal number style index.
+            /// </summary>
+            public const int HexNumber = NativeMethods.SCE_PAS_HEXNUMBER;
+
+            /// <summary>
+            /// Word (keyword set 0) style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_PAS_WORD;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_PAS_STRING;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_PAS_STRINGEOL;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int Character = NativeMethods.SCE_PAS_CHARACTER;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_PAS_OPERATOR;
+
+            /// <summary>
+            /// Assembly style index.
+            /// </summary>
+            public const int Asm = NativeMethods.SCE_PAS_ASM;
+        }
+
+        #endregion Pascal
+
         #region Perl
 
         /// <summary>

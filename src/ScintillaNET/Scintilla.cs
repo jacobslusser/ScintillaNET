@@ -70,6 +70,9 @@ namespace ScintillaNET
         // Double-click
         private bool doubleClick;
 
+        // Pinned data
+        private IntPtr fillUpChars;
+
         /// <summary>
         /// A constant used to specify an infinite mouse dwell wait time.
         /// </summary>
@@ -192,6 +195,39 @@ namespace ScintillaNET
             var bytes = Helpers.GetBytes(select, Encoding, zeroTerminated: true);
             fixed (byte* bp = bytes)
                 DirectMessage(NativeMethods.SCI_AUTOCSELECT, IntPtr.Zero, new IntPtr(bp));
+        }
+
+        /// <summary>
+        /// Sets the characters that, when typed, cause the autocompletion item to be added to the document.
+        /// </summary>
+        /// <param name="chars">A string of characters that trigger autocompletion. The default is null.</param>
+        /// <remarks>Common fillup characters are '(', '[', and '.' depending on the language.</remarks>
+        public unsafe void AutoCSetFillUps(string chars)
+        {
+            // Apparently Scintilla doesn't make a copy of our fill up string; it just keeps a pointer to it....
+            // That means we need to keep a copy of the string around for the life of the control AND put it
+            // in a place where it won't get moved by the GC.
+
+            if (chars == null)
+                chars = string.Empty;
+
+            if (fillUpChars != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(fillUpChars);
+                fillUpChars = IntPtr.Zero;
+            }
+
+            var count = (Encoding.GetByteCount(chars) + 1);
+            IntPtr newFillUpChars = Marshal.AllocHGlobal(count);
+            fixed (char* ch = chars)
+                Encoding.GetBytes(ch, chars.Length, (byte*)newFillUpChars, count);
+
+            ((byte*)newFillUpChars)[count - 1] = 0; // Null terminate
+            fillUpChars = newFillUpChars;
+
+            // var str = new String((sbyte*)fillUpChars, 0, count, Encoding);
+
+            DirectMessage(NativeMethods.SCI_AUTOCSETFILLUPS, IntPtr.Zero, fillUpChars);
         }
 
         /// <summary>
@@ -719,6 +755,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Releases the unmanaged resources used by the Control and its child controls and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (fillUpChars != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(fillUpChars);
+                    fillUpChars = IntPtr.Zero;
+                }
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Returns the zero-based document line index from the specified display line index.
         /// </summary>
         /// <param name="displayLine">The zero-based display line index.</param>
@@ -1088,6 +1142,20 @@ namespace ScintillaNET
             lineEnd = Helpers.Clamp(lineEnd, lineStart, Lines.Count);
 
             DirectMessage(NativeMethods.SCI_HIDELINES, new IntPtr(lineStart), new IntPtr(lineEnd));
+        }
+
+        /// <summary>
+        /// Returns a bitmap representing the 32 indicators in use at the specified position.
+        /// </summary>
+        /// <param name="position">The zero-based character position within the document to test.</param>
+        /// <returns>A bitmap indicating which of the 32 indicators are in use at the specified <paramref name="position" />.</returns>
+        public uint IndicatorAllOnFor(int position)
+        {
+            position = Helpers.Clamp(position, 0, TextLength);
+            position = Lines.CharToBytePosition(position);
+
+            var bitmap = DirectMessage(NativeMethods.SCI_INDICATORALLONFOR, new IntPtr(position)).ToInt32();
+            return unchecked((uint)bitmap);
         }
 
         /// <summary>
