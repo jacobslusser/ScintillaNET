@@ -1988,6 +1988,18 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Removes any selection and places the caret at the specified position.
+        /// </summary>
+        /// <param name="pos">The zero-based document position to place the caret at.</param>
+        /// <remarks>The caret is not scrolled into view.</remarks>
+        public void SetEmptySelection(int pos)
+        {
+            pos = Helpers.Clamp(pos, 0, TextLength);
+            pos = Lines.CharToBytePosition(pos);
+            DirectMessage(NativeMethods.SCI_SETEMPTYSELECTION, new IntPtr(pos));
+        }
+
+        /// <summary>
         /// Sets additional options for displaying folds.
         /// </summary>
         /// <param name="flags">A bitwise combination of the <see cref="FoldFlags" /> enumeration.</param>

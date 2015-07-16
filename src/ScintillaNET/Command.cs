@@ -571,6 +571,11 @@ namespace ScintillaNET
         /// <summary>
         /// Command equivalent to <see cref="Scintilla.MultipleSelectAddEach" />
         /// </summary>
-        MultipleSelectAddEach = NativeMethods.SCI_MULTIPLESELECTADDEACH
+        MultipleSelectAddEach = NativeMethods.SCI_MULTIPLESELECTADDEACH,
+
+        /// <summary>
+        /// Command equivalent to <see cref="Scintilla.SelectAll" />
+        /// </summary>
+        SelectAll = NativeMethods.SCI_SELECTALL
     }
 }
