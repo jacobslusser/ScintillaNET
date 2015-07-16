@@ -4438,6 +4438,33 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the end position of the selection.
+        /// </summary>
+        /// <returns>The zero-based document position where the selection ends.</returns>
+        /// <remarks>
+        /// When getting this property, the return value is <code>Math.Max(<see cref="AnchorPosition" />, <see cref="CurrentPosition" />)</code>.
+        /// When setting this property, <see cref="CurrentPosition" /> is set to the value specified and <see cref="AnchorPosition" /> set to <code>Math.Min(<see cref="AnchorPosition" />, <paramref name="value" />)</code>.
+        /// The caret is not scrolled into view.
+        /// </remarks>
+        /// <seealso cref="SelectionStart" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int SelectionEnd
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
+                return Lines.ByteToCharPosition(pos);
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, TextLength);
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETSELECTIONEND, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to fill past the end of a line with the selection background color.
         /// </summary>
         /// <returns>true to fill past the end of the line; otherwise, false. The default is false.</returns>
@@ -4464,6 +4491,33 @@ namespace ScintillaNET
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SelectionCollection Selections { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the start position of the selection.
+        /// </summary>
+        /// <returns>The zero-based document position where the selection starts.</returns>
+        /// <remarks>
+        /// When getting this property, the return value is <code>Math.Min(<see cref="AnchorPosition" />, <see cref="CurrentPosition" />)</code>.
+        /// When setting this property, <see cref="AnchorPosition" /> is set to the value specified and <see cref="CurrentPosition" /> set to <code>Math.Max(<see cref="CurrentPosition" />, <paramref name="value" />)</code>.
+        /// The caret is not scrolled into view.
+        /// </remarks>
+        /// <seealso cref="SelectionEnd" />
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int SelectionStart
+        {
+            get
+            {
+                var pos = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
+                return Lines.ByteToCharPosition(pos);
+            }
+            set
+            {
+                value = Helpers.Clamp(value, 0, TextLength);
+                value = Lines.CharToBytePosition(value);
+                DirectMessage(NativeMethods.SCI_SETSELECTIONSTART, new IntPtr(value));
+            }
+        }
 
         /// <summary>
         /// Gets a collection representing style definitions in a <see cref="Scintilla" /> control.
