@@ -28,42 +28,22 @@ namespace ScintillaNET
 
         public static unsafe byte[] BitmapToArgb(Bitmap image)
         {
-            var rect = new Rectangle(0, 0, image.Width, image.Height);
+            // This code originally used Image.LockBits and some fast byte copying, however, the endianness
+            // of the image formats was making my brain hurt. For now I'm going to use the slow but simple
+            // GetPixel approach.
 
-            // Get the bitmap into a 32bpp ARGB format (if it isn't already)
-            if (image.PixelFormat != PixelFormat.Format32bppArgb)
+            var bytes = new byte[4 * image.Width * image.Height];
+
+            var i = 0;
+            for (int y = 0; y < image.Height; y++)
             {
-                var clone = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
-                using (var graphics = Graphics.FromImage(clone))
-                    graphics.DrawImage(image, rect);
-
-                image = clone;
-            }
-
-            // Convert ARGB to RGBA
-            var bitmapData = image.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            var bytes = new byte[bitmapData.Stride * bitmapData.Height];
-            fixed (byte* bp = bytes)
-            {
-                try
+                for (int x = 0; x < image.Width; x++)
                 {
-                    for (int y = 0; y < bitmapData.Height; y++)
-                    {
-                        var srcRow = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
-                        var destRow = bp + (y * bitmapData.Stride);
-                        for (int x = 0; x < bitmapData.Width; x++)
-                        {
-                            // 4 bytes per pixel
-                            destRow[x * 4] = srcRow[(x * 4) + 3]; // A
-                            destRow[(x * 4) + 1] = srcRow[(x * 4) + 1]; // B
-                            destRow[(x * 4) + 2] = srcRow[x * 4]; // G
-                            destRow[(x * 4) + 3] = srcRow[(x * 4) + 2]; // R
-                        }
-                    }
-                }
-                finally
-                {
-                    image.UnlockBits(bitmapData);
+                    var color = image.GetPixel(x, y);
+                    bytes[i++] = color.R;
+                    bytes[i++] = color.G;
+                    bytes[i++] = color.B;
+                    bytes[i++] = color.A;
                 }
             }
 
