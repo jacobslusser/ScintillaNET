@@ -648,8 +648,7 @@ namespace ScintillaNET
             var ptr = DirectMessage(NativeMethods.SCI_CREATELOADER, new IntPtr(length));
             if (ptr == IntPtr.Zero)
                 return null;
-            if (encoding == null) encoding = Encoding.UTF8;
-            return new Loader(ptr, encoding);
+            return new Loader(ptr, encoding ?? Encoding);
         }
 
         /// <summary>
