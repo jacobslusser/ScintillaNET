@@ -640,15 +640,16 @@ namespace ScintillaNET
         /// Creates an <see cref="ILoader" /> object capable of loading a <see cref="Document" /> on a background (non-UI) thread.
         /// </summary>
         /// <param name="length">The initial number of characters to allocate.</param>
+        /// <param name="encoding">Encoding used by loader</param>
         /// <returns>A new <see cref="ILoader" /> object, or null if the loader could not be created.</returns>
-        public ILoader CreateLoader(int length)
+        public ILoader CreateLoader(int length, Encoding encoding = null)
         {
             length = Helpers.ClampMin(length, 0);
             var ptr = DirectMessage(NativeMethods.SCI_CREATELOADER, new IntPtr(length));
             if (ptr == IntPtr.Zero)
                 return null;
-
-            return new Loader(ptr, Encoding);
+            if (encoding == null) encoding = Encoding.UTF8;
+            return new Loader(ptr, encoding);
         }
 
         /// <summary>
