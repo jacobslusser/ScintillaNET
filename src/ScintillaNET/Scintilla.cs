@@ -897,6 +897,17 @@ namespace ScintillaNET
             var pos = DirectMessage(NativeMethods.SCI_GETENDSTYLED).ToInt32();
             return Lines.ByteToCharPosition(pos);
         }
+        
+        /// <summary>
+        /// Gets the line number of the first line before startLine that is marked as a fold point, and has a fold level less than the startLine.
+        /// If no line is found, or or if the header flags and fold levels are inconsistent, the return value is -1.
+        /// </summary>
+        /// <param name="startLine"></param>
+        /// <returns></returns>
+        public int GetFoldParent(int startLine)
+        {
+            return DirectMessage(NativeMethods.SCI_GETFOLDPARENT, new IntPtr(startLine)).ToInt32();
+        }
 
         private static string GetModulePath()
         {
