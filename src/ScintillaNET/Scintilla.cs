@@ -834,6 +834,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Expand or contract a fold header and its children.
+        /// </summary>
+        /// <param name="line">Line number on which action should be performed</param>
+        /// <param name="action">Fold Action</param>
+        public void FoldChildren(int line, FoldAction action)
+        {
+            DirectMessage(NativeMethods.SCI_FOLDCHILDREN, new IntPtr((int)line), new IntPtr((int)action));
+        }
+
+        /// <summary>
         /// Returns the character as the specified document position.
         /// </summary>
         /// <param name="position">The zero-based document position of the character to get.</param>
