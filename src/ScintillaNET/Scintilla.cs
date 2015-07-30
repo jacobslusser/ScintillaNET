@@ -1114,7 +1114,7 @@ namespace ScintillaNET
         {
             int startPosition = WordStartPosition(position, true);
             int endPosition = WordEndPosition(position, true);
-            return GetTextRange(startPosition, endPosition);
+            return GetTextRange(startPosition, endPosition - startPosition);
         }
 
         /// <summary>
