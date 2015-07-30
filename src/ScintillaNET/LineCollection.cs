@@ -131,8 +131,18 @@ namespace ScintillaNET
             stepLine--;
         }
 
-        [Conditional("DEBUG")]
-        internal unsafe void Dump(TextWriter writer)
+#if DEBUG
+
+        public string Dump()
+        {
+            using (var writer = new StringWriter())
+            {
+                scintilla.Lines.Dump(writer);
+                return writer.ToString();
+            }
+        }
+
+        public unsafe void Dump(TextWriter writer)
         {
             var totalChars = 0;
 
@@ -163,6 +173,8 @@ namespace ScintillaNET
                 }
             }
         }
+
+#endif
 
         /// <summary>
         /// Gets the number of CHARACTERS int a BYTE range.
