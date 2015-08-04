@@ -2383,6 +2383,16 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_UNDO);
         }
 
+        /// <summary>
+        /// Determines whether to show the right-click context menu.
+        /// </summary>
+        /// <param name="enablePopup">true to enable the popup window; otherwise, false.</param>
+        public void UsePopup(bool enablePopup)
+        {
+            var bEnablePopup = (enablePopup ? new IntPtr(1) : IntPtr.Zero);
+            DirectMessage(NativeMethods.SCI_USEPOPUP, bEnablePopup);
+        }
+
         private void WmReflectNotify(ref Message m)
         {
             // A standard Windows notification and a Scintilla notification header are compatible
