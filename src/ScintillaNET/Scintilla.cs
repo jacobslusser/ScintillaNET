@@ -54,6 +54,9 @@ namespace ScintillaNET
         private static readonly object doubleClickEventKey = new object();
         private static readonly object paintedEventKey = new object();
         private static readonly object needShownEventKey = new object();
+        private static readonly object hotspotClickEventKey = new object();
+        private static readonly object hotspotDoubleClickEventKey = new object();
+        private static readonly object hotspotReleaseClickEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1514,6 +1517,39 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="HotspotClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="HotspotDoubleClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotDoubleClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotDoubleClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="HotspotReleaseClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotReleaseClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotReleaseClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="Insert" /> event.
         /// </summary>
         /// <param name="e">A <see cref="ModificationEventArgs" /> that contains the event data.</param>
@@ -1833,6 +1869,26 @@ namespace ScintillaNET
             var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
             var eventArgs = new DoubleClickEventArgs(this, keys, scn.position, scn.line);
             OnDoubleClick(eventArgs);
+        }
+
+        private void ScnHotspotClick(ref NativeMethods.SCNotification scn)
+        {
+            var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
+            var eventArgs = new HotspotClickEventArgs(this, keys, scn.position);
+            switch (scn.nmhdr.code)
+            {
+                case NativeMethods.SCN_HOTSPOTCLICK:
+                    OnHotspotClick(eventArgs);
+                    break;
+
+                case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
+                    OnHotspotDoubleClick(eventArgs);
+                    break;
+
+                case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+                    OnHotspotReleaseClick(eventArgs);
+                    break;
+            }
         }
 
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
@@ -2467,6 +2523,12 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_NEEDSHOWN:
                         OnNeedShown(new NeedShownEventArgs(this, scn.position, scn.length));
+                        break;
+
+                    case NativeMethods.SCN_HOTSPOTCLICK:
+                    case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
+                    case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+                        ScnHotspotClick(ref scn);
                         break;
 
                     default:
@@ -5364,6 +5426,57 @@ namespace ScintillaNET
             remove
             {
                 base.ForeColorChanged -= value;
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user clicks on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user clicks text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user double clicks on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user double clicks text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotDoubleClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotDoubleClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotDoubleClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user releases a click on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user releases a click on text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotReleaseClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotReleaseClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotReleaseClickEventKey, value);
             }
         }
 
