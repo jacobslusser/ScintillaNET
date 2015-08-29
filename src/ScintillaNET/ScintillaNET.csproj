@@ -82,6 +82,8 @@
     <Compile Include="ILoader.cs" />
     <Compile Include="IndentView.cs" />
     <Compile Include="Indicator.cs" />
+    <Compile Include="IndicatorReleaseEventArgs.cs" />
+    <Compile Include="IndicatorClickEventArgs.cs" />
     <Compile Include="IndicatorCollection.cs" />
     <Compile Include="IndicatorFlags.cs" />
     <Compile Include="IndicatorStyle.cs" />

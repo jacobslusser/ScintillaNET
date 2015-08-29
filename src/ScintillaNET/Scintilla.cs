@@ -57,6 +57,8 @@ namespace ScintillaNET
         private static readonly object hotspotClickEventKey = new object();
         private static readonly object hotspotDoubleClickEventKey = new object();
         private static readonly object hotspotReleaseClickEventKey = new object();
+        private static readonly object indicatorClickEventKey = new object();
+        private static readonly object indicatorReleaseEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1550,6 +1552,28 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="IndicatorClick" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="IndicatorClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnIndicatorClick(IndicatorClickEventArgs e)
+        {
+            var handler = Events[indicatorClickEventKey] as EventHandler<IndicatorClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="IndicatorRelease" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="IndicatorReleaseEventArgs" /> that contains the event data.</param>
+        protected virtual void OnIndicatorRelease(IndicatorReleaseEventArgs e)
+        {
+            var handler = Events[indicatorReleaseEventKey] as EventHandler<IndicatorReleaseEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="Insert" /> event.
         /// </summary>
         /// <param name="e">A <see cref="ModificationEventArgs" /> that contains the event data.</param>
@@ -1887,6 +1911,21 @@ namespace ScintillaNET
 
                 case NativeMethods.SCN_HOTSPOTRELEASECLICK:
                     OnHotspotReleaseClick(eventArgs);
+                    break;
+            }
+        }
+
+        private void ScnIndicatorClick(ref NativeMethods.SCNotification scn)
+        {
+            switch (scn.nmhdr.code)
+            {
+                case NativeMethods.SCN_INDICATORCLICK:
+                    var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
+                    OnIndicatorClick(new IndicatorClickEventArgs(this, keys, scn.position));
+                    break;
+
+                case NativeMethods.SCN_INDICATORRELEASE:
+                    OnIndicatorRelease(new IndicatorReleaseEventArgs(this, scn.position));
                     break;
             }
         }
@@ -2529,6 +2568,11 @@ namespace ScintillaNET
                     case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
                     case NativeMethods.SCN_HOTSPOTRELEASECLICK:
                         ScnHotspotClick(ref scn);
+                        break;
+
+                    case NativeMethods.SCN_INDICATORCLICK:
+                    case NativeMethods.SCN_INDICATORRELEASE:
+                        ScnIndicatorClick(ref scn);
                         break;
 
                     default:
@@ -5477,6 +5521,40 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(hotspotReleaseClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user clicks on text that has an indicator.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user clicks text with an indicator.")]
+        public event EventHandler<IndicatorClickEventArgs> IndicatorClick
+        {
+            add
+            {
+                Events.AddHandler(indicatorClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(indicatorClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user releases a click on text that has an indicator.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user releases a click on text with an indicator.")]
+        public event EventHandler<IndicatorReleaseEventArgs> IndicatorRelease
+        {
+            add
+            {
+                Events.AddHandler(indicatorReleaseEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(indicatorReleaseEventKey, value);
             }
         }
 
