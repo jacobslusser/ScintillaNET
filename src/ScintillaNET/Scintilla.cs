@@ -54,6 +54,9 @@ namespace ScintillaNET
         private static readonly object doubleClickEventKey = new object();
         private static readonly object paintedEventKey = new object();
         private static readonly object needShownEventKey = new object();
+        private static readonly object hotspotClickEventKey = new object();
+        private static readonly object hotspotDoubleClickEventKey = new object();
+        private static readonly object hotspotReleaseClickEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1192,6 +1195,20 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_INDICATORFILLRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
         }
 
+        private void InitDocument(Eol eolMode = Eol.CrLf, bool useTabs = false, int tabWidth = 4, int indentWidth = 0)
+        {
+            // Document.h
+            // These properties are stored in the document object used by Scintilla and
+            // thus will have their properties reset when changing the document.
+
+            DirectMessage(NativeMethods.SCI_SETCODEPAGE, new IntPtr(NativeMethods.SC_CP_UTF8));
+            DirectMessage(NativeMethods.SCI_SETUNDOCOLLECTION, new IntPtr(1));
+            DirectMessage(NativeMethods.SCI_SETEOLMODE, new IntPtr((int)eolMode));
+            DirectMessage(NativeMethods.SCI_SETUSETABS, useTabs ? new IntPtr(1) : IntPtr.Zero);
+            DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(tabWidth));
+            DirectMessage(NativeMethods.SCI_SETINDENT, new IntPtr(indentWidth));
+        }
+
         /// <summary>
         /// Inserts text at the specified position.
         /// </summary>
@@ -1481,15 +1498,10 @@ namespace ScintillaNET
         protected override void OnHandleCreated(EventArgs e)
         {
             // Set more intelligent defaults...
+            InitDocument();
 
             // I would like to see all of my text please
             DirectMessage(NativeMethods.SCI_SETSCROLLWIDTHTRACKING, new IntPtr(1));
-
-            // It's pointless to do any encoding other than UTF-8 in Scintilla
-            DirectMessage(NativeMethods.SCI_SETCODEPAGE, new IntPtr(NativeMethods.SC_CP_UTF8));
-
-            // The default tab width of 8 is crazy big
-            DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(4));
 
             // Enable support for the call tip style and tabs
             DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
@@ -1502,6 +1514,39 @@ namespace ScintillaNET
             NativeMethods.RevokeDragDrop(Handle);
 
             base.OnHandleCreated(e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="HotspotClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="HotspotDoubleClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotDoubleClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotDoubleClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="HotspotReleaseClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="HotspotClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnHotspotReleaseClick(HotspotClickEventArgs e)
+        {
+            var handler = Events[hotspotReleaseClickEventKey] as EventHandler<HotspotClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
         }
 
         /// <summary>
@@ -1824,6 +1869,26 @@ namespace ScintillaNET
             var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
             var eventArgs = new DoubleClickEventArgs(this, keys, scn.position, scn.line);
             OnDoubleClick(eventArgs);
+        }
+
+        private void ScnHotspotClick(ref NativeMethods.SCNotification scn)
+        {
+            var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
+            var eventArgs = new HotspotClickEventArgs(this, keys, scn.position);
+            switch (scn.nmhdr.code)
+            {
+                case NativeMethods.SCN_HOTSPOTCLICK:
+                    OnHotspotClick(eventArgs);
+                    break;
+
+                case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
+                    OnHotspotDoubleClick(eventArgs);
+                    break;
+
+                case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+                    OnHotspotReleaseClick(eventArgs);
+                    break;
+            }
         }
 
         private void ScnMarginClick(ref NativeMethods.SCNotification scn)
@@ -2374,6 +2439,16 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_UNDO);
         }
 
+        /// <summary>
+        /// Determines whether to show the right-click context menu.
+        /// </summary>
+        /// <param name="enablePopup">true to enable the popup window; otherwise, false.</param>
+        public void UsePopup(bool enablePopup)
+        {
+            var bEnablePopup = (enablePopup ? new IntPtr(1) : IntPtr.Zero);
+            DirectMessage(NativeMethods.SCI_USEPOPUP, bEnablePopup);
+        }
+
         private void WmReflectNotify(ref Message m)
         {
             // A standard Windows notification and a Scintilla notification header are compatible
@@ -2448,6 +2523,12 @@ namespace ScintillaNET
 
                     case NativeMethods.SCN_NEEDSHOWN:
                         OnNeedShown(new NeedShownEventArgs(this, scn.position, scn.length));
+                        break;
+
+                    case NativeMethods.SCN_HOTSPOTCLICK:
+                    case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
+                    case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+                        ScnHotspotClick(ref scn);
                         break;
 
                     default:
@@ -3497,8 +3578,16 @@ namespace ScintillaNET
             }
             set
             {
+                var eolMode = EolMode;
+                var useTabs = UseTabs;
+                var tabWidth = TabWidth;
+                var indentWidth = IndentWidth;
+
                 var ptr = value.Value;
                 DirectMessage(NativeMethods.SCI_SETDOCPOINTER, IntPtr.Zero, ptr);
+
+                // Carry over properties to new document
+                InitDocument(eolMode, useTabs, tabWidth, indentWidth);
 
                 // Rebuild the line cache
                 Lines.RebuildLineData();
@@ -4694,34 +4783,6 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets or sets whether to collect undo and redo information.
-        /// </summary>
-        /// <returns>true to collect undo and redo information; otherwise, false. The default is true.</returns>
-        /// <remarks>Disabling undo collection will also empty the undo buffer. See <see cref="EmptyUndoBuffer" />.</remarks>
-        [DefaultValue(true)]
-        [Category("Behavior")]
-        [Description("Determines whether to collect undo and redo information.")]
-        public bool UndoCollection
-        {
-            get
-            {
-                return (DirectMessage(NativeMethods.SCI_GETUNDOCOLLECTION) != IntPtr.Zero);
-            }
-            set
-            {
-                var collectUndo = (value ? new IntPtr(1) : IntPtr.Zero);
-                DirectMessage(NativeMethods.SCI_SETUNDOCOLLECTION, collectUndo);
-                if (!value)
-                {
-                    // Scintilla documentation makes it clear that if you fail to empty the undo buffer
-                    // when you disable collection the buffer could become unsynchronized with the document.
-                    // Seems like something we should do automatically.
-                    DirectMessage(NativeMethods.SCI_EMPTYUNDOBUFFER);
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets whether to use a mixture of tabs and spaces for indentation or purely spaces.
         /// </summary>
         /// <returns>true to use tab characters; otherwise, false. The default is true.</returns>
@@ -5365,6 +5426,57 @@ namespace ScintillaNET
             remove
             {
                 base.ForeColorChanged -= value;
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user clicks on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user clicks text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user double clicks on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user double clicks text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotDoubleClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotDoubleClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotDoubleClickEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user releases a click on text that is in a style with the <see cref="Style.Hotspot" /> property set.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the user releases a click on text styled with the hotspot flag.")]
+        public event EventHandler<HotspotClickEventArgs> HotspotReleaseClick
+        {
+            add
+            {
+                Events.AddHandler(hotspotReleaseClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(hotspotReleaseClickEventKey, value);
             }
         }
 

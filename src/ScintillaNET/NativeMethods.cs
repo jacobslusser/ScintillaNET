@@ -1049,6 +1049,8 @@ namespace ScintillaNET
         public const int SCWS_VISIBLEAFTERINDENT = 2;
 
         // Window messages
+        public const int WM_CREATE = 0x0001;
+        public const int WM_DESTROY = 0x0002;
         public const int WM_SETCURSOR = 0x0020;
         public const int WM_NOTIFY = 0x004E;
         public const int WM_LBUTTONDBLCLK = 0x0203;

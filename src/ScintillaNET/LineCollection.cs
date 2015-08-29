@@ -131,8 +131,26 @@ namespace ScintillaNET
             stepLine--;
         }
 
-        [Conditional("DEBUG")]
-        internal unsafe void Dump(TextWriter writer)
+#if DEBUG
+
+        /// <summary>
+        /// Dumps the line buffer to a string.
+        /// </summary>
+        /// <returns>A string representing the line buffer.</returns>
+        public string Dump()
+        {
+            using (var writer = new StringWriter())
+            {
+                scintilla.Lines.Dump(writer);
+                return writer.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Dumps the line buffer to the specified TextWriter.
+        /// </summary>
+        /// <param name="writer">The writer to use for dumping the line buffer.</param>
+        public unsafe void Dump(TextWriter writer)
         {
             var totalChars = 0;
 
@@ -163,6 +181,8 @@ namespace ScintillaNET
                 }
             }
         }
+
+#endif
 
         /// <summary>
         /// Gets the number of CHARACTERS int a BYTE range.
