@@ -16,6 +16,13 @@ namespace ScintillaNET
 
         public const int INVALID_POSITION = -1;
 
+        // Autocompletions
+        public const int SC_AC_FILLUP = 1;
+        public const int SC_AC_DOUBLECLICK = 2;
+        public const int SC_AC_TAB = 3;
+        public const int SC_AC_NEWLINE = 4;
+        public const int SC_AC_COMMAND = 5;
+
         // Annotations
         public const int ANNOTATION_HIDDEN = 0;
         public const int ANNOTATION_STANDARD = 1;
@@ -993,6 +1000,7 @@ namespace ScintillaNET
         public const int SCN_HOTSPOTRELEASECLICK = 2027;
         public const int SCN_FOCUSIN = 2028;
         public const int SCN_FOCUSOUT = 2029;
+        public const int SCN_AUTOCCOMPLETED = 2030;
 
         // Line wrapping
         public const int SC_WRAP_NONE = 0;
@@ -1033,6 +1041,7 @@ namespace ScintillaNET
         public const int SC_CASE_MIXED = 0;
         public const int SC_CASE_UPPER = 1;
         public const int SC_CASE_LOWER = 2;
+        public const int SC_CASE_CAMEL = 3;
 
         // Technology
         public const int SC_TECHNOLOGY_DEFAULT = 0;
@@ -1732,6 +1741,7 @@ namespace ScintillaNET
             public int token;
             public int annotationLinesAdded;
             public int updated;
+            public int listCompletionMethod;
         }
 
         #endregion Structures

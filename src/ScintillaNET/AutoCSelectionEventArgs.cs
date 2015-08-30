@@ -17,6 +17,20 @@ namespace ScintillaNET
         private string text;
 
         /// <summary>
+        /// Gets the fillup character that caused the completion.
+        /// </summary>
+        /// <returns>The fillup character used to cause the completion; otherwise, 0.</returns>
+        /// <remarks>Only a <see cref="ListCompletionMethod" /> of <see cref="ScintillaNET.ListCompletionMethod.FillUp" /> will return a non-zero character.</remarks>
+        /// <seealso cref="Scintilla.AutoCSetFillUps" />
+        public int Char { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating how the completion occurred.
+        /// </summary>
+        /// <returns>One of the <see cref="ScintillaNET.ListCompletionMethod" /> enumeration values.</returns>
+        public ListCompletionMethod ListCompletionMethod { get; private set; }
+
+        /// <summary>
         /// Gets the start position of the word being completed.
         /// </summary>
         /// <returns>The zero-based document position of the word being completed.</returns>
@@ -58,11 +72,15 @@ namespace ScintillaNET
         /// <param name="scintilla">The <see cref="Scintilla" /> control that generated this event.</param>
         /// <param name="bytePosition">The zero-based byte position within the document of the word being completed.</param>
         /// <param name="text">A pointer to the selected autocompletion text.</param>
-        public AutoCSelectionEventArgs(Scintilla scintilla, int bytePosition, IntPtr text)
+        /// <param name="ch">The character that caused the completion.</param>
+        /// <param name="listCompletionMethod">A value indicating the way in which the completion occurred.</param>
+        public AutoCSelectionEventArgs(Scintilla scintilla, int bytePosition, IntPtr text, int ch, ListCompletionMethod listCompletionMethod)
         {
             this.scintilla = scintilla;
             this.bytePosition = bytePosition;
             this.textPtr = text;
+            Char = ch;
+            ListCompletionMethod = listCompletionMethod;
         }
     }
 }

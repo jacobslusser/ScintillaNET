@@ -23,6 +23,11 @@ namespace ScintillaNET
         /// <summary>
         /// Display the text in lower case.
         /// </summary>
-        Lower = NativeMethods.SC_CASE_LOWER
+        Lower = NativeMethods.SC_CASE_LOWER,
+
+        /// <summary>
+        /// Display the text in camel case.
+        /// </summary>
+        Camel = NativeMethods.SC_CASE_CAMEL
     }
 }

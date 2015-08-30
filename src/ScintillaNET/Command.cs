@@ -464,7 +464,7 @@ namespace ScintillaNET
         Uppercase = NativeMethods.SCI_UPPERCASE,
 
         /// <summary>
-        /// Cancels the current selection.
+        /// Cancels autocompletion, calltip display, and drops any additional selections.
         /// </summary>
         Cancel = NativeMethods.SCI_CANCEL,
 

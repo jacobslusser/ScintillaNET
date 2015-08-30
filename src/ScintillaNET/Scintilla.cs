@@ -46,6 +46,7 @@ namespace ScintillaNET
         private static readonly object marginClickEventKey = new object();
         private static readonly object charAddedEventKey = new object();
         private static readonly object autoCSelectionEventKey = new object();
+        private static readonly object autoCCompletedEventKey = new object();
         private static readonly object autoCCancelledEventKey = new object();
         private static readonly object autoCCharDeletedEventKey = new object();
         private static readonly object dwellStartEventKey = new object();
@@ -1324,6 +1325,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Enable or disable highlighting of the current folding block.
+        /// </summary>
+        /// <param name="enabled">true to highlight the current folding block; otherwise, false.</param>
+        public void MarkerEnableHighlight(bool enabled)
+        {
+            var val = (enabled ? new IntPtr(1) : IntPtr.Zero);
+            DirectMessage(NativeMethods.SCI_MARKERENABLEHIGHLIGHT, val);
+        }
+
+        /// <summary>
         /// Searches the document for the marker handle and returns the line number containing the marker if found.
         /// </summary>
         /// <param name="markerHandle">The <see cref="MarkerHandle" /> created by a previous call to <see cref="Line.MarkerAdd" /> of the marker to search for.</param>
@@ -1379,6 +1390,17 @@ namespace ScintillaNET
         protected virtual void OnAutoCCharDeleted(EventArgs e)
         {
             var handler = Events[autoCCharDeletedEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="AutoCCompleted" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="AutoCSelectionEventArgs" /> that contains the event data.</param>
+        protected virtual void OnAutoCCompleted(AutoCSelectionEventArgs e)
+        {
+            var handler = Events[autoCCompletedEventKey] as EventHandler<AutoCSelectionEventArgs>;
             if (handler != null)
                 handler(this, e);
         }
@@ -2537,7 +2559,11 @@ namespace ScintillaNET
                         break;
 
                     case NativeMethods.SCN_AUTOCSELECTION:
-                        OnAutoCSelection(new AutoCSelectionEventArgs(this, scn.position, scn.text));
+                        OnAutoCSelection(new AutoCSelectionEventArgs(this, scn.position, scn.text, scn.ch, (ListCompletionMethod)scn.listCompletionMethod));
+                        break;
+
+                    case NativeMethods.SCN_AUTOCCOMPLETED:
+                        OnAutoCCompleted(new AutoCSelectionEventArgs(this, scn.position, scn.text, scn.ch, (ListCompletionMethod)scn.listCompletionMethod));
                         break;
 
                     case NativeMethods.SCN_AUTOCCANCELLED:
@@ -5197,6 +5223,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(autoCCharDeletedEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs after autocompleted text is inserted.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs after autocompleted text has been inserted.")]
+        public event EventHandler<AutoCSelectionEventArgs> AutoCCompleted
+        {
+            add
+            {
+                Events.AddHandler(autoCCompletedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(autoCCompletedEventKey, value);
             }
         }
 
