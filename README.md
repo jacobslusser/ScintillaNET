@@ -4,7 +4,7 @@ ScintillaNET is a Windows Forms control, wrapper, and bindings for the versatile
 
 > "As well as features found in standard text editing components, Scintilla includes features especially useful when editing and debugging source code. These include support for syntax styling, error indicators, code completion and call tips. The selection margin can contain markers like those used in debuggers to indicate breakpoints and the current line. Styling choices are more open than with many editors, allowing the use of proportional fonts, bold and italics, multiple foreground and background colours and multiple fonts." -- [scintilla.org](http://www.scintilla.org/)
 
-ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/ms751761.aspx">WindowsFormsHost</a>.
+ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
 
 ### Project Status
 
@@ -22,7 +22,7 @@ This project is a rewrite of the [ScintillaNET project hosted at CodePlex](http:
 
 One of the issues that ScintillaNET has historically suffered from is the fact that the native Scintilla control operates on bytes, not characters. Prior versions of ScintillaNET did not account for this, and when you're dealing with Unicode, [one byte doesn't always equal one character](http://www.joelonsoftware.com/articles/Unicode.html). The result was an API that sometimes expected byte offsets and at other times expected character offsets. Sometimes things would work as expected and other times random failures and out-of-range exceptions would occur.
 
-No more. **One of the major focuses of this rewrite was to give ScintillaNET an understanding of Unicode from the ground up.** Every API now consistently works with character-based offsets and ranges just like .NET developers expect. Internally we maintain a mapping of character to byte offsets (and vice versa) and do all the translation for you so you never need to worry about it. No more out-of-range exceptions. No more confusion. No more pain. [It just works](http://en.wikipedia.org/wiki/List_of_Apple_Inc._slogans).
+No more. **One of the major focuses of this rewrite was to give ScintillaNET an understanding of Unicode from the ground up.** Every API now consistently works with character-based offsets and ranges just like .NET developers expect. Internally we maintain a mapping of character to byte offsets (and vice versa) and do all the translation for you so you never need to worry about it. No more out-of-range exceptions. No more confusion. No more pain. It just works.
 
 ### One Library
 
@@ -42,7 +42,7 @@ Another goal of the rewrite was to accept the original Scintilla API for what it
 
 Complete API documentation is included with all of our packages. In addition there is extensive documentation at the project [Wiki](https://github.com/jacobslusser/ScintillaNET/wiki) which has recipes for common tasks and questions. If you're new to ScintillaNET, the Wiki is a good place to get started.
 
-As previously noted in the project charter, great effort has been made to keep the ScintillaNET API consist with the native Scintilla API. As such, the [native Scintilla documentation](http://www.scintilla.org/scintilladoc.html) continues to be a valuable resource for learning some of the deeper features.
+As previously noted in the project charter, great effort has been made to keep the ScintillaNET API consist with the native Scintilla API. As such, the [native Scintilla documentation](http://www.scintilla.org/ScintillaDoc.html) continues to be a valuable resource for learning some of the deeper features.
 
 ### Conventions
 
