@@ -25,8 +25,11 @@ namespace ScintillaNET
 
         protected override void Dispose(bool disposing)
         {
-            if(FreeOnDispose)
+            if (FreeOnDispose && ptr != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(ptr);
+                ptr = IntPtr.Zero;
+            }
 
             base.Dispose(disposing);
         }

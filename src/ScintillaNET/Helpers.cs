@@ -759,6 +759,173 @@ namespace ScintillaNET
             }
         }
 
+        public static string GetHtml(Scintilla scintilla, int startBytePos, int endBytePos)
+        {
+            // If we ever allow more than UTF-8, this will have to be revisited
+            Debug.Assert(scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8);
+
+            if (startBytePos == endBytePos)
+                return string.Empty;
+
+            StyleData[] styles = null;
+            List<ArraySegment<byte>> styledSegments = GetStyledSegments(scintilla, false, false, startBytePos, endBytePos, out styles);
+
+            using (var ms = new NativeMemoryStream(styledSegments.Sum(s => s.Count))) // Hint
+            using (var sw = new StreamWriter(ms, new UTF8Encoding(false)))
+            {
+                // Write the styles
+                sw.WriteLine(@"<style type=""text/css"" scoped="""">");
+                sw.Write("div#segments {");
+                sw.Write(" float: left;");
+                sw.Write(" white-space: pre;");
+                sw.Write(" line-height: {0}px;", scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
+                sw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
+                sw.WriteLine(" }");
+
+                for (int i = 0; i < styles.Length; i++)
+                {
+                    if (!styles[i].Used)
+                        continue;
+
+                    sw.Write("span.s{0} {{", i);
+                    sw.Write(@" font-family: ""{0}"";", styles[i].FontName);
+                    sw.Write(" font-size: {0}pt;", styles[i].SizeF);
+                    sw.Write(" font-weight: {0};", styles[i].Weight);
+                    if (styles[i].Italic != 0)
+                        sw.Write(" font-style: italic;");
+                    if (styles[i].Underline != 0)
+                        sw.Write(" text-decoration: underline;");
+                    sw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[i].BackColor >> 0) & 0xFF, (styles[i].BackColor >> 8) & 0xFF, (styles[i].BackColor >> 16) & 0xFF);
+                    sw.Write(" color: #{0:X2}{1:X2}{2:X2};", (styles[i].ForeColor >> 0) & 0xFF, (styles[i].ForeColor >> 8) & 0xFF, (styles[i].ForeColor >> 16) & 0xFF);
+                    switch ((StyleCase)styles[i].Case)
+                    {
+                        case StyleCase.Upper:
+                            sw.Write(" text-transform: uppercase;");
+                            break;
+                        case StyleCase.Lower:
+                            sw.Write(" text-transform: lowercase;");
+                            break;
+                    }
+
+                    if (styles[i].Visible == 0)
+                        sw.Write(" visibility: hidden;");
+
+                    sw.WriteLine(" }");
+                }
+
+                sw.WriteLine("</style>");
+
+                var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
+                var tabSize = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+                var tab = new string(' ', tabSize);
+                var lastStyle = Style.Default;
+
+                // Write the styled text
+                sw.Write(@"<div id=""segments""><span class=""s{0}"">", Style.Default);
+                sw.Flush();
+                sw.AutoFlush = true;
+
+                foreach (var seg in styledSegments)
+                {
+                    var endOffset = seg.Offset + seg.Count;
+                    for (int i = seg.Offset; i < endOffset; i += 2)
+                    {
+                        var ch = seg.Array[i];
+                        var style = seg.Array[i + 1];
+
+                        if (lastStyle != style)
+                        {
+                            sw.Write(@"</span><span class=""s{0}"">", style);
+                            lastStyle = style;
+                        }
+
+                        switch (ch)
+                        {
+                            case (byte)'<':
+                                sw.Write("&lt;");
+                                break;
+
+                            case (byte)'>':
+                                sw.Write("&gt;");
+                                break;
+
+                            case (byte)'&':
+                                sw.Write("&amp;");
+                                break;
+
+                            case (byte)'\t':
+                                sw.Write(tab);
+                                break;
+
+                            case (byte)'\r':
+                                if (i + 2 < endOffset)
+                                {
+                                    if (seg.Array[i + 2] == (byte)'\n')
+                                        i += 2;
+                                }
+
+                                // Either way, this is a line break
+                                goto case (byte)'\n';
+
+                            case 0xC2:
+                                if (unicodeLineEndings && i + 2 < endOffset)
+                                {
+                                    if (seg.Array[i + 2] == 0x85) // NEL \u0085
+                                    {
+                                        i += 2;
+                                        goto case (byte)'\n';
+                                    }
+                                }
+
+                                // Not a Unicode line break
+                                goto default;
+
+                            case 0xE2:
+                                if (unicodeLineEndings && i + 4 < endOffset)
+                                {
+                                    if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA8) // LS \u2028
+                                    {
+                                        i += 4;
+                                        goto case (byte)'\n';
+                                    }
+                                    else if (seg.Array[i + 2] == 0x80 && seg.Array[i + 4] == 0xA9) // PS \u2029
+                                    {
+                                        i += 4;
+                                        goto case (byte)'\n';
+                                    }
+                                }
+
+                                // Not a Unicode line break
+                                goto default;
+
+                            case (byte)'\n':
+                                // All your line breaks are belong to us
+                                sw.Write("\r\n");
+                                break;
+
+                            default:
+
+                                if (ch == 0)
+                                {
+                                    // Replace NUL with space
+                                    sw.Write(" ");
+                                    break;
+                                }
+
+                                ms.WriteByte(ch);
+                                break;
+                        }
+                    }
+                }
+
+                sw.AutoFlush = false;
+                sw.WriteLine("</span></div>");
+                sw.Flush();
+
+                return GetString(ms.Pointer, (int)ms.Length, Encoding.UTF8);
+            }
+        }
+
         public static unsafe string GetString(IntPtr bytes, int length, Encoding encoding)
         {
             var ptr = (sbyte*)bytes;

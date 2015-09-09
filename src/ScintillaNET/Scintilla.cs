@@ -1100,6 +1100,24 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets a range of text from the document formatted as Hypertext Markup Language (HTML).
+        /// </summary>
+        /// <param name="position">The zero-based starting character position of the range to get.</param>
+        /// <param name="length">The number of characters to get.</param>
+        /// <returns>A string representing the text range formatted as HTML.</returns>
+        public string GetTextRangeAsHtml(int position, int length)
+        {
+            var textLength = TextLength;
+            position = Helpers.Clamp(position, 0, textLength);
+            length = Helpers.Clamp(length, 0, textLength - position);
+
+            var startBytePos = Lines.CharToBytePosition(position);
+            var endBytePos = Lines.CharToBytePosition(position + length);
+
+            return Helpers.GetHtml(this, startBytePos, endBytePos);
+        }
+
+        /// <summary>
         /// Returns the version information of the native Scintilla library.
         /// </summary>
         /// <returns>An object representing the version information of the native Scintilla library.</returns>
