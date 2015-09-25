@@ -54,6 +54,34 @@ namespace ScintillaNET
 
         #endregion Fields
 
+        #region Methods
+
+        /// <summary>
+        /// Copies the current style to another style.
+        /// </summary>
+        /// <param name="destination">The <see cref="Style" /> to which the current style should be copied.</param>
+        public void CopyTo(Style destination)
+        {
+            if (destination == null)
+                return;
+
+            destination.BackColor = BackColor;
+            // destination.Bold = Bold;
+            destination.Case = Case;
+            destination.FillLine = FillLine;
+            destination.Font = Font;
+            destination.ForeColor = ForeColor;
+            destination.Hotspot = Hotspot;
+            destination.Italic = Italic;
+            destination.Size = Size;
+            destination.SizeF = SizeF;
+            destination.Underline = Underline;
+            destination.Visible = Visible;
+            destination.Weight = Weight;
+        }
+
+        #endregion Methods
+
         #region Properties
 
         /// <summary>
