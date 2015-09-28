@@ -2920,6 +2920,111 @@ namespace ScintillaNET
 
         #endregion VbScript
 
+        #region Verilog
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Verilog" /> lexer.
+        /// </summary>
+        public static class Verilog
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_V_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_V_COMMENT;
+
+            /// <summary>
+            /// Comment line style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_V_COMMENTLINE;
+
+            /// <summary>
+            /// Comment line bang (exclamation) style index.
+            /// </summary>
+            public const int CommentLineBang = NativeMethods.SCE_V_COMMENTLINEBANG;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_V_NUMBER;
+
+            /// <summary>
+            /// Keyword (set 0) style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_V_WORD;
+
+            /// <summary>
+            /// String style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_V_STRING;
+
+            /// <summary>
+            /// Keyword (set 1) style index.
+            /// </summary>
+            public const int Word2 = NativeMethods.SCE_V_WORD2;
+
+            /// <summary>
+            /// Keyword (set 2) style index.
+            /// </summary>
+            public const int Word3 = NativeMethods.SCE_V_WORD3;
+
+            /// <summary>
+            /// Preprocessor style index.
+            /// </summary>
+            public const int Preprocessor = NativeMethods.SCE_V_PREPROCESSOR;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_V_OPERATOR;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_V_IDENTIFIER;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_V_STRINGEOL;
+
+            /// <summary>
+            /// User word (set 3) style index.
+            /// </summary>
+            public const int User = NativeMethods.SCE_V_USER;
+
+            /// <summary>
+            /// Comment word (set 4) style index.
+            /// </summary>
+            public const int CommentWord = NativeMethods.SCE_V_COMMENT_WORD;
+
+            /// <summary>
+            /// Input style index.
+            /// </summary>
+            public const int Input = NativeMethods.SCE_V_INPUT;
+
+            /// <summary>
+            /// Output style index.
+            /// </summary>
+            public const int Output = NativeMethods.SCE_V_OUTPUT;
+
+            /// <summary>
+            /// In-out style index.
+            /// </summary>
+            public const int InOut = NativeMethods.SCE_V_INOUT;
+
+            /// <summary>
+            /// Port connect style index.
+            /// </summary>
+            public const int PortConnect = NativeMethods.SCE_V_PORT_CONNECT;
+        }
+
+        #endregion Verilog
+
         #region Xml
 
         /// <summary>

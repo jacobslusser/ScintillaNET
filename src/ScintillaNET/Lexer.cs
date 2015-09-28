@@ -122,6 +122,11 @@ namespace ScintillaNET
         VbScript = NativeMethods.SCLEX_VBSCRIPT,
 
         /// <summary>
+        /// The Verilog hardware description language lexer.
+        /// </summary>
+        Verilog = NativeMethods.SCLEX_VERILOG,
+
+        /// <summary>
         /// The Extensible Markup Language (XML) lexer.
         /// </summary>
         Xml = NativeMethods.SCLEX_XML,

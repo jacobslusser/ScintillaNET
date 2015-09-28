@@ -1610,6 +1610,27 @@ namespace ScintillaNET
         public const int SCE_R_INFIX = 10;
         public const int SCE_R_INFIXEOL = 11;
 
+        // Verilog
+        public const int SCE_V_DEFAULT = 0;
+        public const int SCE_V_COMMENT = 1;
+        public const int SCE_V_COMMENTLINE = 2;
+        public const int SCE_V_COMMENTLINEBANG = 3;
+        public const int SCE_V_NUMBER = 4;
+        public const int SCE_V_WORD = 5;
+        public const int SCE_V_STRING = 6;
+        public const int SCE_V_WORD2 = 7;
+        public const int SCE_V_WORD3 = 8;
+        public const int SCE_V_PREPROCESSOR = 9;
+        public const int SCE_V_OPERATOR = 10;
+        public const int SCE_V_IDENTIFIER = 11;
+        public const int SCE_V_STRINGEOL = 12;
+        public const int SCE_V_USER = 19;
+        public const int SCE_V_COMMENT_WORD = 20;
+        public const int SCE_V_INPUT = 21;
+        public const int SCE_V_OUTPUT = 22;
+        public const int SCE_V_INOUT = 23;
+        public const int SCE_V_PORT_CONNECT = 24;
+
         #endregion Lexer Constants
 
         #region Callbacks
