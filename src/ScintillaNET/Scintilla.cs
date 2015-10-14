@@ -25,6 +25,10 @@ namespace ScintillaNET
     {
         #region Fields
 
+        // WM_DESTROY workaround
+        private static bool? reparentGlobal;
+        private bool reparent;
+
         // Static module data
         private static string modulePath;
         private static IntPtr moduleHandle;
@@ -768,6 +772,14 @@ namespace ScintillaNET
         {
             if (disposing)
             {
+                // WM_DESTROY workaround
+                if (reparent)
+                {
+                    reparent = false;
+                    if (IsHandleCreated)
+                        DestroyHandle();
+                }
+
                 if (fillUpChars != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(fillUpChars);
@@ -2199,6 +2211,20 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Sets the application-wide behavior for destroying <see cref="Scintilla" /> controls.
+        /// </summary>
+        /// <param name="reparent">true to reparent Scintilla controls to message-only windows when destroyed rather than actually destroying the control handle; otherwise, false.</param>
+        /// <remarks>This method must be called prior to the first <see cref="Scintilla" /> control being created.</remarks>
+        public static void SetDestroyHandleBehavior(bool reparent)
+        {
+            // WM_DESTROY workaround
+            if (Scintilla.reparentGlobal == null)
+            {
+                Scintilla.reparentGlobal = reparent;
+            }
+        }
+
+        /// <summary>
         /// Sets the application-wide default module path of the native Scintilla library.
         /// </summary>
         /// <param name="modulePath">The native Scintilla module path.</param>
@@ -2528,6 +2554,30 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_USEPOPUP, bEnablePopup);
         }
 
+        private void WmDestroy(ref Message m)
+        {
+            // WM_DESTROY workaround
+            if (reparent && IsHandleCreated)
+            {
+                // In some circumstances it's possible for the control's window handle to be destroyed
+                // and recreated during the life of the control. I have no idea why Windows Forms was coded
+                // this way but that creates an issue for us because most/all of our control state is stored
+                // in the native Scintilla control (i.e. Handle) and to destroy it will bork us. So, rather
+                // than destroying the handle as requested, we "reparent" ourselves to a message-only
+                // (invisible) window to keep our handle alive. It doesn't appear that this causes any
+                // issues to Windows Forms because it is completely unaware of it. When a control goes through
+                // its regular (re)create handle process one of the steps is to assign the parent and so our
+                // temporary bait-and-switch gets reconciled again automatically. Our Dispose method ensures
+                // that we truly get destroyed when the time is right.
+
+                NativeMethods.SetParent(Handle, new IntPtr(NativeMethods.HWND_MESSAGE));
+                m.Result = IntPtr.Zero;
+                return;
+            }
+
+            base.WndProc(ref m);
+        }
+
         private void WmReflectNotify(ref Message m)
         {
             // A standard Windows notification and a Scintilla notification header are compatible
@@ -2649,6 +2699,10 @@ namespace ScintillaNET
                 case NativeMethods.WM_XBUTTONDBLCLK:
                     doubleClick = true;
                     goto default;
+
+                case NativeMethods.WM_DESTROY:
+                    WmDestroy(ref m);
+                    break;
 
                 default:
                     base.WndProc(ref m);
@@ -5842,6 +5896,10 @@ namespace ScintillaNET
         /// </summary>
         public Scintilla()
         {
+            // WM_DESTROY workaround
+            if (Scintilla.reparentGlobal.HasValue)
+                reparent = (bool)Scintilla.reparentGlobal;
+
             // We don't want .NET to use GetWindowText because we manage ('cache') our own text
             base.SetStyle(ControlStyles.CacheText, true);
 

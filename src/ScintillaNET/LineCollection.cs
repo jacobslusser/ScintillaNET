@@ -494,7 +494,9 @@ namespace ScintillaNET
             this.scintilla = scintilla;
             this.scintilla.SCNotification += scintilla_SCNotification;
 
-            RebuildLineData();
+            this.perLineData = new GapBuffer<PerLine>();
+            this.perLineData.Add(new PerLine { Start = 0 });
+            this.perLineData.Add(new PerLine { Start = 0 }); // Terminal
         }
 
         #endregion Constructors

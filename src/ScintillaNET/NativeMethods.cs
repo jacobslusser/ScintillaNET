@@ -64,6 +64,9 @@ namespace ScintillaNET
         public const int EDGE_LINE = 1;
         public const int EDGE_BACKGROUND = 2;
 
+        // Message-only window
+        public const int HWND_MESSAGE = (-3);
+
         // Indicators
         public const int INDIC_PLAIN = 0;
         public const int INDIC_SQUIGGLE = 1;
@@ -1673,6 +1676,9 @@ namespace ScintillaNET
 
         [DllImport(DLL_NAME_USER32, SetLastError = true)]
         public static extern IntPtr SetClipboardData(uint uFormat, IntPtr hMem);
+
+        [DllImport(DLL_NAME_USER32, SetLastError = true)]
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
         #endregion Functions
 
