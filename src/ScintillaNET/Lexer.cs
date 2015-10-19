@@ -87,6 +87,11 @@ namespace ScintillaNET
         PhpScript = NativeMethods.SCLEX_PHPSCRIPT,
 
         /// <summary>
+        /// Properties file (INI) lexer.
+        /// </summary>
+        Properties = NativeMethods.SCLEX_PROPERTIES,
+
+        /// <summary>
         /// The PureBasic language lexer.
         /// </summary>
         PureBasic = NativeMethods.SCLEX_PUREBASIC,

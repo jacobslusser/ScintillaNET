@@ -1868,6 +1868,46 @@ namespace ScintillaNET
 
         #endregion PhpScript
 
+        #region Properties
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Properties" /> lexer.
+        /// </summary>
+        public static class Properties
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_PROPS_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_PROPS_COMMENT;
+
+            /// <summary>
+            /// Section style index.
+            /// </summary>
+            public const int Section = NativeMethods.SCE_PROPS_SECTION;
+
+            /// <summary>
+            /// Assignment operator index.
+            /// </summary>
+            public const int Assignment = NativeMethods.SCE_PROPS_ASSIGNMENT;
+
+            /// <summary>
+            /// Default (registry-only) value index.
+            /// </summary>
+            public const int DefVal = NativeMethods.SCE_PROPS_DEFVAL;
+
+            /// <summary>
+            /// Key style index.
+            /// </summary>
+            public const int Key = NativeMethods.SCE_PROPS_KEY;
+        }
+
+        #endregion Properties
+
         #region PureBasic
 
         /// <summary>

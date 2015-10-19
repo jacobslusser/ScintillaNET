@@ -1439,6 +1439,14 @@ namespace ScintillaNET
         public const int SCE_PL_STRING_QX_VAR = 65;
         public const int SCE_PL_STRING_QR_VAR = 66;
 
+        // Properties
+        public const int SCE_PROPS_DEFAULT = 0;
+        public const int SCE_PROPS_COMMENT = 1;
+        public const int SCE_PROPS_SECTION = 2;
+        public const int SCE_PROPS_ASSIGNMENT = 3;
+        public const int SCE_PROPS_DEFVAL = 4;
+        public const int SCE_PROPS_KEY = 5;
+
         // PHP script
         public const int SCE_HPHP_COMPLEX_VARIABLE = 104;
         public const int SCE_HPHP_DEFAULT = 118;
