@@ -726,7 +726,7 @@ namespace ScintillaNET
         public static unsafe byte[] GetBytes(string text, Encoding encoding, bool zeroTerminated)
         {
             if (string.IsNullOrEmpty(text))
-                return new byte[0];
+                return (zeroTerminated ? new byte[] { 0 } : new byte[0]);
 
             int count = encoding.GetByteCount(text);
             byte[] buffer = new byte[count + (zeroTerminated ? 1 : 0)];

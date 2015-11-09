@@ -1880,8 +1880,6 @@ namespace ScintillaNET
         /// </remarks>
         public unsafe void ReplaceSelection(string text)
         {
-            // TODO I don't like how using a null/empty string does nothing
-
             fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
                 DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
         }
