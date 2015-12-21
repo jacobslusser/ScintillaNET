@@ -2580,7 +2580,7 @@ namespace ScintillaNET
         {
             // A standard Windows notification and a Scintilla notification header are compatible
             NativeMethods.SCNotification scn = (NativeMethods.SCNotification)Marshal.PtrToStructure(m.LParam, typeof(NativeMethods.SCNotification));
-            if (scn.nmhdr.code >= NativeMethods.SCN_STYLENEEDED && scn.nmhdr.code <= NativeMethods.SCN_FOCUSOUT)
+            if (scn.nmhdr.code >= NativeMethods.SCN_STYLENEEDED && scn.nmhdr.code <= NativeMethods.SCN_AUTOCCOMPLETED)
             {
                 var handler = Events[scNotificationEventKey] as EventHandler<SCNotificationEventArgs>;
                 if (handler != null)
