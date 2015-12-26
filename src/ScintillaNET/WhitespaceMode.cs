@@ -25,5 +25,10 @@ namespace ScintillaNET
         /// it is shown as dots and arrows.
         /// </summary>
         VisibleAfterIndent = NativeMethods.SCWS_VISIBLEAFTERINDENT,
+
+        /// <summary>
+        /// Whitespace used for indentation is displayed as dots and arrows.
+        /// </summary>
+        VisibleOnlyIndent = NativeMethods.SCWS_VISIBLEONLYININDENT
     }
 }

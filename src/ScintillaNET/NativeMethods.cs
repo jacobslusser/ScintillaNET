@@ -1059,6 +1059,7 @@ namespace ScintillaNET
         public const int SCWS_INVISIBLE = 0;
         public const int SCWS_VISIBLEALWAYS = 1;
         public const int SCWS_VISIBLEAFTERINDENT = 2;
+        public const int SCWS_VISIBLEONLYININDENT = 3;
 
         // Window messages
         public const int WM_CREATE = 0x0001;
