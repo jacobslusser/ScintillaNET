@@ -1231,8 +1231,12 @@ namespace ScintillaNET
         private void InitDocument(Eol eolMode = Eol.CrLf, bool useTabs = false, int tabWidth = 4, int indentWidth = 0)
         {
             // Document.h
-            // These properties are stored in the document object used by Scintilla and
-            // thus will have their properties reset when changing the document.
+            // These properties are stored in the Scintilla document, not the control; meaning, when
+            // a user changes documents these properties will change. If the user changes to a new
+            // document, these properties will reset to defaults. That can cause confusion for our users
+            // who would expect their tab settings, for example, to be unchanged based on which document
+            // they have selected into the control. This is where we carry forward any of the user's
+            // current settings -- and our default overrides -- to a new document.
 
             DirectMessage(NativeMethods.SCI_SETCODEPAGE, new IntPtr(NativeMethods.SC_CP_UTF8));
             DirectMessage(NativeMethods.SCI_SETUNDOCOLLECTION, new IntPtr(1));
@@ -2922,7 +2926,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>true if there is an active autocompletion list; otherwise, false.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AutoCActive
         {
             get
@@ -2983,7 +2987,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>The zero-based index of the current autocompletion selection.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int AutoCCurrent
         {
             get
@@ -3128,7 +3132,7 @@ namespace ScintillaNET
         /// <returns>The zero-based document position at the time <see cref="AutoCShow" /> was called.</returns>
         /// <seealso cref="AutoCShow" />
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int AutoCPosStart
         {
             get
@@ -3350,7 +3354,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>true if there is an active call tip window; otherwise, false.</returns>
         [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool CallTipActive
         {
             get
@@ -4926,7 +4930,7 @@ namespace ScintillaNET
         /// Gets or sets whether to use a mixture of tabs and spaces for indentation or purely spaces.
         /// </summary>
         /// <returns>true to use tab characters; otherwise, false. The default is true.</returns>
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         [Category("Indentation")]
         [Description("Determines whether indentation allows tab characters or purely space characters.")]
         public bool UseTabs
