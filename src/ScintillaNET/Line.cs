@@ -386,6 +386,19 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the height of the line in pixels.
+        /// </summary>
+        /// <returns>The height in pixels of the line.</returns>
+        /// <remarks>Currently all lines are the same height.</remarks>
+        public int Height
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(Index)).ToInt32();
+            }
+        }
+
+        /// <summary>
         /// Gets the line index.
         /// </summary>
         /// <returns>The zero-based line index within the <see cref="LineCollection" /> that created it.</returns>
