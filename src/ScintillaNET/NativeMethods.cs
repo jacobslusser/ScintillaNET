@@ -32,6 +32,12 @@ namespace ScintillaNET
         // Clipboard formats
         public const string CF_HTML = "HTML Format";
 
+        // Idle styling
+        public const int SC_IDLESTYLING_NONE = 0;
+        public const int SC_IDLESTYLING_TOVISIBLE = 1;
+        public const int SC_IDLESTYLING_AFTERVISIBLE = 2;
+        public const int SC_IDLESTYLING_ALL = 3;
+
         // Indentation 
         public const int SC_IV_NONE = 0;
         public const int SC_IV_REAL = 1;
@@ -919,6 +925,8 @@ namespace ScintillaNET
         public const int SCI_CLEARREPRESENTATION = 2667;
         public const int SCI_SETTARGETRANGE = 2686;
         public const int SCI_GETTARGETTEXT = 2687;
+        public const int SCI_SETIDLESTYLING = 2692;
+        public const int SCI_GETIDLESTYLING = 2693;
         public const int SCI_STARTRECORD = 3001;
         public const int SCI_STOPRECORD = 3002;
         public const int SCI_SETLEXER = 4001;

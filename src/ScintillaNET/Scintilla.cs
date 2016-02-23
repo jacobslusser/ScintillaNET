@@ -4014,6 +4014,29 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the strategy used to perform styling using application idle time.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.IdleStyling" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.IdleStyling.None" />.
+        /// </returns>
+        [DefaultValue(IdleStyling.None)]
+        [Category("Misc")]
+        [Description("Specifies how to use application idle time for styling.")]
+        public IdleStyling IdleStyling
+        {
+            get
+            {
+                return (IdleStyling)DirectMessage(NativeMethods.SCI_GETIDLESTYLING);
+            }
+            set
+            {
+                var idleStyling = (int)value;
+                DirectMessage(NativeMethods.SCI_SETIDLESTYLING, new IntPtr(idleStyling));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the size of indentation in terms of space characters.
         /// </summary>
         /// <returns>The indentation size measured in characters. The default is 0.</returns>

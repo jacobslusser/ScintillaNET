@@ -79,6 +79,7 @@
     <Compile Include="GapBuffer.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="HotspotClickEventArgs.cs" />
+    <Compile Include="IdleStyling.cs" />
     <Compile Include="ILoader.cs" />
     <Compile Include="IndentView.cs" />
     <Compile Include="Indicator.cs" />
