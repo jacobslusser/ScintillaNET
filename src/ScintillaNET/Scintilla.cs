@@ -1566,7 +1566,7 @@ namespace ScintillaNET
         /// Raises the HandleCreated event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
-        protected override void OnHandleCreated(EventArgs e)
+        protected unsafe override void OnHandleCreated(EventArgs e)
         {
             // Set more intelligent defaults...
             InitDocument();
@@ -1576,6 +1576,11 @@ namespace ScintillaNET
 
             // Enable support for the call tip style and tabs
             DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
+
+            // Reset the valid "word chars" to work around a bug? in Scintilla which includes those below plus non-printable (beyond ASCII 127) characters
+            var bytes = Helpers.GetBytes("abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", Encoding.ASCII, zeroTerminated: true);
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
 
             // Native Scintilla uses the WM_CREATE message to register itself as an
             // IDropTarget... beating Windows Forms to the punch. There are many possible
@@ -5114,11 +5119,12 @@ namespace ScintillaNET
             }
         }
 
-        /*
         /// <summary>
         /// Gets or sets the characters considered 'word' characters when using any word-based logic.
         /// </summary>
-        /// <returns>A String of word characters.</returns>
+        /// <returns>A string of word characters.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public unsafe string WordChars
         {
             get
@@ -5128,7 +5134,7 @@ namespace ScintillaNET
                 fixed (byte* bp = bytes)
                 {
                     DirectMessage(NativeMethods.SCI_GETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
-                    return Helpers.GetString(new IntPtr(bp), length, Encoding.UTF8);
+                    return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
                 }
             }
             set
@@ -5146,7 +5152,6 @@ namespace ScintillaNET
                     DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
             }
         }
-        */
 
         /// <summary>
         /// Gets or sets the line wrapping indent mode.
