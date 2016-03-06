@@ -466,6 +466,19 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Explicitly sets the current horizontal offset of the caret as the X position to track
+        /// when the user moves the caret vertically using the up and down keys.
+        /// </summary>
+        /// <remarks>
+        /// When not set explicitly, Scintilla automatically sets this value each time the user moves
+        /// the caret horizontally.
+        /// </remarks>
+        public void ChooseCaretX()
+        {
+            DirectMessage(NativeMethods.SCI_CHOOSECARETX);
+        }
+
+        /// <summary>
         /// Removes the selected text from the document.
         /// </summary>
         public void Clear()
