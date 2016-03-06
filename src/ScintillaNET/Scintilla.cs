@@ -2296,11 +2296,19 @@ namespace ScintillaNET
         /// <param name="currentPos">The zero-based document position to end the selection.</param>
         /// <remarks>
         /// A negative value for <paramref name="currentPos" /> signifies the end of the document.
-        /// A negative value for <paramref name="anchorPos" /> signifies no selection (set the <paramref name="anchorPos" /> to the same as the <paramref name="currentPos" />).
+        /// A negative value for <paramref name="anchorPos" /> signifies no selection (i.e. sets the <paramref name="anchorPos" />
+        /// to the same position as the <paramref name="currentPos" />).
         /// The current position is scrolled into view following this operation.
         /// </remarks>
         public void SetSel(int anchorPos, int currentPos)
         {
+            if (anchorPos == currentPos)
+            {
+                // Optimization so that we don't have to translate the anchor position
+                // when we can instead just pass -1 and have Scintilla handle it.
+                anchorPos = -1;
+            }
+
             var textLength = TextLength;
 
             if (anchorPos >= 0)
