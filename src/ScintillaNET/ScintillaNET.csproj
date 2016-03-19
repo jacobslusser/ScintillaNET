@@ -123,6 +123,7 @@
     <Compile Include="SearchFlags.cs" />
     <Compile Include="Selection.cs" />
     <Compile Include="SelectionCollection.cs" />
+    <Compile Include="Status.cs" />
     <Compile Include="Style.cs" />
     <Compile Include="StyleCase.cs" />
     <Compile Include="StyleCollection.cs" />

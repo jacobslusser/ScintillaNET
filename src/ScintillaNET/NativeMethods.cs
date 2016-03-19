@@ -257,6 +257,8 @@ namespace ScintillaNET
         public const int SC_STATUS_OK = 0;
         public const int SC_STATUS_FAILURE = 1;
         public const int SC_STATUS_BADALLOC = 2;
+        public const int SC_STATUS_WARN_START = 1000;
+        public const int SC_STATUS_WARN_REGEX = 1001;
 
         // Dwell
         public const int SC_TIME_FOREVER = 10000000;

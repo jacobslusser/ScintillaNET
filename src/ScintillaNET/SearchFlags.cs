@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -41,6 +42,14 @@ namespace ScintillaNET
         /// <summary>
         /// Treat regular expression in a more POSIX compatible manner by interpreting bare '(' and ')' for tagged sections rather than "\(" and "\)".
         /// </summary>
-        Posix = NativeMethods.SCFIND_POSIX
+        Posix = NativeMethods.SCFIND_POSIX,
+
+        /// <summary>
+        /// The search string should be interpreted as a regular expression and use the C++11 &lt;regex&gt; standard library engine.
+        /// The <see cref="Scintilla.Status" /> property can queried to determine if the regular expression is invalid.
+        /// The ECMAScript flag is set on the regex object and documents will exhibit Unicode-compliant behaviour.
+        /// Regular expressions will only match ranges within a single line, never matching over multiple lines.
+        /// </summary>
+        Cxx11Regex = NativeMethods.SCFIND_CXX11REGEX
     }
 }

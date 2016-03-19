@@ -4802,6 +4802,29 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the last internal error code used by Scintilla.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="Status" /> enumeration values.
+        /// The default is <see cref="ScintillaNET.Status.Ok" />.
+        /// </returns>
+        /// <remarks>The status can be reset by setting the property to <see cref="ScintillaNET.Status.Ok" />.</remarks>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Status Status
+        {
+            get
+            {
+                return (Status)DirectMessage(NativeMethods.SCI_GETSTATUS);
+            }
+            set
+            {
+                var status = (int)value;
+                DirectMessage(NativeMethods.SCI_SETSTATUS, new IntPtr(status));
+            }
+        }
+
+        /// <summary>
         /// Gets a collection representing style definitions in a <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>A collection of style definitions.</returns>

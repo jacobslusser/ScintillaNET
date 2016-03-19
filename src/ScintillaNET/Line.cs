@@ -109,7 +109,7 @@ namespace ScintillaNET
         /// <summary>
         /// Returns a bit mask indicating which markers are present on the line.
         /// </summary>
-        /// <returns>An unsigned 32-bit value with each bit cooresponding to one of the 32 zero-based <see cref="Margin" /> indexes.</returns>
+        /// <returns>An unsigned 32-bit value with each bit cooresponding to one of the 32 zero-based <see cref="Marker" /> indexes.</returns>
         public uint MarkerGet()
         {
             var mask = scintilla.DirectMessage(NativeMethods.SCI_MARKERGET, new IntPtr(Index)).ToInt32();
