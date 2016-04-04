@@ -83,6 +83,9 @@ namespace ScintillaNET
         // Pinned data
         private IntPtr fillUpChars;
 
+        // For highlight calculations
+        private string lastCallTip = string.Empty;
+
         /// <summary>
         /// A constant used to specify an infinite mouse dwell wait time.
         /// </summary>
@@ -366,9 +369,19 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="hlStart">The zero-based index in the call tip text to start highlighting.</param>
         /// <param name="hlEnd">The zero-based index in the call tip text to stop highlighting (exclusive).</param>
-        public void CallTipSetHlt(int hlStart, int hlEnd)
+        public unsafe void CallTipSetHlt(int hlStart, int hlEnd)
         {
-            // Call tips are ASCII only so (fortunately) we don't need to adjust these positions
+            // To do the char->byte translation we need to use a cached copy of the last call tip
+            hlStart = Helpers.Clamp(hlStart, 0, lastCallTip.Length);
+            hlEnd = Helpers.Clamp(hlEnd, 0, lastCallTip.Length);
+
+            fixed (char* cp = lastCallTip)
+            {
+                hlEnd = Encoding.GetByteCount(cp + hlStart, hlEnd - hlStart);  // The bytes between start and end
+                hlStart = Encoding.GetByteCount(cp, hlStart);                  // The bytes between 0 and start
+                hlEnd += hlStart;                                              // The bytes between 0 and end
+            }
+
             DirectMessage(NativeMethods.SCI_CALLTIPSETHLT, new IntPtr(hlStart), new IntPtr(hlEnd));
         }
 
@@ -388,8 +401,8 @@ namespace ScintillaNET
         /// <param name="posStart">The zero-based document position where the call tip window should be aligned.</param>
         /// <param name="definition">The call tip text.</param>
         /// <remarks>
-        /// A call tip <paramref name="definition" /> should be limited to printable ASCII characters,
-        /// line feed '\n' characters, and tab '\t' characters. Any other characters will likely display incorrectly.
+        /// Call tips can contain multiple lines separated by '\n' characters. Do not include '\r', as this will most likely print as an empty box.
+        /// The '\t' character is supported and the size can be set by using <see cref="CallTipTabSize" />.
         /// </remarks>
         public unsafe void CallTipShow(int posStart, string definition)
         {
@@ -397,8 +410,9 @@ namespace ScintillaNET
             if (definition == null)
                 return;
 
+            lastCallTip = definition;
             posStart = Lines.CharToBytePosition(posStart);
-            var bytes = Helpers.GetBytes(definition, Encoding.ASCII, zeroTerminated: true);
+            var bytes = Helpers.GetBytes(definition, Encoding, zeroTerminated: true);
             fixed (byte* bp = bytes)
                 DirectMessage(NativeMethods.SCI_CALLTIPSHOW, new IntPtr(posStart), new IntPtr(bp));
         }
