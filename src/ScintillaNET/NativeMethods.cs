@@ -1450,6 +1450,25 @@ namespace ScintillaNET
         public const int SCE_PL_STRING_QX_VAR = 65;
         public const int SCE_PL_STRING_QR_VAR = 66;
 
+        // PowerShell
+        public const int SCE_POWERSHELL_DEFAULT = 0;
+        public const int SCE_POWERSHELL_COMMENT = 1;
+        public const int SCE_POWERSHELL_STRING = 2;
+        public const int SCE_POWERSHELL_CHARACTER = 3;
+        public const int SCE_POWERSHELL_NUMBER = 4;
+        public const int SCE_POWERSHELL_VARIABLE = 5;
+        public const int SCE_POWERSHELL_OPERATOR = 6;
+        public const int SCE_POWERSHELL_IDENTIFIER = 7;
+        public const int SCE_POWERSHELL_KEYWORD = 8;
+        public const int SCE_POWERSHELL_CMDLET = 9;
+        public const int SCE_POWERSHELL_ALIAS = 10;
+        public const int SCE_POWERSHELL_FUNCTION = 11;
+        public const int SCE_POWERSHELL_USER1 = 12;
+        public const int SCE_POWERSHELL_COMMENTSTREAM = 13;
+        public const int SCE_POWERSHELL_HERE_STRING = 14;
+        public const int SCE_POWERSHELL_HERE_CHARACTER = 15;
+        public const int SCE_POWERSHELL_COMMENTDOCKEYWORD = 16;
+
         // Properties
         public const int SCE_PROPS_DEFAULT = 0;
         public const int SCE_PROPS_COMMENT = 1;

@@ -87,6 +87,11 @@ namespace ScintillaNET
         PhpScript = NativeMethods.SCLEX_PHPSCRIPT,
 
         /// <summary>
+        /// PowerShell script lexer.
+        /// </summary>
+        PowerShell = NativeMethods.SCLEX_POWERSHELL,
+
+        /// <summary>
         /// Properties file (INI) lexer.
         /// </summary>
         Properties = NativeMethods.SCLEX_PROPERTIES,
