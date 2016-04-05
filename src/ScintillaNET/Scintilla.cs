@@ -2121,7 +2121,9 @@ namespace ScintillaNET
             start = Lines.CharToBytePosition(start);
             end = Lines.CharToBytePosition(end);
 
-            DirectMessage(NativeMethods.SCI_SCROLLRANGE, new IntPtr(end), new IntPtr(start));
+            // The arguments would  seem reverse from Scintilla documentation
+            // but empirical  evidence suggests this is correct....
+            DirectMessage(NativeMethods.SCI_SCROLLRANGE, new IntPtr(start), new IntPtr(end));
         }
 
         /// <summary>
