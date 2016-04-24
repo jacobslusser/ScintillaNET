@@ -869,6 +869,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Searches for text in the document and returns the 
+        /// </summary>
+        /// <param name="searchFlags">Controls the search type, which includes regular expression searches.</param>
+        /// <param name="ttf">Structure containing the range of positions in the document to search.</param>
+        /// <returns>The return value is -1 if the search fails or the position of the start of the found text if it succeeds.
+        /// The chrgText.cpMin and chrgText.cpMax members of TextToFind are filled in with the start and end positions of the found text.
+        /// </returns>
+        public unsafe int FindText(SearchFlags searchFlags, ref TextToFind ttf)
+        {
+            //Steve
+            fixed (TextToFind* ttfp = &ttf)
+            {
+                int position = (int)DirectMessage(NativeMethods.SCI_FINDTEXT, (IntPtr)searchFlags, (IntPtr)ttfp);
+                // position is -1 if the text is not found
+                return position == -1 ? -1 : Lines.ByteToCharPosition(position);
+            }
+        }
+
+        /// <summary>
         /// Performs the specified fold action on the entire document.
         /// </summary>
         /// <param name="action">One of the <see cref="FoldAction" /> enumeration values.</param>
@@ -2581,6 +2600,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Returns the height in pixels of a particular line. Currently all lines are the same height.
+        /// </summary>
+        /// <param name="text">The line to measure.</param>
+        /// <returns>The height in pixels.</returns>
+		public unsafe int TextHeight(int line)
+		{
+			return DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32();
+		}
+        
+		/// <summary>
         /// Undoes the previous action.
         /// </summary>
         public void Undo()
