@@ -878,7 +878,6 @@ namespace ScintillaNET
         /// </returns>
         public unsafe int FindText(SearchFlags searchFlags, ref TextToFind ttf)
         {
-            //Steve
             fixed (TextToFind* ttfp = &ttf)
             {
                 int position = (int)DirectMessage(NativeMethods.SCI_FINDTEXT, (IntPtr)searchFlags, (IntPtr)ttfp);
