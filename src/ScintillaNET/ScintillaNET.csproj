@@ -63,6 +63,7 @@
     <Compile Include="BeforeModificationEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
     <Compile Include="ChangeAnnotationEventArgs.cs" />
+    <Compile Include="CharacterRange.cs" />
     <Compile Include="CharAddedEventArgs.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CopyFormat.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="StyleCollection.cs" />
     <Compile Include="StyleNeededEventArgs.cs" />
     <Compile Include="Technology.cs" />
+    <Compile Include="TextToFind.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="VirtualSpace.cs" />
