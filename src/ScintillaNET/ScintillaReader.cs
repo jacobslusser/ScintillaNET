@@ -14,7 +14,7 @@ namespace ScintillaNET {
         /// <summary>
         /// Returns the number of buffered characters left to be read.
         /// </summary>
-        private int BufferRemaining => _data.Length - _dataIndex;
+        private int BufferRemaining => _data != null ? _data.Length - _dataIndex : 0;
         /// <summary>
         /// Returns the number of unbuffered characters left to be read.
         /// </summary>
@@ -120,26 +120,30 @@ namespace ScintillaNET {
         /// <exception cref="System.ArgumentOutOfRangeException">The buffer length minus index is less than count.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">index or count is negative.</exception>
         public override int ReadBlock(char[] buffer, int index, int count) {
-            var bufferRemaining = BufferRemaining;
-            if (count < bufferRemaining) {
-                // buffer larger than read size
-                _data.CopyTo(_dataIndex, buffer, index, count);
-                return count;
-            } else {
-                // buffer smaller or equal to read size
-                _data.CopyTo(_dataIndex, buffer, index, bufferRemaining);
-                if (count > bufferRemaining) {
-                    // buffer is smaller; read rest
-                    var rest = _scintilla.GetTextRange(
-                        _nextData,
-                        Math.Min(count - bufferRemaining, UnbufferedRemaining));
-                    rest.CopyTo(0, buffer, index + bufferRemaining, rest.Length);
-                    count = bufferRemaining + rest.Length;
-                    _nextData += rest.Length;
+            if (_data != null) {
+                var bufferRemaining = BufferRemaining;
+                if (count < bufferRemaining) {
+                    // buffer larger than read size
+                    _data.CopyTo(_dataIndex, buffer, index, count);
+                    return count;
+                } else {
+                    // buffer smaller or equal to read size
+                    _data.CopyTo(_dataIndex, buffer, index, bufferRemaining);
+                    if (count > bufferRemaining) {
+                        // buffer is smaller; read rest
+                        var rest = _scintilla.GetTextRange(
+                            _nextData,
+                            Math.Min(count - bufferRemaining, UnbufferedRemaining));
+                        rest.CopyTo(0, buffer, index + bufferRemaining, rest.Length);
+                        count = bufferRemaining + rest.Length;
+                        _nextData += rest.Length;
+                    }
+                    // read at least up to buffer's end; refill buffer
+                    BufferNextRegion();
+                    return count;
                 }
-                // read at least up to buffer's end; refill buffer
-                BufferNextRegion();
-                return count;
+            } else {
+                return 0;
             }
         }
 
