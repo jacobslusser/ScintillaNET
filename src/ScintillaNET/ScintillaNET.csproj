@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ScintillaNET</RootNamespace>
     <AssemblyName>ScintillaNET</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
@@ -129,6 +129,7 @@
     <Compile Include="StyleCollection.cs" />
     <Compile Include="StyleNeededEventArgs.cs" />
     <Compile Include="Technology.cs" />
+    <Compile Include="Tuple.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="VirtualSpace.cs" />
