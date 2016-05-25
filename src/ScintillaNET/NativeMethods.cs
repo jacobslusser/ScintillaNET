@@ -1210,6 +1210,7 @@ namespace ScintillaNET
         public const int SCLEX_SREC = 117;
         public const int SCLEX_IHEX = 118;
         public const int SCLEX_TEHEX = 119;
+        public const int SCLEX_JSON = 120;
         public const int SCLEX_AUTOMATIC = 1000;
 
         // Ada
@@ -1349,6 +1350,22 @@ namespace ScintillaNET
         public const int SCE_H_QUESTION = 18;
         public const int SCE_H_VALUE = 19;
         public const int SCE_H_XCCOMMENT = 20;
+
+        // JSON
+        public const int SCE_JSON_DEFAULT = 0;
+        public const int SCE_JSON_NUMBER = 1;
+        public const int SCE_JSON_STRING = 2;
+        public const int SCE_JSON_STRINGEOL = 3;
+        public const int SCE_JSON_PROPERTYNAME = 4;
+        public const int SCE_JSON_ESCAPESEQUENCE = 5;
+        public const int SCE_JSON_LINECOMMENT = 6;
+        public const int SCE_JSON_BLOCKCOMMENT = 7;
+        public const int SCE_JSON_OPERATOR = 8;
+        public const int SCE_JSON_URI = 9;
+        public const int SCE_JSON_COMPACTIRI = 10;
+        public const int SCE_JSON_KEYWORD = 11;
+        public const int SCE_JSON_LDKEYWORD = 12;
+        public const int SCE_JSON_ERROR = 13;
 
         // Lisp
         public const int SCE_LISP_DEFAULT = 0;

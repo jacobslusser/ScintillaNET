@@ -1301,6 +1301,86 @@ namespace ScintillaNET
 
         #endregion Html
 
+        #region Json
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Json" /> lexer.
+        /// </summary>
+        public static class Json
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_JSON_DEFAULT;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_JSON_NUMBER;
+
+            /// <summary>
+            /// String style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_JSON_STRING;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_JSON_STRINGEOL;
+
+            /// <summary>
+            /// Property name style index.
+            /// </summary>
+            public const int PropertyName = NativeMethods.SCE_JSON_PROPERTYNAME;
+
+            /// <summary>
+            /// Escape sequence style index.
+            /// </summary>
+            public const int EscapeSequence = NativeMethods.SCE_JSON_ESCAPESEQUENCE;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int LineComment = NativeMethods.SCE_JSON_LINECOMMENT;
+
+            /// <summary>
+            /// Block comment style index.
+            /// </summary>
+            public const int BlockComment = NativeMethods.SCE_JSON_BLOCKCOMMENT;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_JSON_OPERATOR;
+
+            /// <summary>
+            /// URI style index.
+            /// </summary>
+            public const int Uri = NativeMethods.SCE_JSON_URI;
+
+            /// <summary>
+            /// Compact Internationalized Resource Identifier (IRI) style index.
+            /// </summary>
+            public const int CompactIRI = NativeMethods.SCE_JSON_COMPACTIRI;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Keyword = NativeMethods.SCE_JSON_KEYWORD;
+
+            /// <summary>
+            /// Linked data (LD) keyword style index.
+            /// </summary>
+            public const int LdKeyword = NativeMethods.SCE_JSON_LDKEYWORD;
+
+            /// <summary>
+            /// Error style index.
+            /// </summary>
+            public const int Error = NativeMethods.SCE_JSON_ERROR;
+        }
+
+        #endregion Json
+
         #region Lisp
 
         /// <summary>

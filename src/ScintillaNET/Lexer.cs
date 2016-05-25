@@ -62,6 +62,11 @@ namespace ScintillaNET
         Html = NativeMethods.SCLEX_HTML,
 
         /// <summary>
+        /// JavaScript Object Notation (JSON) lexer.
+        /// </summary>
+        Json = NativeMethods.SCLEX_JSON,
+
+        /// <summary>
         /// The Lisp language lexer.
         /// </summary>
         Lisp = NativeMethods.SCLEX_LISP,
