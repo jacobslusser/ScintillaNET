@@ -64,6 +64,7 @@ namespace ScintillaNET
         private static readonly object hotspotReleaseClickEventKey = new object();
         private static readonly object indicatorClickEventKey = new object();
         private static readonly object indicatorReleaseEventKey = new object();
+        private static readonly object zoomChangedEventKey = new object();
 
         // The goods
         private IntPtr sciPtr;
@@ -1795,6 +1796,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="ZoomChanged" /> event.
+        /// </summary>
+        /// <param name="e">An EventArgs that contains the event data.</param>
+        protected virtual void OnZoomChanged(EventArgs e)
+        {
+            var handler = Events[zoomChangedEventKey] as EventHandler<EventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Pastes the contents of the clipboard into the current selection.
         /// </summary>
         public void Paste()
@@ -2711,6 +2723,10 @@ namespace ScintillaNET
                     case NativeMethods.SCN_INDICATORCLICK:
                     case NativeMethods.SCN_INDICATORRELEASE:
                         ScnIndicatorClick(ref scn);
+                        break;
+
+                    case NativeMethods.SCN_ZOOM:
+                        OnZoomChanged(EventArgs.Empty);
                         break;
 
                     default:
@@ -5974,6 +5990,23 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(updateUIEventKey, value);
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the user zooms the display using the keyboard or the <see cref="Zoom" /> property is changed.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the control is zoomed.")]
+        public event EventHandler<EventArgs> ZoomChanged
+        {
+            add
+            {
+                Events.AddHandler(zoomChangedEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(zoomChangedEventKey, value);
             }
         }
 
