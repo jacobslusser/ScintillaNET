@@ -26,7 +26,7 @@ namespace ScintillaNET
         #region Fields
 
         // WM_DESTROY workaround
-        private static bool? reparentGlobal;
+        private static bool? reparentAll;
         private bool reparent;
 
         // Static module data
@@ -2261,14 +2261,17 @@ namespace ScintillaNET
         /// <summary>
         /// Sets the application-wide behavior for destroying <see cref="Scintilla" /> controls.
         /// </summary>
-        /// <param name="reparent">true to reparent Scintilla controls to message-only windows when destroyed rather than actually destroying the control handle; otherwise, false.</param>
+        /// <param name="reparent">
+        /// true to reparent Scintilla controls to message-only windows when destroyed rather than actually destroying the control handle; otherwise, false.
+        /// The default is true.
+        /// </param>
         /// <remarks>This method must be called prior to the first <see cref="Scintilla" /> control being created.</remarks>
         public static void SetDestroyHandleBehavior(bool reparent)
         {
             // WM_DESTROY workaround
-            if (Scintilla.reparentGlobal == null)
+            if (Scintilla.reparentAll == null)
             {
-                Scintilla.reparentGlobal = reparent;
+                Scintilla.reparentAll = reparent;
             }
         }
 
@@ -6020,8 +6023,8 @@ namespace ScintillaNET
         public Scintilla()
         {
             // WM_DESTROY workaround
-            if (Scintilla.reparentGlobal.HasValue)
-                reparent = (bool)Scintilla.reparentGlobal;
+            if (Scintilla.reparentAll == null || (bool)Scintilla.reparentAll)
+                reparent = true;
 
             // We don't want .NET to use GetWindowText because we manage ('cache') our own text
             base.SetStyle(ControlStyles.CacheText, true);
