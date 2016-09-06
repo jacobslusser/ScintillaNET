@@ -2033,7 +2033,7 @@ namespace ScintillaNET
             /// <summary>
             /// Here character style index.
             /// </summary>
-            public const int HereCharcter = NativeMethods.SCE_POWERSHELL_HERE_CHARACTER;
+            public const int HereCharacter = NativeMethods.SCE_POWERSHELL_HERE_CHARACTER;
 
             /// <summary>
             /// Comment based help keyword style index.
@@ -2548,9 +2548,9 @@ namespace ScintillaNET
             public const int Special = NativeMethods.SCE_ST_SPECIAL;
 
             /// <summary>
-            /// KW send style index.
+            /// KWS End style index.
             /// </summary>
-            public const int KwSend = NativeMethods.SCE_ST_KWSEND;
+            public const int KwsEnd = NativeMethods.SCE_ST_KWSEND;
 
             /// <summary>
             /// Assign style index.
