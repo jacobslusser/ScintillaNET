@@ -942,7 +942,8 @@ namespace ScintillaNET
                 // Extract the embedded SciLexer DLL
                 // http://stackoverflow.com/a/768429/2073621
                 var version = typeof(Scintilla).Assembly.GetName().Version.ToString(3);
-                modulePath = Path.Combine(Path.GetTempPath(), "ScintillaNET", version, (IntPtr.Size == 4 ? "x86" : "x64"), "SciLexer.dll");
+                modulePath = Path.Combine(
+                  Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), "ScintillaNET"), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
 
                 if (!File.Exists(modulePath))
                 {
