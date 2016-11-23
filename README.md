@@ -6,6 +6,8 @@ ScintillaNET is a Windows Forms control, wrapper, and bindings for the versatile
 
 ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
 
+Major features of ScintillaNET are demonstrated in the [ScintillaNET.Demo](https://github.com/hgupta9/ScintillaNET.Demo) app, written in C#.
+
 ### Project Status
 
 ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/jacobslusser/ScintillaNET/issues) feature at our GitHub page.
