@@ -115,6 +115,7 @@
     <Compile Include="Phases.cs" />
     <Compile Include="ProjectionEqualityComparer.cs" />
     <Compile Include="PropertyType.cs" />
+    <Compile Include="ScintillaReader.cs" />
     <Compile Include="SCNotificationEventArgs.cs" />
     <Compile Include="Scintilla.cs">
       <SubType>Component</SubType>
@@ -129,6 +130,7 @@
     <Compile Include="StyleCollection.cs" />
     <Compile Include="StyleNeededEventArgs.cs" />
     <Compile Include="Technology.cs" />
+    <Compile Include="Tuple.cs" />
     <Compile Include="UpdateChange.cs" />
     <Compile Include="UpdateUIEventArgs.cs" />
     <Compile Include="VirtualSpace.cs" />

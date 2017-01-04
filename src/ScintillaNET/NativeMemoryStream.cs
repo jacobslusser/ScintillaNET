@@ -82,7 +82,7 @@ namespace ScintillaNET
                 capacity = newCapacity;
             }
 
-            Marshal.Copy(buffer, offset, ptr + position, count);
+            Marshal.Copy(buffer, offset, (IntPtr)((long)ptr + position), count);
             position += count;
             length = Math.Max(length, position);
         }
