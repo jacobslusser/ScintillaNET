@@ -1038,6 +1038,7 @@ namespace ScintillaNET
         public const int SCVS_NONE = 0;
         public const int SCVS_RECTANGULARSELECTION = 1;
         public const int SCVS_USERACCESSIBLE = 2;
+        public const int SCVS_NOWRAPLINESTART = 4;
 
         // Styles constants
         public const int STYLE_DEFAULT = 32;

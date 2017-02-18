@@ -25,6 +25,11 @@ namespace ScintillaNET
         /// <summary>
         /// Virtual space is user accessible.
         /// </summary>
-        UserAccessible = NativeMethods.SCVS_USERACCESSIBLE
+        UserAccessible = NativeMethods.SCVS_USERACCESSIBLE,
+
+        /// <summary>
+        /// Prevents left arrow movement and selection from wrapping to the previous line.
+        /// </summary>
+        NoWrapLineStart = NativeMethods.SCVS_NOWRAPLINESTART
     }
 }
