@@ -99,6 +99,16 @@ namespace ScintillaNET
         /// <summary>
         /// An indicator that will change the foreground color of text to the foreground color of the indicator.
         /// </summary>
-        TextFore = NativeMethods.INDIC_TEXTFORE
+        TextFore = NativeMethods.INDIC_TEXTFORE,
+
+        /// <summary>
+        /// A triangle below the start of the indicator range.
+        /// </summary>
+        Point = NativeMethods.INDIC_POINT,
+
+        /// <summary>
+        /// A triangle below the center of the first character of the indicator range.
+        /// </summary>
+        PointCharacter = NativeMethods.INDIC_POINTCHARACTER
     }
 }

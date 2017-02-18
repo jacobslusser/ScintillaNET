@@ -48,6 +48,7 @@ namespace ScintillaNET
         private static readonly object savePointLeftEventKey = new object();
         private static readonly object changeAnnotationEventKey = new object();
         private static readonly object marginClickEventKey = new object();
+        private static readonly object marginRightClickEventKey = new object();
         private static readonly object charAddedEventKey = new object();
         private static readonly object autoCSelectionEventKey = new object();
         private static readonly object autoCCompletedEventKey = new object();
@@ -877,6 +878,17 @@ namespace ScintillaNET
         public void FoldAll(FoldAction action)
         {
             DirectMessage(NativeMethods.SCI_FOLDALL, new IntPtr((int)action));
+        }
+
+        /// <summary>
+        /// Changes the appearance of fold text tags.
+        /// </summary>
+        /// <param name="style">One of the <see cref="FoldDisplayText" /> enumeration values.</param>
+        /// <remarks>The text tag to display on a folded line can be set using <see cref="Line.ToggleFoldShowText" />.</remarks>
+        /// <seealso cref="Line.ToggleFoldShowText" />.
+        public void FoldDisplayTextSetStyle(FoldDisplayText style)
+        {
+            DirectMessage(NativeMethods.SCI_FOLDDISPLAYTEXTSETSTYLE, new IntPtr((int)style));
         }
 
         /// <summary>
@@ -1720,6 +1732,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="MarginRightClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="MarginClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnMarginRightClick(MarginClickEventArgs e)
+        {
+            var handler = Events[marginRightClickEventKey] as EventHandler<MarginClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the <see cref="ModifyAttempt" /> event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
@@ -2056,7 +2079,11 @@ namespace ScintillaNET
         {
             var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
             var eventArgs = new MarginClickEventArgs(this, keys, scn.position, scn.margin);
-            OnMarginClick(eventArgs);
+
+            if (scn.nmhdr.code == NativeMethods.SCN_MARGINCLICK)
+                OnMarginClick(eventArgs);
+            else
+                OnMarginRightClick(eventArgs);
         }
 
         private void ScnModified(ref NativeMethods.SCNotification scn)
@@ -2631,10 +2658,21 @@ namespace ScintillaNET
         /// Determines whether to show the right-click context menu.
         /// </summary>
         /// <param name="enablePopup">true to enable the popup window; otherwise, false.</param>
+        /// <seealso cref="UsePopup(PopupMode)" />
         public void UsePopup(bool enablePopup)
         {
+            // NOTE: The behavior of UsePopup has changed in v3.7.1, however, this approach is still valid
             var bEnablePopup = (enablePopup ? new IntPtr(1) : IntPtr.Zero);
             DirectMessage(NativeMethods.SCI_USEPOPUP, bEnablePopup);
+        }
+
+        /// <summary>
+        /// Determines the conditions for displaying the standard right-click context menu.
+        /// </summary>
+        /// <param name="popupMode">One of the <seealso cref="PopupMode" /> enumeration values.</param>
+        public void UsePopup(PopupMode popupMode)
+        {
+            DirectMessage(NativeMethods.SCI_USEPOPUP, new IntPtr((int)popupMode));
         }
 
         private void WmDestroy(ref Message m)
@@ -2698,6 +2736,7 @@ namespace ScintillaNET
                         break;
 
                     case NativeMethods.SCN_MARGINCLICK:
+                    case NativeMethods.SCN_MARGINRIGHTCLICK:
                         ScnMarginClick(ref scn);
                         break;
 
@@ -4921,6 +4960,30 @@ namespace ScintillaNET
         public StyleCollection Styles { get; private set; }
 
         /// <summary>
+        /// Gets or sets how tab characters are represented when whitespace is visible.
+        /// </summary>
+        /// <returns>
+        /// One of the <see cref="ScintillaNET.TabDrawMode" /> enumeration values.
+        /// The default is <see cref="TabDrawMode.LongArrow" />.
+        /// </returns>
+        /// <seealso cref="ViewWhitespace" />
+        [DefaultValue(TabDrawMode.LongArrow)]
+        [Category("Whitespace")]
+        [Description("Style of visible tab characters.")]
+        public TabDrawMode TabDrawMode
+        {
+            get
+            {
+                return (TabDrawMode)DirectMessage(NativeMethods.SCI_GETTABDRAWMODE);
+            }
+            set
+            {
+                var tabDrawMode = (int)value;
+                DirectMessage(NativeMethods.SCI_SETTABDRAWMODE, new IntPtr(tabDrawMode));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the width of a tab as a multiple of a space character.
         /// </summary>
         /// <returns>The width of a tab measured in characters. The default is 4.</returns>
@@ -5884,6 +5947,27 @@ namespace ScintillaNET
             remove
             {
                 Events.RemoveHandler(marginClickEventKey, value);
+            }
+        }
+
+
+        // TODO This isn't working in my tests. Could be Windows Forms interfering.
+        /// <summary>
+        /// Occurs when the mouse was right-clicked inside a margin that was marked as sensitive.
+        /// </summary>
+        /// <remarks>The <see cref="Margin.Sensitive" /> property and <see cref="PopupMode.Text" /> must be set for a margin to raise this event.</remarks>
+        /// <seealso cref="UsePopup(PopupMode)" />
+        [Category("Notifications")]
+        [Description("Occurs when the mouse is right-clicked in a sensitive margin.")]
+        public event EventHandler<MarginClickEventArgs> MarginRightClick
+        {
+            add
+            {
+                Events.AddHandler(marginRightClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(marginRightClickEventKey, value);
             }
         }
 

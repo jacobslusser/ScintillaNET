@@ -144,9 +144,30 @@ namespace ScintillaNET
         /// Toggles the folding state of the line; expanding or contracting all child lines.
         /// </summary>
         /// <remarks>The line must be set as a <see cref="ScintillaNET.FoldLevelFlags.Header" />.</remarks>
+        /// <seealso cref="ToggleFoldShowText"/>
         public void ToggleFold()
         {
             scintilla.DirectMessage(NativeMethods.SCI_TOGGLEFOLD, new IntPtr(Index));
+        }
+
+        /// <summary>
+        /// Toggles the folding state of the line; expanding or contracting all child lines, and specifies the text tag to display to the right of the fold.
+        /// </summary>
+        /// <param name="text">The text tag to show to the right of the folded text.</param>
+        /// <remarks>The display of fold text tags are determined by the <see cref="Scintilla.FoldDisplayTextSetStyle" /> method.</remarks>
+        /// <seealso cref="Scintilla.FoldDisplayTextSetStyle" />
+        public unsafe void ToggleFoldShowText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                scintilla.DirectMessage(NativeMethods.SCI_TOGGLEFOLDSHOWTEXT, new IntPtr(Index), IntPtr.Zero);
+            }
+            else
+            {
+                var bytes = Helpers.GetBytes(text, scintilla.Encoding, zeroTerminated: true);
+                fixed (byte* bp = bytes)
+                    scintilla.DirectMessage(NativeMethods.SCI_TOGGLEFOLDSHOWTEXT, new IntPtr(Index), new IntPtr(bp));
+            }
         }
 
         #endregion Methods

@@ -109,8 +109,9 @@ namespace ScintillaNET {
         public override int Read(char[] buffer, int index, int count) {
             return ReadBlock(buffer, index, count);
         }
+
         /// <summary>
-        //  Reads a maximum of count characters from the current stream and writes the data to buffer, beginning at index.
+        ///  Reads a maximum of count characters from the current stream and writes the data to buffer, beginning at index.
         /// </summary>
         /// <param name="buffer">The buffer to receive the characters.</param>
         /// <param name="index">The position in buffer at which to begin writing.</param>

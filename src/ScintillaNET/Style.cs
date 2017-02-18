@@ -46,6 +46,12 @@ namespace ScintillaNET
         /// </summary>
         public const int BraceBad = NativeMethods.STYLE_BRACEBAD;
 
+        /// <summary>
+        /// Fold text tag style index. This is the style used for drawing text tags attached to folded text when
+        /// <see cref="Scintilla.FoldDisplayTextSetStyle" /> and <see cref="Line.ToggleFoldShowText" /> are used.
+        /// </summary>
+        public const int FoldDisplayText = NativeMethods.STYLE_FOLDDISPLAYTEXT;
+
         #endregion Constants
 
         #region Fields

@@ -8,6 +8,8 @@ using System.Text;
 
 namespace ScintillaNET
 {
+    // TODO Revisit this following Scintilla v3.7.0 because is said to be better about character handling
+
     /// <summary>
     /// An immutable collection of lines of text in a <see cref="Scintilla" /> control.
     /// </summary>
