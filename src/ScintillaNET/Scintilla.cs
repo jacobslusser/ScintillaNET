@@ -1407,6 +1407,30 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Specifies the long line indicator column number and color when <see cref="EdgeMode" /> is <see cref="EdgeMode.MultiLine" />.
+        /// </summary>
+        /// <param name="column">The zero-based column number to indicate.</param>
+        /// <param name="edgeColor">The color of the vertical long line indicator.</param>
+        /// <remarks>A column is defined as the width of a space character in the <see cref="Style.Default" /> style.</remarks>
+        /// <seealso cref="MultiEdgeClearAll" />
+        public void MultiEdgeAddLine(int column, Color edgeColor)
+        {
+            column = Helpers.ClampMin(column, 0);
+            var colour = ColorTranslator.ToWin32(edgeColor);
+
+            DirectMessage(NativeMethods.SCI_MULTIEDGEADDLINE, new IntPtr(column), new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Removes all the long line column indicators specified using <seealso cref="MultiEdgeAddLine" />.
+        /// </summary>
+        /// <seealso cref="MultiEdgeAddLine" />
+        public void MultiEdgeClearAll()
+        {
+            DirectMessage(NativeMethods.SCI_MULTIEDGECLEARALL);
+        }
+
+        /// <summary>
         /// Searches for all instances of the main selection within the <see cref="TargetStart" /> and <see cref="TargetEnd" />
         /// range and adds any matches to the selection.
         /// </summary>
@@ -4417,6 +4441,35 @@ namespace ScintillaNET
                 DirectMessage(NativeMethods.SCI_SETMOUSESELECTIONRECTANGULARSWITCH, mouseSelectionRectangularSwitch);
             }
         }
+
+        // The MouseWheelCaptures property doesn't seem to work correctly in Windows Forms so hiding for now...
+        // P.S. I'm avoiding the MouseDownCaptures property (SCI_SETMOUSEDOWNCAPTURES & SCI_GETMOUSEDOWNCAPTURES) for the same reason... I don't expect it to work in Windows Forms.
+
+        /* 
+        /// <summary>
+        /// Gets or sets whether to respond to mouse wheel messages if the control has focus but the mouse is not currently over the control.
+        /// </summary>
+        /// <returns>
+        /// true to respond to mouse wheel messages even when the mouse is not currently over the control; otherwise, false.
+        /// The default is true.
+        /// </returns>
+        /// <remarks>Scintilla will still react to the mouse wheel if the mouse pointer is over the editor window.</remarks>
+        [DefaultValue(true)]
+        [Category("Mouse")]
+        [Description("Enable or disable mouse wheel support when the mouse is outside the control bounds, but the control still has focus.")]
+        public bool MouseWheelCaptures
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETMOUSEWHEELCAPTURES) != IntPtr.Zero;
+            }
+            set
+            {
+                var mouseWheelCaptures = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETMOUSEWHEELCAPTURES, mouseWheelCaptures);
+            }
+        }
+        */
 
         /// <summary>
         /// Gets or sets whether multiple selection is enabled.

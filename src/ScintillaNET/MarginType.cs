@@ -21,12 +21,12 @@ namespace ScintillaNET
         Number = NativeMethods.SC_MARGIN_NUMBER,
 
         /// <summary>
-        /// Margin can display symbols and has a background color equivalent to the default style background color.
+        /// Margin can display symbols and has a background color equivalent to <see cref="Style.Default" /> background color.
         /// </summary>
         BackColor = NativeMethods.SC_MARGIN_BACK,
 
         /// <summary>
-        /// Margin can display symbols and has a background color equivalent to the default style foreground color.
+        /// Margin can display symbols and has a background color equivalent to <see cref="Style.Default"/> foreground color.
         /// </summary>
         ForeColor = NativeMethods.SC_MARGIN_FORE,
 
@@ -38,6 +38,11 @@ namespace ScintillaNET
         /// <summary>
         /// Margin can display application defined text right-justified.
         /// </summary>
-        RightText = NativeMethods.SC_MARGIN_RTEXT
+        RightText = NativeMethods.SC_MARGIN_RTEXT,
+
+        /// <summary>
+        /// Margin can display symbols and has a background color specified using the <see cref="Margin.BackColor" /> property.
+        /// </summary>
+        Color = NativeMethods.SC_MARGIN_COLOUR
     }
 }

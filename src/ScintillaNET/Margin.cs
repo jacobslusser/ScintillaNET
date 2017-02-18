@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +11,35 @@ namespace ScintillaNET
     /// </summary>
     public class Margin
     {
+        #region Fields
+
         private readonly Scintilla scintilla;
+
+        #endregion Fields
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the background color of the margin when the <see cref="Type" /> property is set to <see cref="MarginType.Color" />.
+        /// </summary>
+        /// <returns>A Color object representing the margin background color. The default is Black.</returns>
+        /// <remarks>Alpha color values are ignored.</remarks>
+        public Color BackColor
+        {
+            get
+            {
+                var color = scintilla.DirectMessage(NativeMethods.SCI_GETMARGINBACKN, new IntPtr(Index)).ToInt32();
+                return ColorTranslator.FromWin32(color);
+            }
+            set
+            {
+                if (value.IsEmpty)
+                    value = Color.Black;
+
+                var color = ColorTranslator.ToWin32(value);
+                scintilla.DirectMessage(NativeMethods.SCI_SETMARGINBACKN, new IntPtr(Index), new IntPtr(color));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the mouse cursor style when over the margin.
@@ -112,6 +141,10 @@ namespace ScintillaNET
             }
         }
 
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Margin" /> class.
         /// </summary>
@@ -122,5 +155,7 @@ namespace ScintillaNET
             this.scintilla = scintilla;
             Index = index;
         }
+
+        #endregion Constructors
     }
 }

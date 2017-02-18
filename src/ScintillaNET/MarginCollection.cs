@@ -41,16 +41,37 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the number of margins in the <see cref="MarginCollection" />.
+        /// </summary>
+        /// <returns>The number of margins in the collection. The default is 5.</returns>
+        [DefaultValue(NativeMethods.SC_MAX_MARGIN + 1)]
+        [Description("The maximum number of margins.")]
+        public int Capacity
+        {
+            get
+            {
+                return scintilla.DirectMessage(NativeMethods.SCI_GETMARGINS).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                scintilla.DirectMessage(NativeMethods.SCI_SETMARGINS, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets the number of margins in the <see cref="MarginCollection" />.
         /// </summary>
-        /// <returns>This property always returns 5.</returns>
+        /// <returns>The number of margins in the collection.</returns>
+        /// <remarks>This property is kept for convenience. The return value will always be equal to <see cref="Capacity" />.</remarks>
+        /// <seealso cref="Capacity" />
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int Count
         {
             get
             {
-                return (NativeMethods.SC_MAX_MARGIN + 1);
+                return Capacity;
             }
         }
 
@@ -73,6 +94,7 @@ namespace ScintillaNET
             }
         }
 
+        // TODO Why is this commented out?
         /*
         /// <summary>
         /// Gets or sets the margin options.

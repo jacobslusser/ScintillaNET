@@ -69,6 +69,7 @@ namespace ScintillaNET
         public const int EDGE_NONE = 0;
         public const int EDGE_LINE = 1;
         public const int EDGE_BACKGROUND = 2;
+        public const int EDGE_MULTILINE = 3;
 
         // Message-only window
         public const int HWND_MESSAGE = (-3);
@@ -179,6 +180,7 @@ namespace ScintillaNET
         public const int SC_MARGIN_FORE = 3;
         public const int SC_MARGIN_TEXT = 4;
         public const int SC_MARGIN_RTEXT = 5;
+        public const int SC_MARGIN_COLOUR = 6;
 
         public const int SC_MARGINOPTION_NONE = 0;
         public const int SC_MARGINOPTION_SUBLINESELECT = 1;
@@ -347,6 +349,10 @@ namespace ScintillaNET
         public const int SCI_GETMARGINSENSITIVEN = 2247;
         public const int SCI_SETMARGINCURSORN = 2248;
         public const int SCI_GETMARGINCURSORN = 2249;
+        public const int SCI_SETMARGINBACKN = 2250;
+        public const int SCI_GETMARGINBACKN = 2251;
+        public const int SCI_SETMARGINS = 2252;
+        public const int SCI_GETMARGINS = 2253;
         public const int SCI_STYLECLEARALL = 2050;
         public const int SCI_STYLESETFORE = 2051;
         public const int SCI_STYLESETBACK = 2052;
@@ -929,6 +935,10 @@ namespace ScintillaNET
         public const int SCI_GETTARGETTEXT = 2687;
         public const int SCI_SETIDLESTYLING = 2692;
         public const int SCI_GETIDLESTYLING = 2693;
+        public const int SCI_MULTIEDGEADDLINE = 2694;
+        public const int SCI_MULTIEDGECLEARALL = 2695;
+        public const int SCI_SETMOUSEWHEELCAPTURES = 2696;
+        public const int SCI_GETMOUSEWHEELCAPTURES = 2697;
         public const int SCI_STARTRECORD = 3001;
         public const int SCI_STOPRECORD = 3002;
         public const int SCI_SETLEXER = 4001;

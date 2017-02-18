@@ -23,6 +23,12 @@ namespace ScintillaNET
         /// <summary>
         /// Long lines are indicated with a background color.
         /// </summary>
-        Background = NativeMethods.EDGE_BACKGROUND
+        Background = NativeMethods.EDGE_BACKGROUND,
+
+        /// <summary>
+        /// Similar to <see cref="Line" /> except allows for multiple vertical lines to be visible using the <see cref="Scintilla.MultiEdgeAddLine" /> method.
+        /// </summary>
+        /// <remarks><see cref="Line" /> and <see cref="Scintilla.EdgeColumn" /> are completely independant of this mode.</remarks>
+        MultiLine = NativeMethods.EDGE_MULTILINE
     }
 }
