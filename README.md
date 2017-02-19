@@ -6,8 +6,6 @@ ScintillaNET is a Windows Forms control, wrapper, and bindings for the versatile
 
 ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
 
-Major features of ScintillaNET are demonstrated in the [ScintillaNET.Demo](https://github.com/hgupta9/ScintillaNET.Demo) app, written in C#.
-
 ### Project Status
 
 ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/jacobslusser/ScintillaNET/issues) feature at our GitHub page.
@@ -15,6 +13,13 @@ ScintillaNET is in active development. If you find any issues or just have a que
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/jacobslusser.ScintillaNET) or the [Releases](https://github.com/jacobslusser/ScintillaNET/releases) page.
 
 For the latest and greatest you can build the [Master](https://github.com/jacobslusser/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2015.
+
+### Related Projects
+
+A fairly vibrant ScintillaNET community exists here on GitHub. We specifically recommend you look at the following projects:
+
+- The [ScintillaNET.Demo](https://github.com/hgupta9/ScintillaNET.Demo) project to see ScintillaNET used in an easy to understand, well-documented text editor (thanks to @hgupta9)
+- The [ScintillaNET-Kitchen](https://github.com/uuf6429/ScintillaNET-Kitchen) project for seeing the effect of some of ScintillaNET's features in real time and generating boilerplate code for configuring styles (thanks to @uuf6429).
 
 ## Background
 
