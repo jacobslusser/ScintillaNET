@@ -20,6 +20,7 @@ A fairly vibrant ScintillaNET community exists here on GitHub. We specifically r
 
 - The [ScintillaNET.Demo](https://github.com/hgupta9/ScintillaNET.Demo) project to see ScintillaNET used in an easy to understand, well-documented text editor (thanks to @hgupta9)
 - The [ScintillaNET-Kitchen](https://github.com/uuf6429/ScintillaNET-Kitchen) project for seeing the effect of some of ScintillaNET's features in real time and generating boilerplate code for configuring styles (thanks to @uuf6429)
+- The [ScintillaNET-FindReplaceDialog](https://github.com/Stumpii/ScintillaNET-FindReplaceDialog) project for adding a Find/Replace dialog to ScintillaNET (thanks to @Stumpii)
 - The [SintillaNetPrinting](https://github.com/poloab/SintillaNetPrinting) project for adding printer support to ScintillaNET (thanks to @poloab).
 
 Additional projects and user-submitted code are tracked in the [User Submitted Recipes](https://github.com/jacobslusser/ScintillaNET/wiki/User-Submitted-Recipes) page of the [wiki](https://github.com/jacobslusser/ScintillaNET/wiki).
