@@ -558,10 +558,13 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets the line text.
+        /// Sets or Gets the line text.
         /// </summary>
         /// <returns>A string representing the document line.</returns>
-        /// <remarks>The returned text includes any end of line characters.</remarks>
+        /// <remarks>
+        /// The returned text includes any end of line characters.
+        /// When setting the text with a string, If it contains multiple lines, they will be stripped in to one line.
+        /// </remarks>
         public unsafe string Text
         {
             get
@@ -574,6 +577,15 @@ namespace ScintillaNET
 
                 var text = new string((sbyte*)ptr, 0, length.ToInt32(), scintilla.Encoding);
                 return text;
+            }
+            set
+            {
+                //If it containes multiple lines, Strip it to one line.
+                value = value.Replace('\n', ' '); value = value.Replace('\r', ' ');
+                value += '\n'; //Add the new-line character to the end of the line.
+                
+                scintilla.SetTargetRange(Position, EndPosition);
+                scintilla.ReplaceTarget(value);
             }
         }
 
