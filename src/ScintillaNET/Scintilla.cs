@@ -4823,14 +4823,13 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Gets the selected text.
+        /// Gets or sets the selected text.
         /// </summary>
         /// <returns>The selected text if there is any; otherwise, an empty string.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public unsafe string SelectedText
-        {
-            get
+        public unsafe string SelectedText {
+	get
             {
                 // NOTE: For some reason the length returned by this API includes the terminating NULL
                 var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
@@ -4844,7 +4843,12 @@ namespace ScintillaNET
                     return Helpers.GetString(new IntPtr(bp), length, Encoding);
                 }
             }
-        }
+	set 
+	{ 
+		DirectMessage(Constants.SCI_REPLACESEL, IntPtr.Zero, Text); 
+		
+	}
+	}
 
         /// <summary>
         /// Gets or sets the end position of the selection.
