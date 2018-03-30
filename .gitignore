@@ -24,6 +24,9 @@ bld/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
 #NUNIT
 *.VisualState.xml
 TestResult.xml

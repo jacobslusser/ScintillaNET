@@ -69,7 +69,7 @@ namespace ScintillaNET
         private IntPtr sciPtr;
         private BorderStyle borderStyle;
 
-        // Set style 
+        // Set style
         private int stylingPosition;
         private int stylingBytePosition;
 
@@ -338,7 +338,7 @@ namespace ScintillaNET
         {
             position = Helpers.Clamp(position, 0, TextLength);
             position = Lines.CharToBytePosition(position);
-            
+
             var match = DirectMessage(NativeMethods.SCI_BRACEMATCH, new IntPtr(position), IntPtr.Zero).ToInt32();
             if (match > 0)
                 match = Lines.ByteToCharPosition(match);
@@ -1191,7 +1191,7 @@ namespace ScintillaNET
             position = Lines.CharToBytePosition(position);
             DirectMessage(NativeMethods.SCI_GOTOPOS, new IntPtr(position));
         }
-        
+
         /// <summary>
         /// Hides the range of lines specified.
         /// </summary>
@@ -3534,6 +3534,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether the caret line is always visible even when the window is not in focus.
+        /// </summary>
+        /// <returns>true if the caret line is always visible; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [Category("Caret")]
+        [Description("Determines whether the caret line always visible even when the window is not in focus..")]
+        public bool CaretLineVisibleAlways
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETCARETLINEVISIBLEALWAYS) != IntPtr.Zero);
+            }
+            set
+            {
+                var visibleAlways = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETCARETLINEVISIBLEALWAYS, visibleAlways);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the caret blink rate in milliseconds.
         /// </summary>
         /// <returns>The caret blink rate measured in milliseconds. The default is 530.</returns>
@@ -5196,7 +5216,7 @@ namespace ScintillaNET
         /// Gets or sets the line wrapping indent mode.
         /// </summary>
         /// <returns>
-        /// One of the <see cref="ScintillaNET.WrapIndentMode" /> enumeration values. 
+        /// One of the <see cref="ScintillaNET.WrapIndentMode" /> enumeration values.
         /// The default is <see cref="ScintillaNET.WrapIndentMode.Fixed" />.
         /// </returns>
         [DefaultValue(WrapIndentMode.Fixed)]
@@ -5219,7 +5239,7 @@ namespace ScintillaNET
         /// Gets or sets the line wrapping mode.
         /// </summary>
         /// <returns>
-        /// One of the <see cref="ScintillaNET.WrapMode" /> enumeration values. 
+        /// One of the <see cref="ScintillaNET.WrapMode" /> enumeration values.
         /// The default is <see cref="ScintillaNET.WrapMode.None" />.
         /// </returns>
         [DefaultValue(WrapMode.None)]
