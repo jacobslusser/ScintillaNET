@@ -1307,6 +1307,81 @@ namespace ScintillaNET
 
         #endregion Html
 
+        #region JavaScript
+
+        /// <summary>
+        /// Embedded JavaScript style constants for use with the <see cref="Lexer.Html" /> lexer.
+        /// </summary>
+        public static class JavaScript
+        {
+            /// <summary>
+            /// Start style index (allows EOL filled background to not start on same line as SCRIPT tag).
+            /// </summary>
+            public const int Start = NativeMethods.SCE_HJ_START;
+
+            /// <summary>
+            /// Default style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_HJ_DEFAULT;
+
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_HJ_COMMENT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int CommentLine = NativeMethods.SCE_HJ_COMMENTLINE;
+
+            /// <summary>
+            /// Doc comment style index.
+            /// </summary>
+            public const int CommentDoc = NativeMethods.SCE_HJ_COMMENTDOC;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_HJ_NUMBER;
+
+            /// <summary>
+            /// Word style index.
+            /// </summary>
+            public const int Word = NativeMethods.SCE_HJ_WORD;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Keyword = NativeMethods.SCE_HJ_KEYWORD;
+
+            /// <summary>
+            /// Double-quoted string style index.
+            /// </summary>
+            public const int DoubleString = NativeMethods.SCE_HJ_DOUBLESTRING;
+
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int SingleString = NativeMethods.SCE_HJ_SINGLESTRING;
+
+            /// <summary>
+            /// Symbols style index.
+            /// </summary>
+            public const int Symbols = NativeMethods.SCE_HJ_SYMBOLS;
+
+            /// <summary>
+            /// Unclosed string EOL style index.
+            /// </summary>
+            public const int StringEol = NativeMethods.SCE_HJ_STRINGEOL;
+
+            /// <summary>
+            /// Regular expression style index.
+            /// </summary>
+            public const int Regex = NativeMethods.SCE_HJ_REGEX;
+        }
+
+        #endregion JavaScript
+
         #region Json
 
         /// <summary>
