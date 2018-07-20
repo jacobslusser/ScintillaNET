@@ -1384,6 +1384,21 @@ namespace ScintillaNET
         public const int SCE_H_VALUE = 19;
         public const int SCE_H_XCCOMMENT = 20;
 
+        // JavaScript
+        public const int SCE_HJ_START        = 40;
+        public const int SCE_HJ_DEFAULT      = 41;
+        public const int SCE_HJ_COMMENT      = 42;
+        public const int SCE_HJ_COMMENTLINE  = 43;
+        public const int SCE_HJ_COMMENTDOC   = 44;
+        public const int SCE_HJ_NUMBER       = 45;
+        public const int SCE_HJ_WORD         = 46;
+        public const int SCE_HJ_KEYWORD      = 47;
+        public const int SCE_HJ_DOUBLESTRING = 48;
+        public const int SCE_HJ_SINGLESTRING = 49;
+        public const int SCE_HJ_SYMBOLS      = 50;
+        public const int SCE_HJ_STRINGEOL    = 51;
+        public const int SCE_HJ_REGEX        = 52;
+
         // JSON
         public const int SCE_JSON_DEFAULT = 0;
         public const int SCE_JSON_NUMBER = 1;
