@@ -3596,6 +3596,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the width of the caret line frame.
+        /// </summary>
+        /// <returns><see cref="CaretLineVisible" /> must be set to true. A value of 0 disables the frame. The default is 0.</returns>
+        [DefaultValue(0)]
+        [Category("Caret")]
+        [Description("The Width of the current line frame.")]
+        public int CaretLineFrame
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_GETCARETLINEFRAME).ToInt32();
+            }
+            set
+            {
+                value = Helpers.ClampMin(value, 0);
+                DirectMessage(NativeMethods.SCI_SETCARETLINEFRAME, new IntPtr(value));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether the caret line is visible (highlighted).
         /// </summary>
         /// <returns>true if the caret line is visible; otherwise, false. The default is false.</returns>

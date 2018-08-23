@@ -950,6 +950,8 @@ namespace ScintillaNET
         public const int SCI_GETMOUSEWHEELCAPTURES = 2697;
         public const int SCI_TOGGLEFOLDSHOWTEXT = 2700;
         public const int SCI_FOLDDISPLAYTEXTSETSTYLE = 2701;
+        public const int SCI_GETCARETLINEFRAME = 2704;
+        public const int SCI_SETCARETLINEFRAME = 2705;
         public const int SCI_STARTRECORD = 3001;
         public const int SCI_STOPRECORD = 3002;
         public const int SCI_SETLEXER = 4001;
