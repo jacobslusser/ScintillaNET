@@ -1647,6 +1647,61 @@ namespace ScintillaNET
 
         #endregion Lua
 
+        #region Matlab
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Matlab" /> lexer.
+        /// </summary>
+        public static class Matlab
+        {
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_MATLAB_DEFAULT;
+
+            /// <summary>
+            /// Line comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_MATLAB_COMMENT;
+
+            /// <summary>
+            /// Number style index.
+            /// </summary>
+            public const int Number = NativeMethods.SCE_MATLAB_NUMBER;
+
+            /// <summary>
+            /// String style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_MATLAB_STRING;
+
+            /// <summary>
+            /// Command style index.
+            /// </summary>
+            public const int Command = NativeMethods.SCE_MATLAB_COMMAND;
+
+            /// <summary>
+            /// Keyword style index.
+            /// </summary>
+            public const int Keyword = NativeMethods.SCE_MATLAB_KEYWORD;
+
+            /// <summary>
+            /// Double quote string style index.
+            /// </summary>
+            public const int DoubleQuoteString = NativeMethods.SCE_MATLAB_DOUBLEQUOTESTRING;
+
+            /// <summary>
+            /// Identifier style index.
+            /// </summary>
+            public const int Identifier = NativeMethods.SCE_MATLAB_IDENTIFIER;
+
+            /// <summary>
+            /// Operator style index.
+            /// </summary>
+            public const int Operator = NativeMethods.SCE_MATLAB_OPERATOR;
+        }
+
+        #endregion Matlab
+
         #region Pascal
 
         /// <summary>
