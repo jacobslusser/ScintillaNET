@@ -109,6 +109,16 @@ namespace ScintillaNET
         /// <summary>
         /// A triangle below the center of the first character of the indicator range.
         /// </summary>
-        PointCharacter = NativeMethods.INDIC_POINTCHARACTER
+        PointCharacter = NativeMethods.INDIC_POINTCHARACTER /*,
+
+        /// <summary>
+        /// A vertical gradient between a color and alpha at top to fully transparent at bottom.
+        /// </summary>
+        Gradient = NativeMethods.INDIC_GRADIENT,
+
+        /// <summary>
+        /// A vertical gradient with color and alpha in the mid-line fading to fully transparent at top and bottom.
+        /// </summary>
+        GradientCenter = NativeMethods.INDIC_GRADIENTCENTRE */
     }
 }

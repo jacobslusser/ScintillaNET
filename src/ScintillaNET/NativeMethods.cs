@@ -95,6 +95,8 @@ namespace ScintillaNET
         public const int INDIC_TEXTFORE = 17;
         public const int INDIC_POINT = 18;
         public const int INDIC_POINTCHARACTER = 19;
+        public const int INDIC_GRADIENT = 20;
+        public const int INDIC_GRADIENTCENTRE = 21;
         public const int INDIC_MAX = 31;
         public const int INDIC_CONTAINER = 8;
 
