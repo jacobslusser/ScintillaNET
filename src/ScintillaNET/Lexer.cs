@@ -77,6 +77,11 @@ namespace ScintillaNET
         Lua = NativeMethods.SCLEX_LUA,
 
         /// <summary>
+        /// The Matlab scripting language lexer.
+        /// </summary>
+        Matlab = NativeMethods.SCLEX_MATLAB,
+
+        /// <summary>
         /// The Pascal language lexer.
         /// </summary>
         Pascal = NativeMethods.SCLEX_PASCAL,

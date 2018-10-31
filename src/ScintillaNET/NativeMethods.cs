@@ -1470,6 +1470,17 @@ namespace ScintillaNET
         public const int SCE_PAS_OPERATOR = 13;
         public const int SCE_PAS_ASM = 14;
 
+        // Matlab
+        public const int SCE_MATLAB_DEFAULT = 0;
+        public const int SCE_MATLAB_COMMENT = 1;
+        public const int SCE_MATLAB_COMMAND = 2;
+        public const int SCE_MATLAB_NUMBER = 3;
+        public const int SCE_MATLAB_KEYWORD = 4;
+        public const int SCE_MATLAB_STRING = 5;
+        public const int SCE_MATLAB_OPERATOR = 6;
+        public const int SCE_MATLAB_IDENTIFIER = 7;
+        public const int SCE_MATLAB_DOUBLEQUOTESTRING = 8;
+
         // Perl
         public const int SCE_PL_DEFAULT = 0;
         public const int SCE_PL_ERROR = 1;
