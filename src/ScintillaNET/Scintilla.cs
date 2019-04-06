@@ -143,6 +143,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Allocates some number of substyles for a particular base style. Substyles are allocated contiguously.
+        /// </summary>
+        /// <param name="styleBase">The lexer style integer</param>
+        /// <param name="numberStyles">The amount of substyles to allocate</param>
+        /// <returns>Returns the first substyle number allocated.</returns>
+        public int AllocateSubstyles(int styleBase, int numberStyles)
+        {
+            return this.DirectMessage(NativeMethods.SCI_ALLOCATESUBSTYLES, new IntPtr(styleBase), new IntPtr(numberStyles)).ToInt32();
+        }
+
+        /// <summary>
         /// Removes the annotation text for every <see cref="Line" /> in the document.
         /// </summary>
         public void AnnotationClearAll()
@@ -892,6 +903,14 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Frees all allocated substyles.
+        /// </summary>
+        public void FreeSubstyles()
+        {
+            DirectMessage(NativeMethods.SCI_FREESUBSTYLES);
+        }
+
+        /// <summary>
         /// Returns the character as the specified document position.
         /// </summary>
         /// <param name="position">The zero-based document position of the character to get.</param>
@@ -1015,6 +1034,16 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets the Primary style associated with the given Secondary style.
+        /// </summary>
+        /// <param name="style">The secondary style</param>
+        /// <returns>For a secondary style, return the primary style, else return the argument.</returns>
+        public int GetPrimaryStyleFromStyle(int style)
+        {
+            return DirectMessage(NativeMethods.SCI_GETPRIMARYSTYLEFROMSTYLE, new IntPtr(style)).ToInt32();
+        }
+
+        /// <summary>
         /// Lookup a property value for the current <see cref="Lexer" />.
         /// </summary>
         /// <param name="name">The property name to lookup.</param>
@@ -1105,6 +1134,36 @@ namespace ScintillaNET
             position = Lines.CharToBytePosition(position);
 
             return DirectMessage(NativeMethods.SCI_GETSTYLEAT, new IntPtr(position)).ToInt32();
+        }
+
+        /// <summary>
+        /// Gets the lexer base style of a substyle.
+        /// </summary>
+        /// <param name="subStyle">The integer index of the substyle</param>
+        /// <returns>Returns the base style, else returns the argument.</returns>
+        public int GetStyleFromSubstyle(int subStyle)
+        {
+            return DirectMessage(NativeMethods.SCI_GETSTYLEFROMSUBSTYLE, new IntPtr(subStyle)).ToInt32();
+        }
+
+        /// <summary>
+        /// Gets the length of the number of substyles allocated for a given lexer base style.
+        /// </summary>
+        /// <param name="styleBase">The lexer style integer</param>
+        /// <returns>Returns the length of the substyles allocated for a base style.</returns>
+        public int GetSubstylesLength(int styleBase)
+        {
+            return DirectMessage(NativeMethods.SCI_GETSUBSTYLESLENGTH, new IntPtr(styleBase)).ToInt32();
+        }
+
+        /// <summary>
+        /// Gets the start index of the substyles for a given lexer base style.
+        /// </summary>
+        /// <param name="styleBase">The lexer style integer</param>
+        /// <returns>Returns the start of the substyles allocated for a base style.</returns>
+        public int GetSubstylesStart(int styleBase)
+        {
+            return DirectMessage(NativeMethods.SCI_GETSUBSTYLESSTART, new IntPtr(styleBase)).ToInt32();
         }
 
         /// <summary>
@@ -2289,6 +2348,25 @@ namespace ScintillaNET
             var useFoldMarginHighlightColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
             DirectMessage(NativeMethods.SCI_SETFOLDMARGINHICOLOUR, useFoldMarginHighlightColour, new IntPtr(colour));
+        }
+
+        /// <summary>
+        /// Similar to <see cref="SetKeywords" /> but for substyles.
+        /// </summary>
+        /// <param name="style">The substyle integer index</param>
+        /// <param name="identifiers">A list of words separated by whitespace (space, tab, '\n', '\r') characters.</param>
+        public unsafe void SetIdentifiers(int style, string identifiers)
+        {
+            var baseStyle = GetStyleFromSubstyle(style);
+            var min = GetSubstylesStart(baseStyle);
+            var length = GetSubstylesLength(baseStyle);
+            var max = (length > 0) ? min + length - 1 : min;
+
+            style = Helpers.Clamp(style, min, max);
+            var bytes = Helpers.GetBytes(identifiers ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
+
+            fixed (byte* bp = bytes)
+                DirectMessage(NativeMethods.SCI_SETIDENTIFIERS, new IntPtr(style), new IntPtr(bp));
         }
 
         /// <summary>
@@ -3863,6 +3941,20 @@ namespace ScintillaNET
                 // properties it's okay, but if we need them this is the place to start fixing things.
 
                 return new Size(200, 100);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the start index of the secondary styles.
+        /// </summary>
+        /// <returns>Returns the distance between a primary style and its corresponding secondary style.</returns>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int DistanceToSecondaryStyles
+        {
+            get
+            {
+                return DirectMessage(NativeMethods.SCI_DISTANCETOSECONDARYSTYLES).ToInt32();
             }
         }
 
