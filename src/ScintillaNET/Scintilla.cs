@@ -3396,6 +3396,26 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets whether backspace deletes a character, or unindents.
+        /// </summary>
+        /// <returns>Whether backspace deletes a character, (false) or unindents (true).</returns>
+        [DefaultValue(false)]
+        [Category("Indentation")]
+        [Description("Determines whether backspace deletes a character, or unindents.")]
+        public bool BackspaceUnindents
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETBACKSPACEUNINDENTS) != IntPtr.Zero);
+            }
+            set
+            {
+                var ptr = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETBACKSPACEUNINDENTS, ptr);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the border type of the <see cref="Scintilla" /> control.
         /// </summary>
         /// <returns>A BorderStyle enumeration value that represents the border type of the control. The default is Fixed3D.</returns>
@@ -5020,6 +5040,26 @@ namespace ScintillaNET
             {
                 var tabDrawMode = (int)value;
                 DirectMessage(NativeMethods.SCI_SETTABDRAWMODE, new IntPtr(tabDrawMode));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether tab inserts a tab character, or indents.
+        /// </summary>
+        /// <returns>Whether tab inserts a tab character (false), or indents (true).</returns>
+        [DefaultValue(false)]
+        [Category("Indentation")]
+        [Description("Determines whether tab inserts a tab character, or indents.")]
+        public bool TabIndents
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETTABINDENTS) != IntPtr.Zero);
+            }
+            set
+            {
+                var ptr = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETTABINDENTS, ptr);
             }
         }
 

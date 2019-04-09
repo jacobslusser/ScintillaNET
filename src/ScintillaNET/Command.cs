@@ -447,6 +447,11 @@ namespace ScintillaNET
         LineTranspose = NativeMethods.SCI_LINETRANSPOSE,
 
         /// <summary>
+        /// Reverses the current line.
+        /// </summary>
+        LineReverse = NativeMethods.SCI_LINEREVERSE,
+
+        /// <summary>
         /// Duplicates the current line.
         /// </summary>
         LineDuplicate = NativeMethods.SCI_LINEDUPLICATE,
