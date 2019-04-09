@@ -678,6 +678,7 @@ namespace ScintillaNET
         public const int SCI_LINEENDDISPLAY = 2347;
         public const int SCI_LINEENDDISPLAYEXTEND = 2348;
         public const int SCI_HOMEWRAP = 2349;
+        public const int SCI_LINEREVERSE = 2354;
         public const int SCI_HOMEWRAPEXTEND = 2450;
         public const int SCI_LINEENDWRAP = 2451;
         public const int SCI_LINEENDWRAPEXTEND = 2452;
