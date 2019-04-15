@@ -1866,17 +1866,17 @@ namespace ScintillaNET
         public struct SCNotification
         {
             public Sci_NotifyHeader nmhdr;
-            public int position;
+            public IntPtr position;
             public int ch;
             public int modifiers;
             public int modificationType;
             public IntPtr text;
-            public int length;
-            public int linesAdded;
+            public IntPtr length;
+            public IntPtr linesAdded;
             public int message;
             public IntPtr wParam;
             public IntPtr lParam;
-            public int line;
+            public IntPtr line;
             public int foldLevelNow;
             public int foldLevelPrev;
             public int margin;
@@ -1884,7 +1884,7 @@ namespace ScintillaNET
             public int x;
             public int y;
             public int token;
-            public int annotationLinesAdded;
+            public IntPtr annotationLinesAdded;
             public int updated;
             public int listCompletionMethod;
         }
