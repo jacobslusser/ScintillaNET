@@ -4288,6 +4288,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// This is used by clients that have complex focus requirements such as having their own window
+        /// that gets the real focus but with the need to indicate that Scintilla has the logical focus.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool InternalFocusFlag
+        {
+            get
+            {
+                return (DirectMessage(NativeMethods.SCI_GETFOCUS) != IntPtr.Zero);
+            }
+            set
+            {
+                var focus = (value ? new IntPtr(1) : IntPtr.Zero);
+                DirectMessage(NativeMethods.SCI_SETFOCUS, focus);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the current lexer.
         /// </summary>
         /// <returns>One of the <see cref="Lexer" /> enumeration values. The default is <see cref="ScintillaNET.Lexer.Container" />.</returns>
