@@ -599,7 +599,7 @@ namespace ScintillaNET
                                 // NOTE: We don't support StyleData.Visible and StyleData.Case in RTF
 
                                 lastStyle = style;
-                                tw.Write(" "); // Delimiter
+                                tw.Write("\n"); // Delimiter
                             }
 
                             switch (ch)
