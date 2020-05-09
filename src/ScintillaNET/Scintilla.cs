@@ -827,7 +827,7 @@ namespace ScintillaNET
         /// <seealso cref="Line.DisplayIndex" />
         public int DocLineFromVisible(int displayLine)
         {
-            displayLine = Helpers.Clamp(displayLine, 0, Lines.Count);
+            displayLine = Helpers.Clamp(displayLine, 0, VisibleLineCount);
             return DirectMessage(NativeMethods.SCI_DOCLINEFROMVISIBLE, new IntPtr(displayLine)).ToInt32();
         }
 
@@ -5310,6 +5310,31 @@ namespace ScintillaNET
             {
                 var visible = (value ? new IntPtr(1) : IntPtr.Zero);
                 DirectMessage(NativeMethods.SCI_SETVSCROLLBAR, visible);
+            }
+        }
+
+        private int VisibleLineCount
+        {
+            get
+            {
+                bool wordWrapDisabled = WrapMode == WrapMode.None;
+                bool allLinesVisible = Lines.AllLinesVisible;
+
+                if (wordWrapDisabled && allLinesVisible)
+                {
+                    return Lines.Count;
+                }
+
+                int count = 0;
+                for (int i = 0; i < Lines.Count; i++)
+                {
+                    if (allLinesVisible || this.Lines[i].Visible)
+                    {
+                        count += wordWrapDisabled ? 1 : this.Lines[i].WrapCount;
+                    }
+                }
+
+                return count;
             }
         }
 
