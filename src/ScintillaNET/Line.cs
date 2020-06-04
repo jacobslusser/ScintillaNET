@@ -279,11 +279,8 @@ namespace ScintillaNET
             }
             set
             {
-                // bugfix typo SCI_ANNOTATIONGETTEXT
-                // why not allow empty annotations and use null to remove it (like the c++ handling)?
-                // as it did not work up to now, this change shouldn't make problems?
-                //if (string.IsNullOrEmpty(value))
-                if (value == 0)
+                // bugfix typo SCI_ANNOTATIONGETTEXT, allow empty annotations and use null to remove it
+                if (value == null)
                 {
                     // Scintilla docs suggest that setting to NULL rather than an empty string will free memory
                     scintilla.DirectMessage(NativeMethods.SCI_ANNOTATIONSETTEXT, new IntPtr(Index), IntPtr.Zero);
