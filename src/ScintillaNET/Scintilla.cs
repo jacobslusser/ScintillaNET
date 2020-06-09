@@ -55,6 +55,7 @@ namespace ScintillaNET
         private static readonly object autoCCancelledEventKey = new object();
         private static readonly object autoCCharDeletedEventKey = new object();
         private static readonly object dwellStartEventKey = new object();
+        private static readonly object callTipClickEventKey = new object();
         private static readonly object dwellEndEventKey = new object();
         private static readonly object borderStyleChangedEventKey = new object();
         private static readonly object doubleClickEventKey = new object();
@@ -1673,6 +1674,17 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Raises the <see cref="CallTipClick" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="CallTipClickEventArgs" /> that contains the event data.</param>
+        protected virtual void OnCallTipClick(CallTipClickEventArgs e)
+        {
+            var handler = Events[callTipClickEventKey] as EventHandler<CallTipClickEventArgs>;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
         /// Raises the HandleCreated event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
@@ -2872,6 +2884,11 @@ namespace ScintillaNET
                     case NativeMethods.SCN_ZOOM:
                         OnZoomChanged(EventArgs.Empty);
                         break;
+
+                    case NativeMethods.SCN_CALLTIPCLICK:
+                        OnCallTipClick(new CallTipClickEventArgs(this, (CallTipClickType)scn.position.ToInt32()));
+                        // scn.position: 1 = Up Arrow, 2 = DownArrow: 0 = Elsewhere
+                    break;
 
                     default:
                         // Not our notification
@@ -5977,6 +5994,24 @@ namespace ScintillaNET
                 Events.RemoveHandler(dwellEndEventKey, value);
             }
         }
+
+        /// <summary>
+        /// Occurs when the mouse clicked over a call tip displayed by the <see cref="CallTipShow" /> method.
+        /// </summary>
+        [Category("Notifications")]
+        [Description("Occurs when the mouse is clicked over a calltip.")]
+        public event EventHandler<CallTipClickEventArgs> CallTipClick
+        {
+            add
+            {
+                Events.AddHandler(callTipClickEventKey, value);
+            }
+            remove
+            {
+                Events.RemoveHandler(callTipClickEventKey, value);
+            }
+        }
+
 
         /// <summary>
         /// Occurs when the mouse is kept in one position (hovers) for the <see cref="MouseDwellTime" />.

@@ -61,9 +61,11 @@
     <Compile Include="AutoCSelectionEventArgs.cs" />
     <Compile Include="AutomaticFold.cs" />
     <Compile Include="BeforeModificationEventArgs.cs" />
+    <Compile Include="CallTipClickEventArgs.cs" />
     <Compile Include="CaretStyle.cs" />
     <Compile Include="ChangeAnnotationEventArgs.cs" />
     <Compile Include="CharAddedEventArgs.cs" />
+    <Compile Include="CallTipClickType.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CopyFormat.cs" />
     <Compile Include="Document.cs" />
