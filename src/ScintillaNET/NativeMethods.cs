@@ -1322,6 +1322,26 @@ namespace ScintillaNET
         public const int SCE_C_TASKMARKER = 26;
         public const int SCE_C_ESCAPESEQUENCE = 27;
 
+
+        //CLW
+        public const int SCE_CLW_DEFAULT = 0;
+        public const int SCE_CLW_LABEL = 1;
+        public const int SCE_CLW_COMMENT = 2;
+        public const int SCE_CLW_STRING = 3;
+        public const int SCE_CLW_USER_IDENTIFIER = 4;
+        public const int SCE_CLW_INTEGER_CONSTANT = 5;
+        public const int SCE_CLW_REAL_CONSTANT = 6;
+        public const int SCE_CLW_PICTURE_STRING = 7;
+        public const int SCE_CLW_KEYWORD = 8;
+        public const int SCE_CLW_COMPILER_DIRECTIVE = 9;
+        public const int SCE_CLW_RUNTIME_EXPRESSIONS = 10;
+        public const int SCE_CLW_BUILTIN_PROCEDURES_FUNCTION = 11;
+        public const int SCE_CLW_STRUCTURE_DATA_TYPE = 12;
+        public const int SCE_CLW_ATTRIBUTE = 13;
+        public const int SCE_CLW_STANDARD_EQUATE = 14;
+        public const int SCE_CLW_ERROR = 15;
+        public const int SCE_CLW_DEPRECATED = 16;
+
         // CSS
         public const int SCE_CSS_DEFAULT = 0;
         public const int SCE_CSS_TAG = 1;

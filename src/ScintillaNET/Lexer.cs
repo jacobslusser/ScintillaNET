@@ -37,6 +37,15 @@ namespace ScintillaNET
         Batch = NativeMethods.SCLEX_BATCH,
 
         /// <summary>
+        /// The Clarion language 
+        /// </summary>
+        Clw = NativeMethods.SCLEX_CLW,
+
+        /// <summary>
+        /// The Clarion language No Case 
+        /// </summary>
+        ClwNoCase = NativeMethods.SCLEX_CLWNOCASE,
+        /// <summary>
         /// The C language family (C++, C, C#, Java, JavaScript, etc...) lexer.
         /// </summary>
         Cpp = NativeMethods.SCLEX_CPP,

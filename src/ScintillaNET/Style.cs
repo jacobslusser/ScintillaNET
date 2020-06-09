@@ -702,6 +702,101 @@ namespace ScintillaNET
 
         #endregion Batch
 
+        #region Clw
+
+        /// <summary>
+        /// Style constants for use with the <see cref="Lexer.Clw" /> lexer.
+        /// </summary>
+        public static class CLW
+        {
+            /// <summary>
+            /// Attributes style index
+            /// </summary>
+            public const int Attributes = NativeMethods.SCE_CLW_ATTRIBUTE;
+            
+            /// <summary>
+            /// Built in procedures function style index.
+            /// </summary>
+            public const int BuiltInProceduresFunction = NativeMethods.SCE_CLW_BUILTIN_PROCEDURES_FUNCTION;
+            
+            /// <summary>
+            /// Comment style index.
+            /// </summary>
+            public const int Comment = NativeMethods.SCE_CLW_COMMENT;
+
+            /// <summary>
+            /// Compiler directive style index
+            /// </summary>
+            public const int CompilerDirective = NativeMethods.SCE_CLW_COMPILER_DIRECTIVE;
+
+            /// <summary>
+            /// Default (whitespace) style index.
+            /// </summary>
+            public const int Default = NativeMethods.SCE_CLW_DEFAULT;
+            
+            /// <summary>
+            /// Depreciated style index
+            /// </summary>
+            public const int Depreciated = NativeMethods.SCE_CLW_DEPRECATED;
+            
+            /// <summary>
+            /// Error style index
+            /// </summary>
+            public const int Error = NativeMethods.SCE_CLW_ERROR;
+            
+            /// <summary>
+            /// Integer Constant style index.
+            /// </summary>
+            public const int IntegerConstant = NativeMethods.SCE_CLW_INTEGER_CONSTANT;
+            
+            /// <summary>
+            /// Keyword style index
+            /// </summary>
+            public const int Keyword = NativeMethods.SCE_CLW_KEYWORD;
+            
+            /// <summary>
+            /// Label string style index.
+            /// </summary>
+            public const int Label = NativeMethods.SCE_CLW_LABEL;
+
+            /// <summary>
+            /// Real Constant style index.
+            /// </summary>
+            public const int PictureString = NativeMethods.SCE_CLW_PICTURE_STRING;
+            
+            /// <summary>
+            /// Real Constant style index.
+            /// </summary>
+            public const int RealConstant = NativeMethods.SCE_CLW_REAL_CONSTANT;
+
+            /// <summary>
+            /// Runtime expressions style index
+            /// </summary>
+            public const int RuntimeExpressions = NativeMethods.SCE_CLW_RUNTIME_EXPRESSIONS;
+            
+            /// <summary>
+            /// Standard equates style index
+            /// </summary>
+            public const int StandardEquates = NativeMethods.SCE_CLW_STANDARD_EQUATE;
+            
+            /// <summary>
+            /// Single-quoted string style index.
+            /// </summary>
+            public const int String = NativeMethods.SCE_CLW_STRING;
+            
+            /// <summary>
+            /// Structure data type style index.
+            /// </summary>
+            public const int StructureDataTypes = NativeMethods.SCE_CLW_STRUCTURE_DATA_TYPE;
+            
+            /// <summary>
+            /// User Identifier style index.
+            /// </summary>
+            public const int UserIdentifier = NativeMethods.SCE_CLW_USER_IDENTIFIER;
+        }
+
+        #endregion Clw
+
         #region Cpp
 
         /// <summary>
