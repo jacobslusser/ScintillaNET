@@ -229,3 +229,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/src/nuget_push.bat
