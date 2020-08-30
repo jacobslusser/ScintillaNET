@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -974,13 +975,28 @@ namespace ScintillaNET
                 // Extract the embedded SciLexer DLL
                 // http://stackoverflow.com/a/768429/2073621
                 var version = typeof(Scintilla).Assembly.GetName().Version.ToString(3);
-                modulePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), "ScintillaNET"), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
+
+                var scintillaName = "ScintillaNET";
+
+                #if NETCOREAPP
+                    scintillaName = "ScintillaNET.Core";
+                #endif
+
+                modulePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
 
                 if (!File.Exists(modulePath))
                 {
                     // http://stackoverflow.com/a/229567/2073621
                     // Synchronize access to the file across processes
-                    var guid = ((GuidAttribute)typeof(Scintilla).Assembly.GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
+
+                    var assembly = Assembly.GetAssembly(typeof(Scintilla));
+
+                    var guid = assembly?.FullName;
+
+                    #if !NETCOREAPP
+                        guid = ((GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
+                    #endif
+
                     var name = string.Format(CultureInfo.InvariantCulture, "Global\\{{{0}}}", guid);
                     using (var mutex = new Mutex(false, name))
                     {
@@ -1015,7 +1031,7 @@ namespace ScintillaNET
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
-                                var resource = string.Format(CultureInfo.InvariantCulture, "ScintillaNET.{0}.SciLexer.dll.gz", (IntPtr.Size == 4 ? "x86" : "x64"));
+                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
                                 using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
                                 using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
                                 using (var fileStream = File.Create(modulePath))

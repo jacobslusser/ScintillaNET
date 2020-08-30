@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Company>VPKSoft</Company>
+    <Authors>VPKSoft</Authors>
+    <Description>A test application to validate that the ScintillaNET control is working.</Description>
+    <Copyright>Copyright © VPKSoft 2020</Copyright>
+    <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ScintillaNET\ScintillaNET.Core.csproj" />
+  </ItemGroup>
+
+</Project>

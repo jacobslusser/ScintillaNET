@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PackageId>ScintillaNET.Core</PackageId>
+    <Authors>Jacob Slusser, VPKSoft</Authors>
+    <Product>ScintillaNET.Core</Product>
+    <Description>Source Editing Component</Description>
+    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Initial .NET Core release.</PackageTags>
+    <AssemblyVersion>3.6.5.0</AssemblyVersion>
+    <FileVersion>3.6.5.0</FileVersion>
+    <Version>3.6.5</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageIcon>nuget-package-logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Files\GitHub\ScintillaNET - Copy\src\ScintillaNET.Core\ScintillaNET.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Files\GitHub\ScintillaNET\src\ScintillaNET\ScintillaNET.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="x64\License.txt" />
+    <None Remove="x64\SciLexer.dll" />
+    <None Remove="x64\SciLexer.dll.gz" />
+    <None Remove="x64\SciLexer.exp" />
+    <None Remove="x64\SciLexer.lib" />
+    <None Remove="x64\SciLexer.pdb" />
+    <None Remove="x64\version.txt" />
+    <None Remove="x86\License.txt" />
+    <None Remove="x86\SciLexer.dll" />
+    <None Remove="x86\SciLexer.dll.gz" />
+    <None Remove="x86\SciLexer.exp" />
+    <None Remove="x86\SciLexer.lib" />
+    <None Remove="x86\SciLexer.pdb" />
+    <None Remove="x86\version.txt" />
+    <None Include="nuget-package-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="x64\License.txt" />
+    <Content Include="x64\SciLexer.dll" />
+    <Content Include="x86\License.txt" />
+    <Content Include="x86\SciLexer.dll" />
+    <EmbeddedResource Include="x86\SciLexer.dll.gz" />
+    <Content Include="x86\SciLexer.exp" />
+    <Content Include="x86\SciLexer.lib" />
+    <Content Include="x86\SciLexer.pdb" />
+    <Content Include="x86\version.txt" />
+    <EmbeddedResource Include="x64\SciLexer.dll.gz" />
+    <Content Include="x64\SciLexer.exp" />
+    <Content Include="x64\SciLexer.lib" />
+    <Content Include="x64\SciLexer.pdb" />
+    <Content Include="x64\version.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>
