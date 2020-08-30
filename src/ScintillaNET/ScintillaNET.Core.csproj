@@ -15,9 +15,9 @@
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Initial .NET Core release.</PackageTags>
-    <AssemblyVersion>3.6.5.0</AssemblyVersion>
-    <FileVersion>3.6.5.0</FileVersion>
-    <Version>3.6.5</Version>
+    <AssemblyVersion>3.6.5.1</AssemblyVersion>
+    <FileVersion>3.6.5.1</FileVersion>
+    <Version>3.6.51</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageIcon>nuget-package-logo.png</PackageIcon>

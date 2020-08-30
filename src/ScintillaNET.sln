@@ -5,12 +5,6 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{22AE2386-60F1-476E-9303-61CDB0AAC4CF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4B1240E-7C2D-43AA-B794-C41CCDE902AA}"
-	ProjectSection(SolutionItems) = preProject
-		ScintillaNET.nuspec = ScintillaNET.nuspec
-		ScintillaNET.Signed.nuspec = ScintillaNET.Signed.nuspec
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScintillaNET.TestApp", "ScintillaNET.TestApp\ScintillaNET.TestApp.csproj", "{F25685EC-098A-4080-95A9-445268609806}"
 EndProject
 Global

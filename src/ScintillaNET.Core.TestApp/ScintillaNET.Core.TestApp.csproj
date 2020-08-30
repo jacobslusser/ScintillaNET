@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
