@@ -1,63 +1,46 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
   <PropertyGroup>
-    <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
-    <TargetFramework>net40</TargetFramework>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <AssemblyTitle>ScintillaNET</AssemblyTitle>
-    <Company>Jacob Slusser, VPKSoft</Company>
-    <Product>ScintillaNET</Product>
-    <NeutralLanguage>en-US</NeutralLanguage>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PackageId>ScintillaNET.Core</PackageId>
+    <Authors>Jacob Slusser, VPKSoft</Authors>
+    <Product>ScintillaNET.Core</Product>
     <Description>Source Editing Component</Description>
-    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2020.</Copyright>
-    <Version>3.6.51</Version>
-    <AssemblyVersion>3.6.5.1</AssemblyVersion>
-    <FileVersion>3.6.5.1</FileVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Signed|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\ScintillaNET.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PackageId>unofficial.ScintillaNET</PackageId>
+    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
-    <PackageIcon>vpksoft_logo.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>ScintillaNET Scintilla Editor</PackageTags>
-    <PackageReleaseNotes>Please visit https://github.com/VPKSoft/ScintillaNET/releases to view the release notes.</PackageReleaseNotes>
+    <PackageTags>Initial .NET Core release.</PackageTags>
+    <AssemblyVersion>3.6.5.1</AssemblyVersion>
+    <FileVersion>3.6.5.1</FileVersion>
+    <Version>3.6.51</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageIcon>vpksoft_logo.png</PackageIcon>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Files\GitHub\ScintillaNET - Copy\src\ScintillaNET.Core\ScintillaNET.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Files\GitHub\ScintillaNET\src\ScintillaNET\ScintillaNET.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
     <None Include="..\Shared\vpksoft_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <Content Include="..\Shared\x64\SciLexer.dll" Link="x64\SciLexer.dll" />
-    <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
-    <Content Include="..\Shared\x64\SciLexer.exp" Link="x64\SciLexer.exp" />
-    <Content Include="..\Shared\x64\SciLexer.lib" Link="x64\SciLexer.lib" />
-    <Content Include="..\Shared\x64\SciLexer.pdb" Link="x64\SciLexer.pdb" />
-    <Content Include="..\Shared\x64\version.txt" Link="x64\version.txt" />
-    <Content Include="..\Shared\x86\SciLexer.dll" Link="x86\SciLexer.dll" />
-    <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
-    <Content Include="..\Shared\x86\SciLexer.exp" Link="x86\SciLexer.exp" />
-    <Content Include="..\Shared\x86\SciLexer.lib" Link="x86\SciLexer.lib" />
-    <Content Include="..\Shared\x86\SciLexer.pdb" Link="x86\SciLexer.pdb" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\Annotation.cs" Link="Annotation.cs" />
     <Compile Include="..\Shared\AutoCSelectionEventArgs.cs" Link="AutoCSelectionEventArgs.cs" />
@@ -144,23 +127,30 @@
     <Compile Include="..\Shared\WrapVisualFlagLocation.cs" Link="WrapVisualFlagLocation.cs" />
     <Compile Include="..\Shared\WrapVisualFlags.cs" Link="WrapVisualFlags.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="..\Shared\x64\License.txt" Link="x64\License.txt" />
+    <Content Include="..\Shared\x64\version.txt" Link="x64\version.txt" />
     <Content Include="..\Shared\x86\License.txt" Link="x86\License.txt" />
     <Content Include="..\Shared\x86\version.txt" Link="x86\version.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Scintilla.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="x64\" />
     <Folder Include="x86\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\Shared\x64\SciLexer.dll" Link="x64\SciLexer.dll" />
+    <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
+    <Content Include="..\Shared\x64\SciLexer.exp" Link="x64\SciLexer.exp" />
+    <Content Include="..\Shared\x64\SciLexer.lib" Link="x64\SciLexer.lib" />
+    <Content Include="..\Shared\x64\SciLexer.pdb" Link="x64\SciLexer.pdb" />
+    <Content Include="..\Shared\x86\SciLexer.dll" Link="x86\SciLexer.dll" />
+    <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
+    <Content Include="..\Shared\x86\SciLexer.exp" Link="x86\SciLexer.exp" />
+    <Content Include="..\Shared\x86\SciLexer.lib" Link="x86\SciLexer.lib" />
+    <Content Include="..\Shared\x86\SciLexer.pdb" Link="x86\SciLexer.pdb" />
+  </ItemGroup>
+
 </Project>

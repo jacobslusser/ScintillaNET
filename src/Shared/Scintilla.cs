@@ -991,6 +991,8 @@ namespace ScintillaNET
 
                     var assembly = Assembly.GetAssembly(typeof(Scintilla));
 
+                    var resources = assembly.GetManifestResourceNames();
+
                     var guid = assembly?.FullName;
 
                     #if !NETCOREAPP

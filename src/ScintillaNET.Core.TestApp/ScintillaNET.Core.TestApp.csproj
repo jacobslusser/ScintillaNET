@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ScintillaNET\ScintillaNET.Core.csproj" />
+    <ProjectReference Include="..\ScintillaNET.Core\ScintillaNET.Core.csproj" />
   </ItemGroup>
 
 </Project>
