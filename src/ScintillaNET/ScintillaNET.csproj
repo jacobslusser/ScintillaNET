@@ -2,7 +2,6 @@
   <PropertyGroup>
     <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
     <TargetFramework>net40</TargetFramework>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft</Company>
     <Product>ScintillaNET</Product>
