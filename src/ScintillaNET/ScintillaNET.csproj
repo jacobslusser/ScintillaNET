@@ -1,32 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net40</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft</Company>
     <Product>ScintillaNET</Product>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2020.</Copyright>
-    <Version>3.6.51</Version>
-    <AssemblyVersion>3.6.5.1</AssemblyVersion>
-    <FileVersion>3.6.5.1</FileVersion>
+    <Version>3.6.6</Version>
+    <AssemblyVersion>3.6.6.0</AssemblyVersion>
+    <FileVersion>3.6.6.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Signed|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\ScintillaNET.snk</AssemblyOriginatorKeyFile>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>unofficial.ScintillaNET</PackageId>
@@ -40,22 +33,27 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\Shared\vpksoft_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <Content Include="..\Shared\x64\SciLexer.dll" Link="x64\SciLexer.dll" />
     <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
-    <Content Include="..\Shared\x64\SciLexer.exp" Link="x64\SciLexer.exp" />
-    <Content Include="..\Shared\x64\SciLexer.lib" Link="x64\SciLexer.lib" />
-    <Content Include="..\Shared\x64\SciLexer.pdb" Link="x64\SciLexer.pdb" />
-    <Content Include="..\Shared\x64\version.txt" Link="x64\version.txt" />
-    <Content Include="..\Shared\x86\SciLexer.dll" Link="x86\SciLexer.dll" />
     <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
-    <Content Include="..\Shared\x86\SciLexer.exp" Link="x86\SciLexer.exp" />
-    <Content Include="..\Shared\x86\SciLexer.lib" Link="x86\SciLexer.lib" />
-    <Content Include="..\Shared\x86\SciLexer.pdb" Link="x86\SciLexer.pdb" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\Annotation.cs" Link="Annotation.cs" />
@@ -142,16 +140,6 @@
     <Compile Include="..\Shared\WrapMode.cs" Link="WrapMode.cs" />
     <Compile Include="..\Shared\WrapVisualFlagLocation.cs" Link="WrapVisualFlagLocation.cs" />
     <Compile Include="..\Shared\WrapVisualFlags.cs" Link="WrapVisualFlags.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Shared\x64\License.txt" Link="x64\License.txt" />
-    <Content Include="..\Shared\x86\License.txt" Link="x86\License.txt" />
-    <Content Include="..\Shared\x86\version.txt" Link="x86\version.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Scintilla.cs">
