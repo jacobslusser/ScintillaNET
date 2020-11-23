@@ -8,7 +8,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2020.</Copyright>
-    <Version>3.6.6</Version>
+    <Version>3.6.60</Version>
     <AssemblyVersion>3.6.6.0</AssemblyVersion>
     <FileVersion>3.6.6.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
