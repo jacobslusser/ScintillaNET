@@ -978,10 +978,6 @@ namespace ScintillaNET
 
                 var scintillaName = "ScintillaNET";
 
-                #if NETCOREAPP
-                    scintillaName = "ScintillaNET.Core";
-                #endif
-
                 modulePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
 
                 if (!File.Exists(modulePath))
