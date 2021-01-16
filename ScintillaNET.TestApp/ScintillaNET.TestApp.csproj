@@ -13,7 +13,7 @@
     <Description>A test application to validate that the ScintillaNET control is working.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
-    <RepositoryType></RepositoryType>
+    <RepositoryType />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -57,7 +57,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <PackageReference Include="unofficial.ScintillaNET" Version="3.6.51" />
+    <PackageReference Include="unofficial.ScintillaNET" Version="3.8.0" />
     <Compile Update="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
