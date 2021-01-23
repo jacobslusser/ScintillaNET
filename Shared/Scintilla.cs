@@ -3004,6 +3004,51 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Properties
+        /* TODO::When solved why this is not working.
+        /// <summary>
+        /// Gets or sets a value indicating whether control's elements are aligned to support locales using right-to-left fonts.
+        /// </summary>
+        /// <value>The right to left.</value>
+        [Category("Appearance")]
+        [Description("Indicates whether the component should drawn right-to-left for RTL languages.")]
+        public override RightToLeft RightToLeft
+        {
+            get => base.RightToLeft;
+            set
+            {
+                if (value != base.RightToLeft)
+                {
+                    switch (value)
+                    {
+                        case RightToLeft.Yes:
+                            DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
+                                new IntPtr(NativeMethods.SC_BIDIRECTIONAL_R2L));
+                            break;
+                        case RightToLeft.No:
+                            DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
+                                new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
+                            break;
+                        case RightToLeft.Inherit:
+                            if (this.Parent?.RightToLeft == RightToLeft.Yes)
+                            {
+                                DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
+                                    new IntPtr(NativeMethods.SC_BIDIRECTIONAL_R2L));
+                            }
+
+                            if (this.Parent?.RightToLeft == RightToLeft.No)
+                            {
+                                DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
+                                    new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
+                            }
+
+                            break;
+                    }
+
+                    base.RightToLeft = value;
+                }
+            }
+        }
+        */
 
         /// <summary>
         /// Gets or sets the caret foreground color for additional selections.

@@ -986,6 +986,11 @@ namespace ScintillaNET
         public const int SCI_GETSUBSTYLEBASES = 4026;
         // public const int SCI_SETUSEPALETTE = 2039;
         // public const int SCI_GETUSEPALETTE = 2139;
+        public const int SC_BIDIRECTIONAL_DISABLED = 0;
+        public const int SC_BIDIRECTIONAL_L2R = 1;
+        public const int SC_BIDIRECTIONAL_R2L = 2;
+        public const int SCI_GETBIDIRECTIONAL = 2708;
+        public const int SCI_SETBIDIRECTIONAL = 2709;
 
         // Keys
         public const int SCK_DOWN = 300;
