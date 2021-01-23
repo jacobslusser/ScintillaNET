@@ -13,6 +13,7 @@
     <Description>A test application to validate that the ScintillaNET control is working.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
+    <UseWindowsForms>true</UseWindowsForms>  
     <RepositoryType />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -27,7 +28,7 @@
     <Content Remove="C:\Users\Petteri Kautonen\.nuget\packages\unofficial.scintillanet\3.6.51\contentFiles\any\net40\SciLexer.lib" />
     <Content Remove="C:\Users\Petteri Kautonen\.nuget\packages\unofficial.scintillanet\3.6.51\contentFiles\any\net40\SciLexer.pdb" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Deployment" />
@@ -57,7 +58,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <PackageReference Include="unofficial.ScintillaNET" Version="3.8.0" />
+    <ProjectReference Include="..\ScintillaNET\ScintillaNET.csproj" />
     <Compile Update="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>

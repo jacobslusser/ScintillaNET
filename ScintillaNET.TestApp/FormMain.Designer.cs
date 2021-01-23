@@ -42,8 +42,9 @@
             this.scintilla.AutoCMaxHeight = 9;
             this.scintilla.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scintilla.Location = new System.Drawing.Point(0, 24);
+            this.scintilla.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.scintilla.Name = "scintilla";
-            this.scintilla.Size = new System.Drawing.Size(686, 366);
+            this.scintilla.Size = new System.Drawing.Size(800, 426);
             this.scintilla.TabIndents = true;
             this.scintilla.TabIndex = 0;
             // 
@@ -53,8 +54,7 @@
             this.mnuFile});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
-            this.msMain.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.msMain.Size = new System.Drawing.Size(686, 24);
+            this.msMain.Size = new System.Drawing.Size(800, 24);
             this.msMain.TabIndex = 1;
             this.msMain.Text = "menuStrip1";
             // 
@@ -88,12 +88,13 @@
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(686, 390);
+            this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.scintilla);
             this.Controls.Add(this.msMain);
             this.MainMenuStrip = this.msMain;
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FormMain";
             this.Text = "ScintillaNET.TestApp";
             this.msMain.ResumeLayout(false);
