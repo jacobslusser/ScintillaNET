@@ -1,57 +1,37 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ScintillaNET</AssemblyName>
     <RootNamespace>ScintillaNET</RootNamespace>
-  </PropertyGroup>
+  <Version>4.1.0</Version><AssemblyVersion>4.1.0</AssemblyVersion><FileVersion>4.1.0</FileVersion><PackageId>huanlin.ScintillaNET</PackageId><Authors>Jacob Slusser, Michael Tsai (Huanlin)</Authors><Company>Jacob Slusser</Company><Description>A Windows Forms control, wrapper, and bindings for the Scintilla text editor.</Description><Product>huanlin.ScintillaNET</Product><Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved.</Copyright><PackageLicenseFile>LICENSE.txt</PackageLicenseFile><RepositoryUrl>https://github.com/huanlin/ScintillaNET</RepositoryUrl><PackageReleaseNotes>Please visit https://github.com/jacobslusser/ScintillaNET/releases to view the release notes.
+Also check https://github.com/huanlin/ScintillaNET/CHANGELOG.md to see change logs.</PackageReleaseNotes><PackageTags>ScintillaNET Scintilla Editor</PackageTags></PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="x64\License.txt" />
-    <None Remove="x64\SciLexer.dll" />
-    <None Remove="x64\SciLexer.dll.gz" />
-    <None Remove="x64\SciLexer.exp" />
-    <None Remove="x64\SciLexer.lib" />
-    <None Remove="x64\SciLexer.pdb" />
-    <None Remove="x64\version.txt" />
-    <None Remove="x86\License.txt" />
-    <None Remove="x86\SciLexer.dll" />
-    <None Remove="x86\SciLexer.dll.gz" />
-    <None Remove="x86\SciLexer.exp" />
-    <None Remove="x86\SciLexer.lib" />
-    <None Remove="x86\SciLexer.pdb" />
-    <None Remove="x86\version.txt" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="x64\License.txt" />
-    <Content Include="x64\SciLexer.dll" />
-    <Content Include="x64\SciLexer.exp" />
-    <Content Include="x64\SciLexer.lib" />
-    <Content Include="x64\SciLexer.pdb" />
-    <Content Include="x64\version.txt" />
-    <Content Include="x86\License.txt" />
-    <Content Include="x86\SciLexer.dll" />
-    <Content Include="x86\SciLexer.exp" />
-    <Content Include="x86\SciLexer.lib" />
-    <Content Include="x86\SciLexer.pdb" />
-    <Content Include="x86\version.txt" />
+    <EmbeddedResource Include="x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
+    <EmbeddedResource Include="x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
   </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="x64\SciLexer.dll.gz" />
-    <EmbeddedResource Include="x86\SciLexer.dll.gz" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Update="Scintilla.cs">
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

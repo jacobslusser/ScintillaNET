@@ -5,11 +5,14 @@ VisualStudioVersion = 16.0.30914.41
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4B1240E-7C2D-43AA-B794-C41CCDE902AA}"
 	ProjectSection(SolutionItems) = preProject
+		..\CHANGELOG.md = ..\CHANGELOG.md
 		ScintillaNET.nuspec = ScintillaNET.nuspec
 		ScintillaNET.Signed.nuspec = ScintillaNET.Signed.nuspec
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{0EDA09C8-A142-4756-AB89-6544E60DA0DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{0EDA09C8-A142-4756-AB89-6544E60DA0DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "build", "..\build\build.csproj", "{2B1A8958-B757-44C0-BC57-C667556B64A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +27,12 @@ Global
 		{0EDA09C8-A142-4756-AB89-6544E60DA0DA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0EDA09C8-A142-4756-AB89-6544E60DA0DA}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
 		{0EDA09C8-A142-4756-AB89-6544E60DA0DA}.Signed|Any CPU.Build.0 = Debug|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B1A8958-B757-44C0-BC57-C667556B64A2}.Signed|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
