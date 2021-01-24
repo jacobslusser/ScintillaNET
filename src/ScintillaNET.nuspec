@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>jacobslusser.ScintillaNET</id>
-    <version>4.0.0</version>
+    <id>huanlin.ScintillaNET</id>
+    <version>4.1.0</version>
     <title>ScintillaNET Source Editing Component</title>
-    <authors>Jacob Slusser</authors>
+    <authors>Jacob Slusser, Michael Tsai (Huanlin)</authors>
     <owners>Jacob Slusser</owners>
     <projectUrl>https://github.com/jacobslusser/ScintillaNET</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -16,7 +16,7 @@
     <tags>ScintillaNET Scintilla Editor</tags>
   </metadata>
   <files>
-    <file src="ScintillaNET\bin\Release\*.dll" target="lib\net40\" />
-    <file src="ScintillaNET\bin\Release\*.xml" target="lib\net40\" />
+    <file src="ScintillaNET\bin\Release\*.dll" target="lib\net50\" />
+    <file src="ScintillaNET\bin\Release\*.xml" target="lib\net50\" />
   </files>
 </package>
