@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
-    <TargetFrameworks>netcoreapp3.1;net40</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft</Company>
     <Product>ScintillaNET</Product>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2020.</Copyright>
-    <Version>3.8.0</Version>
-    <AssemblyVersion>3.8.0.0</AssemblyVersion>
-    <FileVersion>3.8.0.0</FileVersion>
+    <Version>3.8.1</Version>
+    <AssemblyVersion>3.8.1.0</AssemblyVersion>
+    <FileVersion>3.8.1.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
+    <UseWindowsForms>true</UseWindowsForms>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
@@ -43,9 +44,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shared\vpksoft_logo.png">

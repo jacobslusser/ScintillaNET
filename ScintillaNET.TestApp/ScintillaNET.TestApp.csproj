@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{F25685EC-098A-4080-95A9-445268609806}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net47</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>ScintillaNET.TestApp</AssemblyTitle>
     <Product>ScintillaNET.TestApp</Product>
