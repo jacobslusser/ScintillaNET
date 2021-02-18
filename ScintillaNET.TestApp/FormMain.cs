@@ -26,5 +26,15 @@ namespace ScintillaNET.TestApp
         {
             Close();
         }
+
+        private void mnuTestMethod_Click(object sender, EventArgs e)
+        {
+            string ohm = "\u2126";
+            string omega = "\u03C9".ToUpper();
+            scintilla.Text = $"Ohm: {ohm}\r\nOmega: {omega}";
+
+            scintilla.SetRepresentation(ohm, "OHM");
+            scintilla.SetRepresentation(omega, "OMEGA");
+        }
     }
 }

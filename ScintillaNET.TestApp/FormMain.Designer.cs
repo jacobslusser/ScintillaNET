@@ -34,6 +34,7 @@
             this.mnuOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.odFile = new System.Windows.Forms.OpenFileDialog();
+            this.mnuTestMethod = new System.Windows.Forms.ToolStripMenuItem();
             this.msMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,7 +52,8 @@
             // msMain
             // 
             this.msMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFile});
+            this.mnuFile,
+            this.mnuTestMethod});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
             this.msMain.Size = new System.Drawing.Size(800, 24);
@@ -86,6 +88,13 @@
             this.odFile.DefaultExt = "*.*";
             this.odFile.Filter = "All Files|*.*";
             // 
+            // mnuTestMethod
+            // 
+            this.mnuTestMethod.Name = "mnuTestMethod";
+            this.mnuTestMethod.Size = new System.Drawing.Size(160, 20);
+            this.mnuTestMethod.Text = "Test some Scintilla method";
+            this.mnuTestMethod.Click += new System.EventHandler(this.mnuTestMethod_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -112,6 +121,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuOpen;
         private System.Windows.Forms.ToolStripMenuItem mnuExit;
         private System.Windows.Forms.OpenFileDialog odFile;
+        private System.Windows.Forms.ToolStripMenuItem mnuTestMethod;
     }
 }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -3001,6 +3001,59 @@ namespace ScintillaNET
             DirectMessage(NativeMethods.SCI_ZOOMOUT);
         }
 
+        /// <summary>
+        /// Sets the representation for a specified character string.
+        /// </summary>
+        /// <param name="encodedString">The encoded string. I.e. the Ohm character: Ω = \u2126.</param>
+        /// <param name="representationString">The representation string for the <paramref name="encodedString"/>. I.e. "OHM".</param>
+        /// <remarks>The <see cref="ViewWhitespace"/> must be set to <see cref="WhitespaceMode.VisibleAlways"/> for this to work.</remarks>
+        public unsafe void SetRepresentation(string encodedString, string representationString)
+        {
+            var bytesEncoded = Helpers.GetBytes(encodedString, Encoding, zeroTerminated: true);
+            var bytesRepresentation = Helpers.GetBytes(representationString, Encoding, zeroTerminated: true);
+            fixed (byte* bpEncoded = bytesEncoded)
+            {
+                fixed (byte* bpRepresentation = bytesRepresentation)
+                {
+                    DirectMessage(NativeMethods.SCI_SETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the representation for a specified character string.
+        /// </summary>
+        /// <param name="encodedString">The encoded string. I.e. the Ohm character: Ω = \u2126.</param>
+        /// <returns>The representation string for the <paramref name="encodedString"/>. I.e. "OHM".</returns>
+        public unsafe string GetRepresentation(string encodedString)
+        {
+            var bytesEncoded = Helpers.GetBytes(encodedString, Encoding, zeroTerminated: true);
+
+            fixed (byte* bpEncoded = bytesEncoded)
+            {
+                var length = DirectMessage(NativeMethods.SCI_GETREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero)
+                    .ToInt32();
+                var bytesRepresentation = new byte[length + 1];
+                fixed (byte* bpRepresentation = bytesRepresentation)
+                {
+                    DirectMessage(NativeMethods.SCI_GETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
+                    return Helpers.GetString(new IntPtr(bpRepresentation), length, Encoding);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clears the representation from a specified character string.
+        /// </summary>
+        /// <param name="encodedString">The encoded string. I.e. the Ohm character: Ω = \u2126.</param>
+        public unsafe void ClearRepresentation(string encodedString)
+        {
+            var bytesEncoded = Helpers.GetBytes(encodedString, Encoding, zeroTerminated: true);
+            fixed (byte* bpEncoded = bytesEncoded)
+            {
+                DirectMessage(NativeMethods.SCI_CLEARREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero);
+            }
+        }
         #endregion Methods
 
         #region Properties
