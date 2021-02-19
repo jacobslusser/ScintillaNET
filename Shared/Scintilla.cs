@@ -3057,7 +3057,7 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Properties
-        /* TODO::When solved why this is not working.
+        // TODO::When solved why this is not working.
         /// <summary>
         /// Gets or sets a value indicating whether control's elements are aligned to support locales using right-to-left fonts.
         /// </summary>
@@ -3066,10 +3066,35 @@ namespace ScintillaNET
         [Description("Indicates whether the component should drawn right-to-left for RTL languages.")]
         public override RightToLeft RightToLeft
         {
-            get => base.RightToLeft;
+            get
+            {
+                // Prevent the protected memory read error.
+                if (!IsHandleCreated || IsDisposed)
+                {
+                    return RightToLeft.No;
+                }
+
+                var result = (int)DirectMessage(NativeMethods.SCI_GETBIDIRECTIONAL, IntPtr.Zero);
+                switch (result)
+                {
+                    case NativeMethods.SC_BIDIRECTIONAL_L2R: 
+                        return RightToLeft.No;
+                    case NativeMethods.SC_BIDIRECTIONAL_R2L: 
+                        return RightToLeft.Yes;
+                }
+
+                return RightToLeft.No;
+            } 
+                
             set
             {
-                if (value != base.RightToLeft)
+                // Prevent the protected memory read error.
+                if (!IsHandleCreated || IsDisposed)
+                {
+                    return;
+                }
+
+                if (value != RightToLeft)
                 {
                     switch (value)
                     {
@@ -3082,13 +3107,13 @@ namespace ScintillaNET
                                 new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
                             break;
                         case RightToLeft.Inherit:
-                            if (this.Parent?.RightToLeft == RightToLeft.Yes)
+                            if (Parent?.RightToLeft == RightToLeft.Yes)
                             {
                                 DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
                                     new IntPtr(NativeMethods.SC_BIDIRECTIONAL_R2L));
                             }
 
-                            if (this.Parent?.RightToLeft == RightToLeft.No)
+                            if (Parent?.RightToLeft == RightToLeft.No)
                             {
                                 DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
                                     new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
@@ -3096,12 +3121,10 @@ namespace ScintillaNET
 
                             break;
                     }
-
-                    base.RightToLeft = value;
                 }
             }
         }
-        */
+        
 
         /// <summary>
         /// Gets or sets the caret foreground color for additional selections.
