@@ -15,9 +15,12 @@
     
      steps:
        - checkout
+       - run: 
+          name: Get strong-named assembly key
+          command: |
+            ScintillaNET/StrongNamedAssembly.ps1
        - run: msbuild ScintillaNET/ScintillaNET.csproj /t:restore
        - run: msbuild ScintillaNET/ScintillaNET.csproj /p:Configuration=Release
-# No need for bleeding edge       - run: dotnet tool install --global PowerShell
        - run: 
           name: Push to NuGet
           command: |
