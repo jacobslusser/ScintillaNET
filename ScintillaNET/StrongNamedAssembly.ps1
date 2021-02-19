@@ -38,3 +38,7 @@ $environment_cryptor = "CryptEnvVar.exe"
 
 $arguments = @("-s", $Env:SK_KEY, "-e", "SK_1;SK_2", "-f", "ScintillaNET\scintilla.net.pfx", "-w", "80", "-i", "-v")
 & (-join($application, "\", $environment_cryptor)) $arguments
+
+# register the certificate to the CI image..
+$certpw=ConvertTo-SecureString $Env:SECRET_KEY_PK –asplaintext –force 
+Import-PfxCertificate -FilePath "ScintillaNET\scintilla.net.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $certpw | Out-Null
