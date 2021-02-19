@@ -14,7 +14,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
     <UseWindowsForms>true</UseWindowsForms>  
-    <RepositoryType />
+    <RepositoryType />  
+    <SignAssembly>false</SignAssembly>  
+    <AssemblyOriginatorKeyFile>scintilla.net.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -58,7 +60,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <ProjectReference Include="..\ScintillaNET\ScintillaNET.csproj" />
+    <PackageReference Include="unofficial.ScintillaNET" Version="3.8.2" />
     <Compile Update="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
