@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET.TestApp", "Sci
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{22AE2386-60F1-476E-9303-61CDB0AAC4CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET.Signed", "ScintillaNET\ScintillaNET.Signed.csproj", "{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,12 +26,6 @@ Global
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
 		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Signed|Any CPU.Build.0 = Debug|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
-		{7798F78B-C2C5-4496-9BC2-64D3FFEF8A99}.Signed|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
