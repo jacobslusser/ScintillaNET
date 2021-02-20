@@ -10,7 +10,7 @@
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2021.</Copyright>
     <Version>3.8.3</Version>
     <AssemblyVersion>3.8.3.0</AssemblyVersion>
-    <FileVersion>3.8.2.0</FileVersion>
+    <FileVersion>3.8.3.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
