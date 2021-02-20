@@ -25,13 +25,13 @@ SOFTWARE.
 Write-Output "Init strong-named assembly signing..."
 
 $output_file = "ScintillaNET\CryptEnvVar.exe"
-
 $download_url = "https://www.vpksoft.net/toolset/CryptEnvVar.exe"
 
 Write-Output "Download file:  $download_url ..."
 (New-Object System.Net.WebClient).DownloadFile($download_url, $output_file)
 Write-Output "Download done."
 
+$output_file = "ScintillaNET\SnInstallPfx.exe"
 $download_url = "https://www.vpksoft.net/toolset/SnInstallPfx.exe"
 
 Write-Output "Download file:  $download_url ..."
