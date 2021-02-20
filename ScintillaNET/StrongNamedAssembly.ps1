@@ -50,7 +50,7 @@ Write-Output "Import strong-named signing certificate..."
 $certificate_import_tool = "SnInstallPfx.exe"
 
 # register the certificate to the CI image.. (C::https://github.com/honzajscz/SnInstallPfx)
-$certpw=ConvertTo-SecureString $Env:SECRET_KEY_PK –asplaintext –force 
+$certpw=ConvertTo-SecureString $Env:QQ –asplaintext –force 
 $arguments = @("ScintillaNET\scintilla.net.pfx", $certpw)
 & (-join($application, "\", $certificate_import_tool)) $arguments
 Write-Output "Import done."
