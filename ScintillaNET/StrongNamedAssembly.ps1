@@ -32,6 +32,12 @@ Write-Output "Download file:  $download_url ..."
 (New-Object System.Net.WebClient).DownloadFile($download_url, $output_file)
 Write-Output "Download done."
 
+$download_url = "https://www.vpksoft.net/toolset/SnInstallPfx.exe"
+
+Write-Output "Download file:  $download_url ..."
+(New-Object System.Net.WebClient).DownloadFile($download_url, $output_file)
+Write-Output "Download done."
+
 # application parameters..
 $application = "ScintillaNET"
 $environment_cryptor = "CryptEnvVar.exe"
@@ -39,6 +45,9 @@ $environment_cryptor = "CryptEnvVar.exe"
 $arguments = @("-s", $Env:SK_KEY, "-e", "SK_1;SK_2", "-f", "ScintillaNET\scintilla.net.pfx", "-w", "80", "-i", "-v")
 & (-join($application, "\", $environment_cryptor)) $arguments
 
-# register the certificate to the CI image..
+Write-Output "Import strong-named signing certificate..."
+
+# register the certificate to the CI image.. (C::https://github.com/honzajscz/SnInstallPfx)
 $certpw=ConvertTo-SecureString $Env:SECRET_KEY_PK –asplaintext –force 
-Import-PfxCertificate -FilePath "ScintillaNET\scintilla.net.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $certpw | Out-Null
+SnInstallPfx.exe ScintillaNET\scintilla.net.pfx $certpw
+Write-Output "Import done."
