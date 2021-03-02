@@ -3,14 +3,14 @@
     <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
     <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
-    <Company>Jacob Slusser, VPKSoft</Company>
+    <Company>Jacob Slusser, VPKSoft, cyber960</Company>
     <Product>ScintillaNET</Product>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
-    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft 2021.</Copyright>
-    <Version>3.8.4</Version>
-    <AssemblyVersion>3.8.4.0</AssemblyVersion>
-    <FileVersion>3.8.4.0</FileVersion>
+    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
+    <Version>3.8.5</Version>
+    <AssemblyVersion>3.8.5.0</AssemblyVersion>
+    <FileVersion>3.8.5.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
@@ -60,6 +60,7 @@
     <Compile Include="..\Shared\AutoCSelectionEventArgs.cs" Link="AutoCSelectionEventArgs.cs" />
     <Compile Include="..\Shared\AutomaticFold.cs" Link="AutomaticFold.cs" />
     <Compile Include="..\Shared\BeforeModificationEventArgs.cs" Link="BeforeModificationEventArgs.cs" />
+    <Compile Include="..\Shared\BiDirectionalDisplayType.cs" Link="BiDirectionalDisplayType.cs" />
     <Compile Include="..\Shared\CallTipClickEventArgs.cs" Link="CallTipClickEventArgs.cs" />
     <Compile Include="..\Shared\CallTipClickType.cs" Link="CallTipClickType.cs" />
     <Compile Include="..\Shared\CaretStyle.cs" Link="CaretStyle.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="..\Shared\UpdateUIEventArgs.cs" Link="UpdateUIEventArgs.cs" />
     <Compile Include="..\Shared\VirtualSpace.cs" Link="VirtualSpace.cs" />
     <Compile Include="..\Shared\WhitespaceMode.cs" Link="WhitespaceMode.cs" />
+    <Compile Include="..\Shared\WinApiHelper.cs" Link="WinApiHelper.cs" />
     <Compile Include="..\Shared\WrapIndentMode.cs" Link="WrapIndentMode.cs" />
     <Compile Include="..\Shared\WrapMode.cs" Link="WrapMode.cs" />
     <Compile Include="..\Shared\WrapVisualFlagLocation.cs" Link="WrapVisualFlagLocation.cs" />

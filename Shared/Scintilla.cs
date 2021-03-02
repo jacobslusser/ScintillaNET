@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -7,7 +6,6 @@ using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -78,8 +76,8 @@ namespace ScintillaNET
         private int stylingBytePosition;
 
         // Modified event optimization
-        private int? cachedPosition = null;
-        private string cachedText = null;
+        private int? cachedPosition;
+        private string cachedText;
 
         // Double-click
         private bool doubleClick;
@@ -1702,13 +1700,20 @@ namespace ScintillaNET
         /// Raises the HandleCreated event.
         /// </summary>
         /// <param name="e">An EventArgs that contains the event data.</param>
-        protected unsafe override void OnHandleCreated(EventArgs e)
+        protected override unsafe void OnHandleCreated(EventArgs e)
         {
             // Set more intelligent defaults...
             InitDocument();
 
             // I would like to see all of my text please
+            DirectMessage(NativeMethods.SCI_SETSCROLLWIDTH, new IntPtr(1));
             DirectMessage(NativeMethods.SCI_SETSCROLLWIDTHTRACKING, new IntPtr(1));
+
+            //hide all default margins
+            foreach (var margin in Margins)
+            {
+                margin.Width = 0;
+            }
 
             // Enable support for the call tip style and tabs
             DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
@@ -3057,74 +3062,79 @@ namespace ScintillaNET
         #endregion Methods
 
         #region Properties
-        // TODO::When solved why this is not working.
+
+
         /// <summary>
-        /// Gets or sets a value indicating whether control's elements are aligned to support locales using right-to-left fonts.
+        /// Gets or sets the bi-directionality of the Scintilla control.
         /// </summary>
-        /// <value>The right to left.</value>
-        [Category("Appearance")]
-        [Description("Indicates whether the component should drawn right-to-left for RTL languages.")]
-        public override RightToLeft RightToLeft
+        /// <value>The bi-directionality of the Scintilla control.</value>
+        [Category("Behaviour")]
+        [Description("The bi-directionality of the Scintilla control.")]
+        public BiDirectionalDisplayType BiDirectionality
+        {
+            get => (BiDirectionalDisplayType) DirectMessage(NativeMethods.SCI_GETBIDIRECTIONAL).ToInt32();
+
+            set
+            {
+                if (value != BiDirectionalDisplayType.Disabled)
+                {
+                    var technology = DirectMessage(NativeMethods.SCI_GETTECHNOLOGY).ToInt32();
+                    if (technology == NativeMethods.SC_TECHNOLOGY_DEFAULT)
+                    {
+                        DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(NativeMethods.SC_TECHNOLOGY_DIRECTWRITE));
+                    }
+                }
+
+                DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL, new IntPtr((int)value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the reading layout is from right to left.
+        /// </summary>
+        /// <value><c>true</c> if reading layout is from right to left; otherwise, <c>false</c>.</value>
+        [Category("Behaviour")]
+        [Description("A value indicating whether the reading layout is from right to left.")]
+        public bool UseRightToLeftReadingLayout
         {
             get
             {
-                // Prevent the protected memory read error.
-                if (!IsHandleCreated || IsDisposed)
+                if (!IsHandleCreated)
                 {
-                    return RightToLeft.No;
+                    return false;
                 }
 
-                var result = (int)DirectMessage(NativeMethods.SCI_GETBIDIRECTIONAL, IntPtr.Zero);
-                switch (result)
-                {
-                    case NativeMethods.SC_BIDIRECTIONAL_L2R: 
-                        return RightToLeft.No;
-                    case NativeMethods.SC_BIDIRECTIONAL_R2L: 
-                        return RightToLeft.Yes;
-                }
-
-                return RightToLeft.No;
-            } 
+                long exStyle = Handle.GetWindowLongPtr(WinApiHelpers.GWL_EXSTYLE).ToInt64();
                 
+                return exStyle == (exStyle | WinApiHelpers.WS_EX_LAYOUTRTL);
+            }
             set
             {
-                // Prevent the protected memory read error.
-                if (!IsHandleCreated || IsDisposed)
+                if (!IsHandleCreated)
                 {
                     return;
                 }
 
-                if (value != RightToLeft)
+                long exStyle = Handle.GetWindowLongPtr(WinApiHelpers.GWL_EXSTYLE).ToInt64();
+
+                if (value)
                 {
-                    switch (value)
+                    var technology = DirectMessage(NativeMethods.SCI_GETTECHNOLOGY).ToInt32();
+                    if (technology != NativeMethods.SC_TECHNOLOGY_DEFAULT)
                     {
-                        case RightToLeft.Yes:
-                            DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
-                                new IntPtr(NativeMethods.SC_BIDIRECTIONAL_R2L));
-                            break;
-                        case RightToLeft.No:
-                            DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
-                                new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
-                            break;
-                        case RightToLeft.Inherit:
-                            if (Parent?.RightToLeft == RightToLeft.Yes)
-                            {
-                                DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
-                                    new IntPtr(NativeMethods.SC_BIDIRECTIONAL_R2L));
-                            }
-
-                            if (Parent?.RightToLeft == RightToLeft.No)
-                            {
-                                DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL,
-                                    new IntPtr(NativeMethods.SC_BIDIRECTIONAL_L2R));
-                            }
-
-                            break;
+                        DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(NativeMethods.SC_TECHNOLOGY_DEFAULT));
                     }
+
+                    exStyle |= WinApiHelpers.WS_EX_LAYOUTRTL;
                 }
+                else
+                {
+                    exStyle &= ~WinApiHelpers.WS_EX_LAYOUTRTL;
+                }
+                Handle.SetWindowLongPtr(WinApiHelpers.GWL_EXSTYLE, new IntPtr(exStyle));
+                DirectMessage(NativeMethods.SCI_SETFOCUS, new IntPtr(1)); // needs focus to update
             }
         }
-        
 
         /// <summary>
         /// Gets or sets the caret foreground color for additional selections.
@@ -4345,18 +4355,45 @@ namespace ScintillaNET
         }
 
         /// <summary>
-        /// Not supported.
+        /// Gets or sets the font of the text displayed by the control.
         /// </summary>
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override Font Font
+        /// <returns>The <see cref="T:System.Drawing.Font" /> to apply to the text displayed by the control. The default is the value of the <see cref="P:System.Windows.Forms.Control.DefaultFont" /> property.</returns>
+        [Category("Appearance")]
+        [Description("The font of the text displayed by the control.")]
+		public override Font Font
         {
             get
             {
-                return base.Font;
+                if (!IsHandleCreated)
+                {
+                    return base.Font;
+                }
+
+                var defaultFontStyle = Styles[Style.Default];
+
+                var fontStyle = defaultFontStyle.Bold ? FontStyle.Bold : FontStyle.Regular;
+
+                if (defaultFontStyle.Italic)
+                {
+                    fontStyle |= FontStyle.Italic;
+                }
+
+                if (defaultFontStyle.Underline)
+                {
+                    fontStyle |= FontStyle.Underline;
+                }
+
+                return new Font(defaultFontStyle.Font, defaultFontStyle.SizeF, fontStyle);
             }
+
             set
             {
+                var defaultFontStyle = Styles[Style.Default];
+                defaultFontStyle.Font = value.Name;
+                defaultFontStyle.SizeF = value.Size;
+                defaultFontStyle.Bold = value.Bold;
+                defaultFontStyle.Italic = value.Italic;
+                defaultFontStyle.Underline = value.Underline;
                 base.Font = value;
             }
         }
@@ -5287,7 +5324,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>
         /// One of the <see cref="ScintillaNET.TabDrawMode" /> enumeration values.
-        /// The default is <see cref="TabDrawMode.LongArrow" />.
+        /// The default is <see cref="ScintillaNET.TabDrawMode.LongArrow" />.
         /// </returns>
         /// <seealso cref="ViewWhitespace" />
         [DefaultValue(TabDrawMode.LongArrow)]
@@ -5450,14 +5487,18 @@ namespace ScintillaNET
         /// <returns>The text displayed in the control.</returns>
         /// <remarks>Depending on the length of text get or set, this operation can be expensive.</remarks>
         [Editor("System.ComponentModel.Design.MultilineStringEditor, System.Design", typeof(UITypeEditor))]
-        public unsafe override string Text
+        [Description("The text associated with this control.")]
+        [Category("Appearance")]
+        public override unsafe string Text
         {
             get
             {
                 var length = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
                 var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(0), new IntPtr(length));
                 if (ptr == IntPtr.Zero)
+                {
                     return string.Empty;
+                }
 
                 // Assumption is that moving the gap will always be equal to or less expensive
                 // than using one of the APIs which requires an intermediate buffer.
@@ -5470,9 +5511,14 @@ namespace ScintillaNET
                 {
                     DirectMessage(NativeMethods.SCI_CLEARALL);
                 }
+                else if (value.Contains("\0"))
+                {
+                    DirectMessage(NativeMethods.SCI_CLEARALL);
+                    AppendText(value);
+                }
                 else
                 {
-                    fixed (byte* bp = Helpers.GetBytes(value, Encoding, zeroTerminated: true))
+                    fixed (byte* bp = Helpers.GetBytes(value, Encoding, zeroTerminated: true)) 
                         DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
                 }
             }
@@ -5484,13 +5530,7 @@ namespace ScintillaNET
         /// <returns>The number of characters in the document.</returns>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int TextLength
-        {
-            get
-            {
-                return Lines.TextLength;
-            }
-        }
+        public int TextLength => Lines.TextLength;
 
         /// <summary>
         /// Gets or sets whether to use a mixture of tabs and spaces for indentation or purely spaces.
@@ -5723,9 +5763,9 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>
         /// One of the <see cref="ScintillaNET.WrapMode" /> enumeration values.
-        /// The default is <see cref="ScintillaNET.WrapMode.None" />.
+        /// The default is <see cref="ScintillaNET.WrapMode.Word" />.
         /// </returns>
-        [DefaultValue(WrapMode.None)]
+        [DefaultValue(WrapMode.Word)]
         [Category("Line Wrapping")]
         [Description("The line wrapping strategy.")]
         public WrapMode WrapMode
