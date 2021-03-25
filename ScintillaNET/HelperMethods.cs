@@ -28,7 +28,11 @@ namespace ScintillaNET
         public static void SetFoldingState(this Scintilla scintilla, string foldingState, string separator = ";")
         {
             scintilla.FoldAll(FoldAction.Expand);
+            #if NET40
+            foreach (var index in foldingState.Split(separator[0]).Select(int.Parse))
+            #else
             foreach (var index in foldingState.Split(separator).Select(int.Parse))
+            #endif
             {
                 if (index < 0 || index >= scintilla.Lines.Count)
                 {
