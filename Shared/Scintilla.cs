@@ -5507,6 +5507,14 @@ namespace ScintillaNET
             }
             set
             {
+                var previousReadOnly = DesignMode ? ReadOnly : false;
+
+                // Allow Text property change in read-only mode when the designer is active.
+                if (previousReadOnly && DesignMode)
+                {
+                    DirectMessage(NativeMethods.SCI_SETREADONLY, IntPtr.Zero);
+                }
+
                 if (string.IsNullOrEmpty(value))
                 {
                     DirectMessage(NativeMethods.SCI_CLEARALL);
@@ -5520,6 +5528,12 @@ namespace ScintillaNET
                 {
                     fixed (byte* bp = Helpers.GetBytes(value, Encoding, zeroTerminated: true)) 
                         DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
+                }
+
+                // Allow Text property change in read-only mode when the designer is active.
+                if (previousReadOnly && DesignMode)
+                {
+                    DirectMessage(NativeMethods.SCI_SETREADONLY, new IntPtr(1));
                 }
             }
         }
