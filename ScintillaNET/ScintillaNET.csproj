@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
-    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net45</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft, cyber960</Company>
     <Product>ScintillaNET</Product>
@@ -16,10 +16,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
@@ -39,21 +42,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shared\vpksoft_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
-    <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
+    <EmbeddedResource Include="..\Shared\x64\Scintilla.zip" Link="x64\Scintilla.zip" />
+    <EmbeddedResource Include="..\Shared\x86\Scintilla.zip" Link="x86\Scintilla.zip" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\Annotation.cs" Link="Annotation.cs" />

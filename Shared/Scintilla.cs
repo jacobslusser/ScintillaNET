@@ -29,7 +29,8 @@ namespace ScintillaNET
         private bool reparent;
 
         // Static module data
-        private static string modulePath;
+        private static string modulePathScintilla;
+        private static string modulePathLexilla;
         private static IntPtr moduleHandle;
         private static NativeMethods.Scintilla_DirectFunction directFunction;
 
@@ -968,17 +969,19 @@ namespace ScintillaNET
         private static string GetModulePath()
         {
             // UI thread...
-            if (modulePath == null)
+            if (modulePathScintilla == null)
             {
                 // Extract the embedded SciLexer DLL
                 // http://stackoverflow.com/a/768429/2073621
                 var version = typeof(Scintilla).Assembly.GetName().Version.ToString(3);
 
-                var scintillaName = "ScintillaNET";
+                var scintillaName = "ScintillaNET_5Plus";
+                var scintillaBaseName = "ScintillaNET";
 
-                modulePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
+                modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
+                modulePathLexilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Lexilla.dll");
 
-                if (!File.Exists(modulePath))
+                if (!File.Exists(modulePathScintilla))
                 {
                     // http://stackoverflow.com/a/229567/2073621
                     // Synchronize access to the file across processes
@@ -1009,7 +1012,7 @@ namespace ScintillaNET
                                 ownsHandle = mutex.WaitOne(5000, false); // 5 sec
                                 if (ownsHandle == false)
                                 {
-                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timeout waiting for exclusive access to '{0}'.", modulePath);
+                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timeout waiting for exclusive access to '{0}'.", modulePathScintilla);
                                     throw new TimeoutException(timeoutMessage);
                                 }
                             }
@@ -1020,18 +1023,31 @@ namespace ScintillaNET
                             }
 
                             // Double-checked (process) lock
-                            if (!File.Exists(modulePath))
+                            if (!File.Exists(modulePathScintilla))
                             {
                                 // Write the embedded file to disk
-                                var directory = Path.GetDirectoryName(modulePath);
+                                var directory = Path.GetDirectoryName(modulePathScintilla);
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
-                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
-                                using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
-                                using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
-                                using (var fileStream = File.Create(modulePath))
-                                    gzipStream.CopyTo(fileStream);
+                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaBaseName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+                                using var resourceStream =
+                                    typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
+
+                                using var zipArchive = new ZipArchive(resourceStream, ZipArchiveMode.Read);
+
+                                foreach (var entry in zipArchive.Entries)
+                                {
+                                    if (entry.FullName == "Scintilla.dll")
+                                    {
+                                        entry.ExtractToFile(modulePathScintilla);
+                                    }
+
+                                    if (entry.FullName == "Lexilla.dll")
+                                    {
+                                        entry.ExtractToFile(modulePathLexilla);
+                                    }
+                                }
                             }
                         }
                         finally
@@ -1043,7 +1059,7 @@ namespace ScintillaNET
                 }
             }
 
-            return modulePath;
+            return modulePathScintilla;
         }
 
         /// <summary>
@@ -2445,9 +2461,9 @@ namespace ScintillaNET
         /// </remarks>
         public static void SetModulePath(string modulePath)
         {
-            if (Scintilla.modulePath == null)
+            if (Scintilla.modulePathScintilla == null)
             {
-                Scintilla.modulePath = modulePath;
+                Scintilla.modulePathScintilla = modulePath;
             }
         }
 
