@@ -18,11 +18,9 @@ namespace ScintillaNET.TestApp
         {
             if (odFile.ShowDialog() == DialogResult.OK)
             {
-                scintilla.RightToLeft = RightToLeft.Yes;
                 scintilla.Text = File.ReadAllText(odFile.FileName);
                 scintilla.EmptyUndoBuffer();
-
-                MessageBox.Show(scintilla.RightToLeft.ToString());
+                scintilla.Lexer = Lexer.Xml;
             }
         }
 

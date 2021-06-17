@@ -32,7 +32,9 @@ namespace ScintillaNET
         private static string modulePathScintilla;
         private static string modulePathLexilla;
         private static IntPtr moduleHandle;
+        private static IntPtr lexillaHandle;
         private static NativeMethods.Scintilla_DirectFunction directFunction;
+        private static Lexilla lexilla;
 
         // Events
         private static readonly object scNotificationEventKey = new object();
@@ -4013,6 +4015,8 @@ namespace ScintillaNET
 
                     // Load the native Scintilla library
                     moduleHandle = NativeMethods.LoadLibrary(path);
+                    lexillaHandle = NativeMethods.LoadLibrary(modulePathLexilla);
+
                     if (moduleHandle == IntPtr.Zero)
                     {
                         var message = string.Format(CultureInfo.InvariantCulture, "Could not load the Scintilla module at the path '{0}'.", path);
@@ -4026,6 +4030,9 @@ namespace ScintillaNET
                         var message = "The Scintilla module has no export for the 'Scintilla_DirectFunction' procedure.";
                         throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
+
+                    // Get the native Lexilla.dll methods
+                    lexilla = new Lexilla(lexillaHandle);
 
                     // Create a managed callback
                     directFunction = (NativeMethods.Scintilla_DirectFunction)Marshal.GetDelegateForFunctionPointer(

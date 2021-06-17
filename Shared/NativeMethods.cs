@@ -1784,6 +1784,10 @@ namespace ScintillaNET
 
         public delegate IntPtr Scintilla_DirectFunction(IntPtr ptr, int iMessage, IntPtr wParam, IntPtr lParam);
 
+        public delegate IntPtr CreateLexer(string lexerName);
+
+        public delegate void GetLexerName(UIntPtr index, IntPtr name, IntPtr bufferLength);
+
         #endregion Callbacks
 
         #region Functions
