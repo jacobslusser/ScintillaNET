@@ -8,9 +8,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
-    <Version>3.8.7</Version>
-    <AssemblyVersion>3.8.7.0</AssemblyVersion>
-    <FileVersion>3.8.7.0</FileVersion>
+    <Version>5.0.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
@@ -26,7 +24,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageId>unofficial.ScintillaNET</PackageId>
+    <PackageId>Scintilla.NET</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
