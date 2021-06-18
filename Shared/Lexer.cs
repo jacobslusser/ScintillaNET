@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace ScintillaNET
 {
     /// <summary>
@@ -10,6 +5,12 @@ namespace ScintillaNET
     /// </summary>
     public enum Lexer
     {
+        /// <summary>
+        /// The lexer enumeration wasn't found for the specified lexer name.
+        /// </summary>
+        /// <remarks>Scintilla 5+ does not support lexer type constants.</remarks>
+        NotFound = -1,
+
         /// <summary>
         /// Lexing is performed by the <see cref="Scintilla" /> control container (host) using
         /// the <see cref="Scintilla.StyleNeeded" /> event.

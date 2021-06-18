@@ -991,6 +991,7 @@ namespace ScintillaNET
         public const int SC_BIDIRECTIONAL_R2L = 2;
         public const int SCI_GETBIDIRECTIONAL = 2708;
         public const int SCI_SETBIDIRECTIONAL = 2709;
+        public const int SCI_SETILEXER = 4033;
 
         // Keys
         public const int SCK_DOWN = 300;
@@ -1133,6 +1134,143 @@ namespace ScintillaNET
         #endregion Constants
 
         #region Lexer Constants
+        // Map the constant language names
+        public static readonly List<KeyValuePair<int, string>> NameConstantMap = new List<KeyValuePair<int, string>>(
+            new[]
+            {
+                new KeyValuePair<int, string>(SCLEX_CONTAINER, ""),
+                new KeyValuePair<int, string>(SCLEX_NULL, "null"),
+                new KeyValuePair<int, string>(SCLEX_PYTHON, "python"),
+                new KeyValuePair<int, string>(SCLEX_CPP, "cpp"),
+                new KeyValuePair<int, string>(SCLEX_HTML, "hypertext"),
+                new KeyValuePair<int, string>(SCLEX_XML, "xml"),
+                new KeyValuePair<int, string>(SCLEX_PERL, "perl"),
+                new KeyValuePair<int, string>(SCLEX_SQL, "sql"),
+                new KeyValuePair<int, string>(SCLEX_VB, "vb"),
+                new KeyValuePair<int, string>(SCLEX_PROPERTIES, "props"),
+                new KeyValuePair<int, string>(SCLEX_ERRORLIST, "errorlist"),
+                new KeyValuePair<int, string>(SCLEX_MAKEFILE, "makefile"),
+                new KeyValuePair<int, string>(SCLEX_BATCH, "batch"),
+                new KeyValuePair<int, string>(SCLEX_XCODE, ""),
+                new KeyValuePair<int, string>(SCLEX_LATEX, "latex"),
+                new KeyValuePair<int, string>(SCLEX_LUA, "lua"),
+                new KeyValuePair<int, string>(SCLEX_DIFF, "diff"),
+                new KeyValuePair<int, string>(SCLEX_CONF, "conf"),
+                new KeyValuePair<int, string>(SCLEX_PASCAL, "pascal"),
+                new KeyValuePair<int, string>(SCLEX_AVE, "ave"),
+                new KeyValuePair<int, string>(SCLEX_ADA, "ada"),
+                new KeyValuePair<int, string>(SCLEX_LISP, "lisp"),
+                new KeyValuePair<int, string>(SCLEX_RUBY, "ruby"),
+                new KeyValuePair<int, string>(SCLEX_EIFFEL, "eiffel"),
+                new KeyValuePair<int, string>(SCLEX_EIFFELKW, "eiffelkw"),
+                new KeyValuePair<int, string>(SCLEX_TCL, "tcl"),
+                new KeyValuePair<int, string>(SCLEX_NNCRONTAB, "nncrontab"),
+                new KeyValuePair<int, string>(SCLEX_BULLANT, "bullant"),
+                new KeyValuePair<int, string>(SCLEX_VBSCRIPT, "vbscript"),
+                new KeyValuePair<int, string>(SCLEX_BAAN, "baan"),
+                new KeyValuePair<int, string>(SCLEX_MATLAB, "matlab"),
+                new KeyValuePair<int, string>(SCLEX_SCRIPTOL, "scriptol"),
+                new KeyValuePair<int, string>(SCLEX_ASM, "asm"),
+                new KeyValuePair<int, string>(SCLEX_CPPNOCASE, "cppnocase"),
+                new KeyValuePair<int, string>(SCLEX_FORTRAN, "fortran"),
+                new KeyValuePair<int, string>(SCLEX_F77, "f77"),
+                new KeyValuePair<int, string>(SCLEX_CSS, "css"),
+                new KeyValuePair<int, string>(SCLEX_POV, "pov"),
+                new KeyValuePair<int, string>(SCLEX_LOUT, "lout"),
+                new KeyValuePair<int, string>(SCLEX_ESCRIPT, "escript"),
+                new KeyValuePair<int, string>(SCLEX_PS, "ps"),
+                new KeyValuePair<int, string>(SCLEX_NSIS, "nsis"),
+                new KeyValuePair<int, string>(SCLEX_MMIXAL, "mmixal"),
+                new KeyValuePair<int, string>(SCLEX_CLW, "clarion"),
+                new KeyValuePair<int, string>(SCLEX_CLWNOCASE, "clarionnocase"),
+                new KeyValuePair<int, string>(SCLEX_LOT, "lot"),
+                new KeyValuePair<int, string>(SCLEX_YAML, "yaml"),
+                new KeyValuePair<int, string>(SCLEX_TEX, "tex"),
+                new KeyValuePair<int, string>(SCLEX_METAPOST, "metapost"),
+                new KeyValuePair<int, string>(SCLEX_POWERBASIC, "powerbasic"),
+                new KeyValuePair<int, string>(SCLEX_FORTH, "forth"),
+                new KeyValuePair<int, string>(SCLEX_ERLANG, "erlang"),
+                new KeyValuePair<int, string>(SCLEX_OCTAVE, "octave"),
+                new KeyValuePair<int, string>(SCLEX_MSSQL, "mssql"),
+                new KeyValuePair<int, string>(SCLEX_VERILOG, "verilog"),
+                new KeyValuePair<int, string>(SCLEX_KIX, "kix"),
+                new KeyValuePair<int, string>(SCLEX_GUI4CLI, "gui4cli"),
+                new KeyValuePair<int, string>(SCLEX_SPECMAN, "specman"),
+                new KeyValuePair<int, string>(SCLEX_AU3, "au3"),
+                new KeyValuePair<int, string>(SCLEX_APDL, "apdl"),
+                new KeyValuePair<int, string>(SCLEX_BASH, "bash"),
+                new KeyValuePair<int, string>(SCLEX_ASN1, "asn1"),
+                new KeyValuePair<int, string>(SCLEX_VHDL, "vhdl"),
+                new KeyValuePair<int, string>(SCLEX_CAML, "caml"),
+                new KeyValuePair<int, string>(SCLEX_BLITZBASIC, "blitzbasic"),
+                new KeyValuePair<int, string>(SCLEX_PUREBASIC, "purebasic"),
+                new KeyValuePair<int, string>(SCLEX_HASKELL, "haskell"),
+                new KeyValuePair<int, string>(SCLEX_PHPSCRIPT, "phpscript"),
+                new KeyValuePair<int, string>(SCLEX_TADS3, "tads3"),
+                new KeyValuePair<int, string>(SCLEX_REBOL, "rebol"),
+                new KeyValuePair<int, string>(SCLEX_SMALLTALK, "smalltalk"),
+                new KeyValuePair<int, string>(SCLEX_FLAGSHIP, "flagship"),
+                new KeyValuePair<int, string>(SCLEX_CSOUND, "csound"),
+                new KeyValuePair<int, string>(SCLEX_FREEBASIC, "freebasic"),
+                new KeyValuePair<int, string>(SCLEX_INNOSETUP, "inno"),
+                new KeyValuePair<int, string>(SCLEX_OPAL, "opal"),
+                new KeyValuePair<int, string>(SCLEX_SPICE, "spice"),
+                new KeyValuePair<int, string>(SCLEX_D, "d"),
+                new KeyValuePair<int, string>(SCLEX_CMAKE, "cmake"),
+                new KeyValuePair<int, string>(SCLEX_GAP, "gap"),
+                new KeyValuePair<int, string>(SCLEX_PLM, "PL/M"),
+                new KeyValuePair<int, string>(SCLEX_PROGRESS, "abl"),
+                new KeyValuePair<int, string>(SCLEX_ABAQUS, "abaqus"),
+                new KeyValuePair<int, string>(SCLEX_ASYMPTOTE, "asy"),
+                new KeyValuePair<int, string>(SCLEX_R, "r"),
+                new KeyValuePair<int, string>(SCLEX_MAGIK, "magiksf"),
+                new KeyValuePair<int, string>(SCLEX_POWERSHELL, "powershell"),
+                new KeyValuePair<int, string>(SCLEX_MYSQL, "mysql"),
+                new KeyValuePair<int, string>(SCLEX_PO, "po"),
+                new KeyValuePair<int, string>(SCLEX_TAL, "TAL"),
+                new KeyValuePair<int, string>(SCLEX_COBOL, "COBOL"),
+                new KeyValuePair<int, string>(SCLEX_TACL, "TACL"),
+                new KeyValuePair<int, string>(SCLEX_SORCUS, "sorcins"),
+                new KeyValuePair<int, string>(SCLEX_POWERPRO, "powerpro"),
+                new KeyValuePair<int, string>(SCLEX_NIMROD, "nimrod"),
+                new KeyValuePair<int, string>(SCLEX_SML, "SML"),
+                new KeyValuePair<int, string>(SCLEX_MARKDOWN, "markdown"),
+                new KeyValuePair<int, string>(SCLEX_TXT2TAGS, "txt2tags"),
+                new KeyValuePair<int, string>(SCLEX_A68K, "a68k"),
+                new KeyValuePair<int, string>(SCLEX_MODULA, "modula"),
+                new KeyValuePair<int, string>(SCLEX_COFFEESCRIPT, "coffeescript"),
+                new KeyValuePair<int, string>(SCLEX_TCMD, "tcmd"),
+                new KeyValuePair<int, string>(SCLEX_AVS, "avs"),
+                new KeyValuePair<int, string>(SCLEX_ECL, "ecl"),
+                new KeyValuePair<int, string>(SCLEX_OSCRIPT, "oscript"),
+                new KeyValuePair<int, string>(SCLEX_VISUALPROLOG, "visualprolog"),
+                new KeyValuePair<int, string>(SCLEX_LITERATEHASKELL, "literatehaskell"),
+                new KeyValuePair<int, string>(SCLEX_STTXT, "fcST"),
+                new KeyValuePair<int, string>(SCLEX_KVIRC, "kvirc"),
+                new KeyValuePair<int, string>(SCLEX_RUST, "rust"),
+                new KeyValuePair<int, string>(SCLEX_DMAP, "DMAP"),
+                new KeyValuePair<int, string>(SCLEX_AS, "as"),
+                new KeyValuePair<int, string>(SCLEX_DMIS, "DMIS"),
+                new KeyValuePair<int, string>(SCLEX_REGISTRY, "registry"),
+                new KeyValuePair<int, string>(SCLEX_BIBTEX, "bib"),
+                new KeyValuePair<int, string>(SCLEX_SREC, "srec"),
+                new KeyValuePair<int, string>(SCLEX_IHEX, "ihex"),
+                new KeyValuePair<int, string>(SCLEX_TEHEX, "tehex"),
+                new KeyValuePair<int, string>(SCLEX_JSON, "json"),
+                new KeyValuePair<int, string>(SCLEX_EDIFACT, "edifact"),
+                new KeyValuePair<int, string>(SCLEX_INDENT, "indent"),
+                new KeyValuePair<int, string>(SCLEX_MAXIMA, "maxima"),
+                new KeyValuePair<int, string>(SCLEX_STATA, "stata"),
+                new KeyValuePair<int, string>(SCLEX_SAS, "sas"),
+                new KeyValuePair<int, string>(SCLEX_NIM, "nim"),
+                new KeyValuePair<int, string>(SCLEX_CIL, "cil"),
+                new KeyValuePair<int, string>(SCLEX_X12, "x12"),
+                new KeyValuePair<int, string>(SCLEX_DATAFLEX, "dataflex"),
+                new KeyValuePair<int, string>(SCLEX_HOLLYWOOD, "hollywood"),
+                new KeyValuePair<int, string>(SCLEX_RAKU, "raku"),
+                new KeyValuePair<int, string>(SCLEX_FSHARP, "fsharp"),
+                new KeyValuePair<int, string>(SCLEX_JULIA, "julia"),
+            });
 
         // Lexers
         public const int SCLEX_CONTAINER = 0;
@@ -1254,6 +1392,19 @@ namespace ScintillaNET
         public const int SCLEX_IHEX = 118;
         public const int SCLEX_TEHEX = 119;
         public const int SCLEX_JSON = 120;
+        public const int SCLEX_EDIFACT = 121;
+        public const int SCLEX_INDENT = 122;
+        public const int SCLEX_MAXIMA = 123;
+        public const int SCLEX_STATA = 124;
+        public const int SCLEX_SAS = 125;
+        public const int SCLEX_NIM = 126;
+        public const int SCLEX_CIL = 127;
+        public const int SCLEX_X12 = 128;
+        public const int SCLEX_DATAFLEX = 129;
+        public const int SCLEX_HOLLYWOOD = 130;
+        public const int SCLEX_RAKU = 131;
+        public const int SCLEX_FSHARP = 132;
+        public const int SCLEX_JULIA = 133;        
         public const int SCLEX_AUTOMATIC = 1000;
 
         // Ada
@@ -1787,6 +1938,10 @@ namespace ScintillaNET
         public delegate IntPtr CreateLexer(string lexerName);
 
         public delegate void GetLexerName(UIntPtr index, IntPtr name, IntPtr bufferLength);
+
+        public delegate IntPtr GetLexerCount();
+
+        public delegate string LexerNameFromID(IntPtr identifier);
 
         #endregion Callbacks
 

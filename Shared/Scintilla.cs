@@ -106,6 +106,25 @@ namespace ScintillaNET
         #region Methods
 
         /// <summary>
+        /// Sets the name of the lexer by its name.
+        /// </summary>
+        /// <param name="lexerName">Name of the lexer.</param>
+        /// <returns><c>true</c> if the lexer was successfully set, <c>false</c> otherwise.</returns>
+        private bool SetLexerByName(string lexerName)
+        {
+            var ptr = Lexilla.CreateLexer(lexerName);
+
+            if (ptr == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            DirectMessage(NativeMethods.SCI_SETILEXER, IntPtr.Zero, ptr);
+
+            return true;
+        }
+
+        /// <summary>
         /// Increases the reference count of the specified document by 1.
         /// </summary>
         /// <param name="document">The document reference count to increase.</param>
@@ -968,7 +987,7 @@ namespace ScintillaNET
             return Lines.ByteToCharPosition(pos);
         }
 
-        private static string GetModulePath()
+        internal static string GetModulePath()
         {
             // UI thread...
             if (modulePathScintilla == null)
@@ -4630,23 +4649,92 @@ namespace ScintillaNET
             }
         }
 
+        private string lexerName;
+
+        /// <summary>
+        /// Gets or sets the name of the lexer.
+        /// </summary>
+        /// <value>The name of the lexer.</value>
+        /// <exception cref="InvalidOperationException">Lexer with the name of 'Value' was not found.</exception>
+        [Category("Lexing")]
+        public string LexerName
+        {
+            get => lexerName;
+
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    lexerName = value;
+
+                    return;
+                }
+
+                if (!SetLexerByName(value))
+                {
+                    throw new InvalidOperationException(@$"Lexer with the name of '{lexerName}' was not found.");
+                }
+
+                lexerName = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the current lexer.
         /// </summary>
         /// <returns>One of the <see cref="Lexer" /> enumeration values. The default is <see cref="ScintillaNET.Lexer.Container" />.</returns>
-        [DefaultValue(Lexer.Container)]
+        /// <exception cref="InvalidOperationException">
+        /// No lexer name was found with the specified value.
+        /// </exception>
+        /// <remarks>This property will get more obsolete as time passes as the Scintilla v.5+ now uses strings to define lexers. The Lexer enumeration is not maintained.</remarks>
+        [DefaultValue(Lexer.NotFound)]
         [Category("Lexing")]
         [Description("The current lexer.")]
+        [Obsolete("This property will get more obsolete as time passes as the Scintilla v.5+ now uses strings to define lexers. Please use the LexerName property instead.")]
         public Lexer Lexer
         {
             get
             {
-                return (Lexer)DirectMessage(NativeMethods.SCI_GETLEXER);
+                if (string.IsNullOrWhiteSpace(lexerName))
+                {
+                    return Lexer.NotFound;
+
+                }
+
+                try
+                {
+                    return (Lexer) NativeMethods.NameConstantMap.Find(f => f.Value == lexerName).Key;
+                }
+                catch
+                {
+                    return Lexer.NotFound;
+                }
             }
             set
             {
+                if (value == Lexer.NotFound)
+                {
+                    return;
+                }
+
                 var lexer = (int)value;
-                DirectMessage(NativeMethods.SCI_SETLEXER, new IntPtr(lexer));
+
+                try
+                {
+                    lexerName = NativeMethods.NameConstantMap.Find(f => f.Key == lexer).Value;
+
+                    if (string.IsNullOrEmpty(lexerName))
+                    {
+                        throw new InvalidOperationException(@"No lexer name was found with the specified value.");
+                    }
+                }
+                catch
+                {
+                    throw new InvalidOperationException(@"No lexer name was found with the specified value.");
+                }
+
+
+                SetLexerByName(lexerName);
             }
         }
 
