@@ -51,7 +51,7 @@ Import-PfxCertificate -FilePath "C:\vpksoft.pfx" -CertStoreLocation Cert:\LocalM
 # sign and push the NuGet packages..
 if ([string]::IsNullOrEmpty($Env:CIRCLE_PR_NUMBER)) # dont push on PR's..
 {
-    $files = Get-ChildItem $Env:CIRCLE_WORKING_DIRECTORY -r -Filter *ScintillaNET*.nupkg # use the mask to discard possible third party packages..
+    $files = Get-ChildItem $Env:CIRCLE_WORKING_DIRECTORY -r -Filter *Scintilla.NET*.nupkg # use the mask to discard possible third party packages..
     for ($i = 0; $i -lt $files.Count; $i++) 
     { 
         $file = $files[$i].FullName
