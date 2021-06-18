@@ -18,7 +18,11 @@ namespace ScintillaNET
         {
             const string win32Error = "The Scintilla module has no export for the '{0}' procedure.";
 
-            var lpProcName = nameof(NativeMethods.CreateLexer);
+            // For some reason the 32-bit DLL has weird export names.
+            var is32Bit = IntPtr.Size == 4;
+
+
+            var lpProcName = is32Bit ? "_CreateLexer@4" : nameof(NativeMethods.CreateLexer);
 
             // Get the Lexilla functions needed to define lexers and create managed callbacks...
 
@@ -32,7 +36,7 @@ namespace ScintillaNET
             createLexer = (NativeMethods.CreateLexer) Marshal.GetDelegateForFunctionPointer(
                 functionPointer, typeof(NativeMethods.CreateLexer));
 
-            lpProcName = nameof(NativeMethods.GetLexerName);
+            lpProcName = is32Bit ? "_GetLexerName@12": nameof(NativeMethods.GetLexerName);
 
             functionPointer = NativeMethods.GetProcAddress(new HandleRef(this, lexillaHandle), lpProcName);
             if (functionPointer == IntPtr.Zero)
@@ -44,7 +48,7 @@ namespace ScintillaNET
             getLexerName = (NativeMethods.GetLexerName) Marshal.GetDelegateForFunctionPointer(
                 functionPointer, typeof(NativeMethods.GetLexerName));
 
-            lpProcName = nameof(NativeMethods.GetLexerCount);
+            lpProcName = is32Bit ? "_GetLexerCount@0" : nameof(NativeMethods.GetLexerCount);
 
             functionPointer = NativeMethods.GetProcAddress(new HandleRef(this, lexillaHandle), lpProcName);
             if (functionPointer == IntPtr.Zero)
@@ -57,7 +61,7 @@ namespace ScintillaNET
                 functionPointer, typeof(NativeMethods.GetLexerCount));
 
 
-            lpProcName = nameof(NativeMethods.LexerNameFromID);
+            lpProcName = is32Bit ? "_LexerNameFromID@4" : nameof(NativeMethods.LexerNameFromID);
 
             functionPointer = NativeMethods.GetProcAddress(new HandleRef(this, lexillaHandle), lpProcName);
             if (functionPointer == IntPtr.Zero)

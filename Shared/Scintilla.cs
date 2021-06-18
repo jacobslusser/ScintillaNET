@@ -4042,8 +4042,14 @@ namespace ScintillaNET
                         throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
 
+                    // For some reason the 32-bit DLL has weird export names.
+                    var is32Bit = IntPtr.Size == 4;
+                    var exportName = is32Bit
+                        ? "_Scintilla_DirectFunction@16"
+                        : nameof(NativeMethods.Scintilla_DirectFunction);
+
                     // Get the native Scintilla direct function -- the only function the library exports
-                    var directFunctionPointer = NativeMethods.GetProcAddress(new HandleRef(this, moduleHandle), "Scintilla_DirectFunction");
+                    var directFunctionPointer = NativeMethods.GetProcAddress(new HandleRef(this, moduleHandle), exportName);
                     if (directFunctionPointer == IntPtr.Zero)
                     {
                         var message = "The Scintilla module has no export for the 'Scintilla_DirectFunction' procedure.";

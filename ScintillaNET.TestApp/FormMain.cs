@@ -49,7 +49,8 @@ namespace ScintillaNET.TestApp
             scintilla.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
             scintilla.Styles[Style.Cpp.Operator].ForeColor = Color.Purple;
             scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
-            scintilla.Lexer = Lexer.Cpp;
+//            scintilla.Lexer = Lexer.Cpp;
+            scintilla.LexerName = "cpp";
 
             // Set the keywords
             scintilla.SetKeywords(0,
