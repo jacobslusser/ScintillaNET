@@ -997,7 +997,7 @@ namespace ScintillaNET
                 var version = typeof(Scintilla).Assembly.GetName().Version.ToString(3);
 
                 var scintillaName = "ScintillaNET_5Plus";
-                var scintillaBaseName = "ScintillaNET";
+                var scintillaBaseName = "Scintilla.NET";
 
                 modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
                 modulePathLexilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Lexilla.dll");
