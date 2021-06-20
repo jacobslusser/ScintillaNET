@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{22AE2386-60F1-476E-9303-61CDB0AAC4CF}</ProjectGuid>
-    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net45</TargetFrameworks>
+    <ProjectGuid>{2FB155AE-B1BA-44AB-A670-794DE6635AAA}</ProjectGuid>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft, cyber960</Company>
     <Product>ScintillaNET</Product>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
-    <Version>5.0.3</Version>
+    <Version>3.8.7</Version>
+    <AssemblyVersion>3.8.7.0</AssemblyVersion>
+    <FileVersion>3.8.7.0</FileVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
@@ -20,11 +22,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageId>Scintilla.NET</PackageId>
+    <PackageId>unofficial.ScintillaNET</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
@@ -36,29 +38,25 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <SignAssembly Condition="'$(SignAssembly)' == 'true'">true</SignAssembly>
     <AssemblyOriginatorKeyFile>scintilla.net.pfx</AssemblyOriginatorKeyFile>
-    <AssemblyName>ScintillaNET</AssemblyName>
-    <RootNamespace>ScintillaNET</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE;SCINTILLA5</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.IO.Compression" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shared\vpksoft_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <EmbeddedResource Include="..\Shared\x64\Scintilla.zip" Link="x64\Scintilla.zip" />
-    <EmbeddedResource Include="..\Shared\x86\Scintilla.zip" Link="x86\Scintilla.zip" />
+    <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
+    <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\Annotation.cs" Link="Annotation.cs" />

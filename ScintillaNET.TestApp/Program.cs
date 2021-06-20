@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Scintilla.NET.TestApp
+namespace ScintillaNET.TestApp
 {
     static class Program
     {

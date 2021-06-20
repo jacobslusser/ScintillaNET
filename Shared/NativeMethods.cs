@@ -1134,8 +1134,156 @@ namespace ScintillaNET
         #endregion Constants
 
         #region Lexer Constants
+
+        #if NET40 || NET45
+        private static readonly Dictionary<int, string> nameConstantMap = new Dictionary<int, string>();
+        public static Dictionary<int, string> NameConstantMap
+        {
+            get
+            {
+                if (nameConstantMap.Count == 0)
+                {
+                     nameConstantMap.Add(SCLEX_CONTAINER, "");
+                     nameConstantMap.Add(SCLEX_NULL, "null");
+                     nameConstantMap.Add(SCLEX_PYTHON, "python");
+                     nameConstantMap.Add(SCLEX_CPP, "cpp");
+                     nameConstantMap.Add(SCLEX_HTML, "hypertext");
+                     nameConstantMap.Add(SCLEX_XML, "xml");
+                     nameConstantMap.Add(SCLEX_PERL, "perl");
+                     nameConstantMap.Add(SCLEX_SQL, "sql");
+                     nameConstantMap.Add(SCLEX_VB, "vb");
+                     nameConstantMap.Add(SCLEX_PROPERTIES, "props");
+                     nameConstantMap.Add(SCLEX_ERRORLIST, "errorlist");
+                     nameConstantMap.Add(SCLEX_MAKEFILE, "makefile");
+                     nameConstantMap.Add(SCLEX_BATCH, "batch");
+                     nameConstantMap.Add(SCLEX_XCODE, "");
+                     nameConstantMap.Add(SCLEX_LATEX, "latex");
+                     nameConstantMap.Add(SCLEX_LUA, "lua");
+                     nameConstantMap.Add(SCLEX_DIFF, "diff");
+                     nameConstantMap.Add(SCLEX_CONF, "conf");
+                     nameConstantMap.Add(SCLEX_PASCAL, "pascal");
+                     nameConstantMap.Add(SCLEX_AVE, "ave");
+                     nameConstantMap.Add(SCLEX_ADA, "ada");
+                     nameConstantMap.Add(SCLEX_LISP, "lisp");
+                     nameConstantMap.Add(SCLEX_RUBY, "ruby");
+                     nameConstantMap.Add(SCLEX_EIFFEL, "eiffel");
+                     nameConstantMap.Add(SCLEX_EIFFELKW, "eiffelkw");
+                     nameConstantMap.Add(SCLEX_TCL, "tcl");
+                     nameConstantMap.Add(SCLEX_NNCRONTAB, "nncrontab");
+                     nameConstantMap.Add(SCLEX_BULLANT, "bullant");
+                     nameConstantMap.Add(SCLEX_VBSCRIPT, "vbscript");
+                     nameConstantMap.Add(SCLEX_BAAN, "baan");
+                     nameConstantMap.Add(SCLEX_MATLAB, "matlab");
+                     nameConstantMap.Add(SCLEX_SCRIPTOL, "scriptol");
+                     nameConstantMap.Add(SCLEX_ASM, "asm");
+                     nameConstantMap.Add(SCLEX_CPPNOCASE, "cppnocase");
+                     nameConstantMap.Add(SCLEX_FORTRAN, "fortran");
+                     nameConstantMap.Add(SCLEX_F77, "f77");
+                     nameConstantMap.Add(SCLEX_CSS, "css");
+                     nameConstantMap.Add(SCLEX_POV, "pov");
+                     nameConstantMap.Add(SCLEX_LOUT, "lout");
+                     nameConstantMap.Add(SCLEX_ESCRIPT, "escript");
+                     nameConstantMap.Add(SCLEX_PS, "ps");
+                     nameConstantMap.Add(SCLEX_NSIS, "nsis");
+                     nameConstantMap.Add(SCLEX_MMIXAL, "mmixal");
+                     nameConstantMap.Add(SCLEX_CLW, "clarion");
+                     nameConstantMap.Add(SCLEX_CLWNOCASE, "clarionnocase");
+                     nameConstantMap.Add(SCLEX_LOT, "lot");
+                     nameConstantMap.Add(SCLEX_YAML, "yaml");
+                     nameConstantMap.Add(SCLEX_TEX, "tex");
+                     nameConstantMap.Add(SCLEX_METAPOST, "metapost");
+                     nameConstantMap.Add(SCLEX_POWERBASIC, "powerbasic");
+                     nameConstantMap.Add(SCLEX_FORTH, "forth");
+                     nameConstantMap.Add(SCLEX_ERLANG, "erlang");
+                     nameConstantMap.Add(SCLEX_OCTAVE, "octave");
+                     nameConstantMap.Add(SCLEX_MSSQL, "mssql");
+                     nameConstantMap.Add(SCLEX_VERILOG, "verilog");
+                     nameConstantMap.Add(SCLEX_KIX, "kix");
+                     nameConstantMap.Add(SCLEX_GUI4CLI, "gui4cli");
+                     nameConstantMap.Add(SCLEX_SPECMAN, "specman");
+                     nameConstantMap.Add(SCLEX_AU3, "au3");
+                     nameConstantMap.Add(SCLEX_APDL, "apdl");
+                     nameConstantMap.Add(SCLEX_BASH, "bash");
+                     nameConstantMap.Add(SCLEX_ASN1, "asn1");
+                     nameConstantMap.Add(SCLEX_VHDL, "vhdl");
+                     nameConstantMap.Add(SCLEX_CAML, "caml");
+                     nameConstantMap.Add(SCLEX_BLITZBASIC, "blitzbasic");
+                     nameConstantMap.Add(SCLEX_PUREBASIC, "purebasic");
+                     nameConstantMap.Add(SCLEX_HASKELL, "haskell");
+                     nameConstantMap.Add(SCLEX_PHPSCRIPT, "phpscript");
+                     nameConstantMap.Add(SCLEX_TADS3, "tads3");
+                     nameConstantMap.Add(SCLEX_REBOL, "rebol");
+                     nameConstantMap.Add(SCLEX_SMALLTALK, "smalltalk");
+                     nameConstantMap.Add(SCLEX_FLAGSHIP, "flagship");
+                     nameConstantMap.Add(SCLEX_CSOUND, "csound");
+                     nameConstantMap.Add(SCLEX_FREEBASIC, "freebasic");
+                     nameConstantMap.Add(SCLEX_INNOSETUP, "inno");
+                     nameConstantMap.Add(SCLEX_OPAL, "opal");
+                     nameConstantMap.Add(SCLEX_SPICE, "spice");
+                     nameConstantMap.Add(SCLEX_D, "d");
+                     nameConstantMap.Add(SCLEX_CMAKE, "cmake");
+                     nameConstantMap.Add(SCLEX_GAP, "gap");
+                     nameConstantMap.Add(SCLEX_PLM, "PL/M");
+                     nameConstantMap.Add(SCLEX_PROGRESS, "abl");
+                     nameConstantMap.Add(SCLEX_ABAQUS, "abaqus");
+                     nameConstantMap.Add(SCLEX_ASYMPTOTE, "asy");
+                     nameConstantMap.Add(SCLEX_R, "r");
+                     nameConstantMap.Add(SCLEX_MAGIK, "magiksf");
+                     nameConstantMap.Add(SCLEX_POWERSHELL, "powershell");
+                     nameConstantMap.Add(SCLEX_MYSQL, "mysql");
+                     nameConstantMap.Add(SCLEX_PO, "po");
+                     nameConstantMap.Add(SCLEX_TAL, "TAL");
+                     nameConstantMap.Add(SCLEX_COBOL, "COBOL");
+                     nameConstantMap.Add(SCLEX_TACL, "TACL");
+                     nameConstantMap.Add(SCLEX_SORCUS, "sorcins");
+                     nameConstantMap.Add(SCLEX_POWERPRO, "powerpro");
+                     nameConstantMap.Add(SCLEX_NIMROD, "nimrod");
+                     nameConstantMap.Add(SCLEX_SML, "SML");
+                     nameConstantMap.Add(SCLEX_MARKDOWN, "markdown");
+                     nameConstantMap.Add(SCLEX_TXT2TAGS, "txt2tags");
+                     nameConstantMap.Add(SCLEX_A68K, "a68k");
+                     nameConstantMap.Add(SCLEX_MODULA, "modula");
+                     nameConstantMap.Add(SCLEX_COFFEESCRIPT, "coffeescript");
+                     nameConstantMap.Add(SCLEX_TCMD, "tcmd");
+                     nameConstantMap.Add(SCLEX_AVS, "avs");
+                     nameConstantMap.Add(SCLEX_ECL, "ecl");
+                     nameConstantMap.Add(SCLEX_OSCRIPT, "oscript");
+                     nameConstantMap.Add(SCLEX_VISUALPROLOG, "visualprolog");
+                     nameConstantMap.Add(SCLEX_LITERATEHASKELL, "literatehaskell");
+                     nameConstantMap.Add(SCLEX_STTXT, "fcST");
+                     nameConstantMap.Add(SCLEX_KVIRC, "kvirc");
+                     nameConstantMap.Add(SCLEX_RUST, "rust");
+                     nameConstantMap.Add(SCLEX_DMAP, "DMAP");
+                     nameConstantMap.Add(SCLEX_AS, "as");
+                     nameConstantMap.Add(SCLEX_DMIS, "DMIS");
+                     nameConstantMap.Add(SCLEX_REGISTRY, "registry");
+                     nameConstantMap.Add(SCLEX_BIBTEX, "bib");
+                     nameConstantMap.Add(SCLEX_SREC, "srec");
+                     nameConstantMap.Add(SCLEX_IHEX, "ihex");
+                     nameConstantMap.Add(SCLEX_TEHEX, "tehex");
+                     nameConstantMap.Add(SCLEX_JSON, "json");
+                     nameConstantMap.Add(SCLEX_EDIFACT, "edifact");
+                     nameConstantMap.Add(SCLEX_INDENT, "indent");
+                     nameConstantMap.Add(SCLEX_MAXIMA, "maxima");
+                     nameConstantMap.Add(SCLEX_STATA, "stata");
+                     nameConstantMap.Add(SCLEX_SAS, "sas");
+                     nameConstantMap.Add(SCLEX_NIM, "nim");
+                     nameConstantMap.Add(SCLEX_CIL, "cil");
+                     nameConstantMap.Add(SCLEX_X12, "x12");
+                     nameConstantMap.Add(SCLEX_DATAFLEX, "dataflex");
+                     nameConstantMap.Add(SCLEX_HOLLYWOOD, "hollywood");
+                     nameConstantMap.Add(SCLEX_RAKU, "raku");
+                     nameConstantMap.Add(SCLEX_FSHARP, "fsharp");
+                     nameConstantMap.Add(SCLEX_JULIA, "julia");
+                }
+
+                return nameConstantMap;
+            }
+        }
+
+        #else
         // Map the constant language names
-        public static readonly List<KeyValuePair<int, string>> NameConstantMap = new List<KeyValuePair<int, string>>(
+        public static readonly Dictionary<int, string> NameConstantMap = new Dictionary<int, string>(
             new[]
             {
                 new KeyValuePair<int, string>(SCLEX_CONTAINER, ""),
@@ -1271,6 +1419,7 @@ namespace ScintillaNET
                 new KeyValuePair<int, string>(SCLEX_FSHARP, "fsharp"),
                 new KeyValuePair<int, string>(SCLEX_JULIA, "julia"),
             });
+        #endif
 
         // Lexers
         public const int SCLEX_CONTAINER = 0;

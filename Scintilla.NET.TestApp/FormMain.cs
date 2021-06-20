@@ -2,8 +2,9 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using ScintillaNET;
 
-namespace ScintillaNET.TestApp
+namespace Scintilla.NET.TestApp
 {
     public partial class FormMain : Form
     {
