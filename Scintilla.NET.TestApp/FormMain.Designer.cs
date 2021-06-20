@@ -47,10 +47,11 @@
             this.scintilla.CaretLineBackColor = System.Drawing.Color.White;
             this.scintilla.CaretLineVisible = true;
             this.scintilla.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.scintilla.LexerName = null;
             this.scintilla.Location = new System.Drawing.Point(0, 24);
             this.scintilla.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.scintilla.Name = "scintilla";
-            this.scintilla.ScrollWidth = 1;
+            this.scintilla.ScrollWidth = 6;
             this.scintilla.Size = new System.Drawing.Size(800, 426);
             this.scintilla.TabIndents = true;
             this.scintilla.TabIndex = 0;
@@ -110,7 +111,7 @@
             // listLexersToolStripMenuItem
             // 
             this.listLexersToolStripMenuItem.Name = "listLexersToolStripMenuItem";
-            this.listLexersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.listLexersToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.listLexersToolStripMenuItem.Text = "List Lexers";
             this.listLexersToolStripMenuItem.Click += new System.EventHandler(this.listLexersToolStripMenuItem_Click);
             // 
