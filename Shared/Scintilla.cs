@@ -6,6 +6,7 @@ using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -29,9 +30,18 @@ namespace ScintillaNET
         private bool reparent;
 
         // Static module data
-        private static string modulePath;
+        private static string modulePathScintilla;
+
+        #if SCINTILLA5
+        private static string modulePathLexilla;
+        #endif
+
         private static IntPtr moduleHandle;
         private static NativeMethods.Scintilla_DirectFunction directFunction;
+        #if SCINTILLA5
+        private static IntPtr lexillaHandle;
+        private static Lexilla lexilla;
+        #endif
 
         // Events
         private static readonly object scNotificationEventKey = new object();
@@ -101,6 +111,27 @@ namespace ScintillaNET
         #endregion Fields
 
         #region Methods
+        
+        #if SCINTILLA5
+        /// <summary>
+        /// Sets the name of the lexer by its name.
+        /// </summary>
+        /// <param name="lexerName">Name of the lexer.</param>
+        /// <returns><c>true</c> if the lexer was successfully set, <c>false</c> otherwise.</returns>
+        private bool SetLexerByName(string lexerName)
+        {
+            var ptr = Lexilla.CreateLexer(lexerName);
+
+            if (ptr == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            DirectMessage(NativeMethods.SCI_SETILEXER, IntPtr.Zero, ptr);
+
+            return true;
+        }
+        #endif
 
         /// <summary>
         /// Increases the reference count of the specified document by 1.
@@ -965,27 +996,35 @@ namespace ScintillaNET
             return Lines.ByteToCharPosition(pos);
         }
 
-        private static string GetModulePath()
+        internal static string GetModulePath()
         {
             // UI thread...
-            if (modulePath == null)
+            if (modulePathScintilla == null)
             {
                 // Extract the embedded SciLexer DLL
                 // http://stackoverflow.com/a/768429/2073621
                 var version = typeof(Scintilla).Assembly.GetName().Version.ToString(3);
 
+                #if SCINTILLA5
+                var scintillaName = "Scintilla.NET";
+                var scintillaBaseName = "Scintilla.NET";
+
+                modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
+                modulePathLexilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Lexilla.dll");
+                #elif SCINTILLA4
                 var scintillaName = "ScintillaNET";
 
-                modulePath = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "SciLexer.dll");
+                modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
+                #endif
 
-                if (!File.Exists(modulePath))
+
+
+                if (!File.Exists(modulePathScintilla))
                 {
                     // http://stackoverflow.com/a/229567/2073621
                     // Synchronize access to the file across processes
 
                     var assembly = Assembly.GetAssembly(typeof(Scintilla));
-
-                    var resources = assembly.GetManifestResourceNames();
 
                     var guid = assembly?.FullName;
 
@@ -1009,7 +1048,7 @@ namespace ScintillaNET
                                 ownsHandle = mutex.WaitOne(5000, false); // 5 sec
                                 if (ownsHandle == false)
                                 {
-                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timeout waiting for exclusive access to '{0}'.", modulePath);
+                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timeout waiting for exclusive access to '{0}'.", modulePathScintilla);
                                     throw new TimeoutException(timeoutMessage);
                                 }
                             }
@@ -1020,18 +1059,43 @@ namespace ScintillaNET
                             }
 
                             // Double-checked (process) lock
-                            if (!File.Exists(modulePath))
+                            if (!File.Exists(modulePathScintilla))
                             {
                                 // Write the embedded file to disk
-                                var directory = Path.GetDirectoryName(modulePath);
+                                var directory = Path.GetDirectoryName(modulePathScintilla);
+                                if (directory != null && !Directory.Exists(directory))
+                                    Directory.CreateDirectory(directory);
+
+                                #if SCINTILLA5
+                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaBaseName.Replace(".", "")}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+
+                                using var resourceStream =
+                                    typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
+
+                                using var zipArchive = new ZipArchive(resourceStream, ZipArchiveMode.Read);
+
+                                foreach (var entry in zipArchive.Entries)
+                                {
+                                    if (entry.FullName == "Scintilla.dll")
+                                    {
+                                        entry.ExtractToFile(modulePathScintilla);
+                                    }
+
+                                    if (entry.FullName == "Lexilla.dll")
+                                    {
+                                        entry.ExtractToFile(modulePathLexilla);
+                                    }
+                                }
+                                #elif SCINTILLA4
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
                                 var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
                                 using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
                                 using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
-                                using (var fileStream = File.Create(modulePath))
+                                using (var fileStream = File.Create(modulePathScintilla))
                                     gzipStream.CopyTo(fileStream);
+                                #endif
                             }
                         }
                         finally
@@ -1043,7 +1107,7 @@ namespace ScintillaNET
                 }
             }
 
-            return modulePath;
+            return modulePathScintilla;
         }
 
         /// <summary>
@@ -2445,9 +2509,9 @@ namespace ScintillaNET
         /// </remarks>
         public static void SetModulePath(string modulePath)
         {
-            if (Scintilla.modulePath == null)
+            if (Scintilla.modulePathScintilla == null)
             {
-                Scintilla.modulePath = modulePath;
+                Scintilla.modulePathScintilla = modulePath;
             }
         }
 
@@ -3997,19 +4061,35 @@ namespace ScintillaNET
 
                     // Load the native Scintilla library
                     moduleHandle = NativeMethods.LoadLibrary(path);
+
+                    #if SCINTILLA5
+                    lexillaHandle = NativeMethods.LoadLibrary(modulePathLexilla);
+                    #endif
+
                     if (moduleHandle == IntPtr.Zero)
                     {
                         var message = string.Format(CultureInfo.InvariantCulture, "Could not load the Scintilla module at the path '{0}'.", path);
                         throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
 
+                    // For some reason the 32-bit DLL has weird export names.
+                    var is32Bit = IntPtr.Size == 4;
+                    var exportName = is32Bit
+                        ? "_Scintilla_DirectFunction@16"
+                        : nameof(NativeMethods.Scintilla_DirectFunction);
+
                     // Get the native Scintilla direct function -- the only function the library exports
-                    var directFunctionPointer = NativeMethods.GetProcAddress(new HandleRef(this, moduleHandle), "Scintilla_DirectFunction");
+                    var directFunctionPointer = NativeMethods.GetProcAddress(new HandleRef(this, moduleHandle), exportName);
                     if (directFunctionPointer == IntPtr.Zero)
                     {
                         var message = "The Scintilla module has no export for the 'Scintilla_DirectFunction' procedure.";
                         throw new Win32Exception(message, new Win32Exception()); // Calls GetLastError
                     }
+
+                    // Get the native Lexilla.dll methods
+                    #if SCINTILLA5
+                    lexilla = new Lexilla(lexillaHandle);
+                    #endif
 
                     // Create a managed callback
                     directFunction = (NativeMethods.Scintilla_DirectFunction)Marshal.GetDelegateForFunctionPointer(
@@ -4607,6 +4687,102 @@ namespace ScintillaNET
             }
         }
 
+        private string lexerName;
+
+        /// <summary>
+        /// Gets or sets the name of the lexer.
+        /// </summary>
+        /// <value>The name of the lexer.</value>
+        /// <exception cref="InvalidOperationException">Lexer with the name of 'Value' was not found.</exception>
+        [Category("Lexing")]
+        public string LexerName
+        {
+            get => lexerName;
+
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    lexerName = value;
+
+                    return;
+                }
+
+                #if SCINTILLA5
+                if (!SetLexerByName(value))
+                {
+                    throw new InvalidOperationException(@$"Lexer with the name of '{lexerName}' was not found.");
+                }
+                #elif SCINTILLA4
+                if (NativeMethods.NameConstantMap.ContainsValue(value))
+                {
+                    Lexer = (ScintillaNET.Lexer) NativeMethods.NameConstantMap.First(f => f.Value == value)
+                        .Key;
+                }
+                #endif
+
+                lexerName = value;
+            }
+        }
+
+        #if SCINTILLA5
+        /// <summary>
+        /// Gets or sets the current lexer.
+        /// </summary>
+        /// <returns>One of the <see cref="Lexer" /> enumeration values. The default is <see cref="ScintillaNET.Lexer.Container" />.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// No lexer name was found with the specified value.
+        /// </exception>
+        /// <remarks>This property will get more obsolete as time passes as the Scintilla v.5+ now uses strings to define lexers. The Lexer enumeration is not maintained.</remarks>
+        [DefaultValue(Lexer.NotFound)]
+        [Category("Lexing")]
+        [Description("The current lexer.")]
+        [Obsolete("This property will get more obsolete as time passes as the Scintilla v.5+ now uses strings to define lexers. Please use the LexerName property instead.")]
+        public Lexer Lexer
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(lexerName))
+                {
+                    return Lexer.NotFound;
+                }
+
+
+                if (NativeMethods.NameConstantMap.ContainsValue(lexerName))
+                {
+                    return (Lexer) NativeMethods.NameConstantMap.First(f => f.Value == lexerName).Key;
+                }
+
+                return Lexer.NotFound;
+            }
+            set
+            {
+                if (value == Lexer.NotFound)
+                {
+                    return;
+                }
+
+                var lexer = (int)value;
+
+                if (NativeMethods.NameConstantMap.ContainsKey(lexer))
+                {
+                    lexerName = NativeMethods.NameConstantMap.First(f => f.Key == lexer).Value;
+
+                    if (string.IsNullOrEmpty(lexerName))
+                    {
+                        throw new InvalidOperationException(@"No lexer name was found with the specified value.");
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(@"No lexer name was found with the specified value.");
+                }
+
+
+                SetLexerByName(lexerName);
+            }
+        }
+        #elif SCINTILLA4
         /// <summary>
         /// Gets or sets the current lexer.
         /// </summary>
@@ -4626,6 +4802,7 @@ namespace ScintillaNET
                 DirectMessage(NativeMethods.SCI_SETLEXER, new IntPtr(lexer));
             }
         }
+        #endif
 
         /// <summary>
         /// Gets or sets the current lexer by name.

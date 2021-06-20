@@ -16,13 +16,23 @@
      steps:
        - checkout
        - run: 
-          name: Get strong-named assembly key
+          name: Get strong-named assembly key for ScintillaNET
           command: |
             ScintillaNET/StrongNamedAssembly.ps1
+       - run: 
+          name: Get strong-named assembly key for Scintilla.NET
+          command: |
+            Scintilla.NET/StrongNamedAssembly.ps1            
        - run: msbuild ScintillaNET/ScintillaNET.csproj /t:restore
        - run: msbuild ScintillaNET/ScintillaNET.csproj /p:Configuration=Release
+       - run: msbuild Scintilla.NET/Scintilla.NET.csproj /t:restore
+       - run: msbuild Scintilla.NET/Scintilla.NET.csproj /p:Configuration=Release
        - run: 
-          name: Push to NuGet
+          name: Push to NuGet (ScintillaNET)
           command: |
             ScintillaNET/NuGet-Push.ps1
+       - run: 
+          name: Push to NuGet (Scintilla.NET)
+          command: |
+            Scintilla.NET/NuGet-Push.ps1
             

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET.TestApp", "ScintillaNET.TestApp\ScintillaNET.TestApp.csproj", "{F25685EC-098A-4080-95A9-445268609806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{2FB155AE-B1BA-44AB-A670-794DE6635AAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET", "ScintillaNET\ScintillaNET.csproj", "{22AE2386-60F1-476E-9303-61CDB0AAC4CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScintillaNET.TestApp", "ScintillaNET.TestApp\ScintillaNET.TestApp.csproj", "{82A75821-3754-4FA3-AFC5-B26B72CD9E04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,18 +14,18 @@ Global
 		Signed|Any CPU = Signed|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F25685EC-098A-4080-95A9-445268609806}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F25685EC-098A-4080-95A9-445268609806}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F25685EC-098A-4080-95A9-445268609806}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F25685EC-098A-4080-95A9-445268609806}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F25685EC-098A-4080-95A9-445268609806}.Signed|Any CPU.ActiveCfg = Release|Any CPU
-		{F25685EC-098A-4080-95A9-445268609806}.Signed|Any CPU.Build.0 = Release|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
-		{22AE2386-60F1-476E-9303-61CDB0AAC4CF}.Signed|Any CPU.Build.0 = Debug|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FB155AE-B1BA-44AB-A670-794DE6635AAA}.Signed|Any CPU.Build.0 = Debug|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Signed|Any CPU.ActiveCfg = Debug|Any CPU
+		{82A75821-3754-4FA3-AFC5-B26B72CD9E04}.Signed|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

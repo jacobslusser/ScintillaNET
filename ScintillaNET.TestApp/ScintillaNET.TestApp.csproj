@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{F25685EC-098A-4080-95A9-445268609806}</ProjectGuid>
+    <ProjectGuid>{82A75821-3754-4FA3-AFC5-B26B72CD9E04}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
 <!--    <TargetFramework>net47</TargetFramework> -->
@@ -22,6 +22,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
+    <DefineConstants>TRACE;SCINTILLA4</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="C:\Users\Petteri Kautonen\.nuget\packages\unofficial.scintillanet\3.6.51\contentFiles\any\net40\SciLexer.dll" />
