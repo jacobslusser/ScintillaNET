@@ -24,14 +24,14 @@ SOFTWARE.
 
 Write-Output "Init strong-named assembly signing..."
 
-$output_file = "ScintillaNET\CryptEnvVar.exe"
+$output_file = "Scintilla.NET\CryptEnvVar.exe"
 $download_url = "https://www.vpksoft.net/toolset/CryptEnvVar.exe"
 
 Write-Output "Download file:  $download_url ..."
 (New-Object System.Net.WebClient).DownloadFile($download_url, $output_file)
 Write-Output "Download done."
 
-$output_file = "ScintillaNET\SnInstallPfx.exe"
+$output_file = "Scintilla.NET\SnInstallPfx.exe"
 $download_url = "https://www.vpksoft.net/toolset/SnInstallPfx.exe"
 
 Write-Output "Download file:  $download_url ..."
@@ -39,10 +39,10 @@ Write-Output "Download file:  $download_url ..."
 Write-Output "Download done."
 
 # application parameters..
-$application = "ScintillaNET"
+$application = "Scintilla.NET"
 $environment_cryptor = "CryptEnvVar.exe"
 
-$arguments = @("-s", $Env:SK_KEY, "-e", "SK_1;SK_2", "-f", "ScintillaNET\scintilla.net.pfx", "-w", "80", "-i", "-v")
+$arguments = @("-s", $Env:SK_KEY, "-e", "SK_1;SK_2", "-f", "Scintilla.NET\scintilla.net.pfx", "-w", "80", "-i", "-v")
 & (-join($application, "\", $environment_cryptor)) $arguments
 
 Write-Output "Import strong-named signing certificate..."
@@ -51,6 +51,6 @@ $certificate_import_tool = "SnInstallPfx.exe"
 
 # register the certificate to the CI image.. (C::https://github.com/honzajscz/SnInstallPfx)
 $certpw=$Env:QQ
-$arguments = @("ScintillaNET\scintilla.net.pfx", $certpw)
+$arguments = @("Scintilla.NET\scintilla.net.pfx", $certpw)
 & (-join($application, "\", $certificate_import_tool)) $arguments
 Write-Output "Import done."

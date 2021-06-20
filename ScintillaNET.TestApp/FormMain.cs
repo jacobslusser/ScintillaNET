@@ -11,18 +11,14 @@ namespace ScintillaNET.TestApp
             InitializeComponent();
             // ReSharper disable once VirtualMemberCallInConstructor
             Text += @"  © VPKSoft " + DateTime.Now.Year;
-            scintilla.Technology = Technology.DirectWrite;
         }
 
         private void mnuOpen_Click(object sender, EventArgs e)
         {
             if (odFile.ShowDialog() == DialogResult.OK)
             {
-                scintilla.RightToLeft = RightToLeft.Yes;
                 scintilla.Text = File.ReadAllText(odFile.FileName);
                 scintilla.EmptyUndoBuffer();
-
-                MessageBox.Show(scintilla.RightToLeft.ToString());
             }
         }
 

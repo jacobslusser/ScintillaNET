@@ -1026,8 +1026,6 @@ namespace ScintillaNET
 
                     var assembly = Assembly.GetAssembly(typeof(Scintilla));
 
-                    var resources = assembly.GetManifestResourceNames();
-
                     var guid = assembly?.FullName;
 
                     #if !NETCOREAPP
@@ -1065,11 +1063,12 @@ namespace ScintillaNET
                             {
                                 // Write the embedded file to disk
                                 var directory = Path.GetDirectoryName(modulePathScintilla);
-                                if (!Directory.Exists(directory))
+                                if (directory != null && !Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
                                 #if SCINTILLA5
-                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaBaseName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaBaseName.Replace(".", "")}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+
                                 using var resourceStream =
                                     typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
 
@@ -1088,6 +1087,14 @@ namespace ScintillaNET
                                     }
                                 }
                                 #elif SCINTILLA4
+                                if (!Directory.Exists(directory))
+                                    Directory.CreateDirectory(directory);
+
+                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
+                                using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
+                                using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
+                                using (var fileStream = File.Create(modulePathScintilla))
+                                    gzipStream.CopyTo(fileStream);
                                 #endif
                             }
                         }
