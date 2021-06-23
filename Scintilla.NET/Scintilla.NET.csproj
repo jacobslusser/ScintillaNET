@@ -8,7 +8,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Source Editing Component</Description>
     <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
-    <Version>5.0.3</Version>
+    <Version>5.1.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
