@@ -8,7 +8,7 @@ ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft
 
 ### Project Status
 
-ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/jacobslusser/ScintillaNET/issues) feature at our GitHub page.
+ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
 
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/jacobslusser.ScintillaNET) or the [Releases](https://github.com/jacobslusser/ScintillaNET/releases) page.
 
