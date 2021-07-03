@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScintillaNET": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

@@ -1,0 +1,161 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{2FB155AE-B1BA-44AB-A670-794DE6635AAA}</ProjectGuid>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
+    <AssemblyTitle>ScintillaNET</AssemblyTitle>
+    <Company>Jacob Slusser, VPKSoft, cyber960</Company>
+    <Product>ScintillaNET</Product>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Description>Source Editing Component</Description>
+    <Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
+    <Version>3.8.7</Version>
+    <AssemblyVersion>3.8.7.0</AssemblyVersion>
+    <FileVersion>3.8.7.0</FileVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
+    <UseWindowsForms>true</UseWindowsForms>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>SCINTILLA4</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>unofficial.ScintillaNET</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/VPKSoft/ScintillaNET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VPKSoft/ScintillaNET</RepositoryUrl>
+    <PackageIcon>vpksoft_logo.png</PackageIcon>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ScintillaNET Scintilla Editor</PackageTags>
+    <PackageReleaseNotes>Please visit https://github.com/VPKSoft/ScintillaNET/releases to view the release notes.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <SignAssembly Condition="'$(SignAssembly)' == 'true'">true</SignAssembly>
+    <AssemblyOriginatorKeyFile>scintilla.net.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shared\vpksoft_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <EmbeddedResource Include="..\Shared\x64\SciLexer.dll.gz" Link="x64\SciLexer.dll.gz" />
+    <EmbeddedResource Include="..\Shared\x86\SciLexer.dll.gz" Link="x86\SciLexer.dll.gz" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\Annotation.cs" Link="Annotation.cs" />
+    <Compile Include="..\Shared\AutoCSelectionEventArgs.cs" Link="AutoCSelectionEventArgs.cs" />
+    <Compile Include="..\Shared\AutomaticFold.cs" Link="AutomaticFold.cs" />
+    <Compile Include="..\Shared\BeforeModificationEventArgs.cs" Link="BeforeModificationEventArgs.cs" />
+    <Compile Include="..\Shared\BiDirectionalDisplayType.cs" Link="BiDirectionalDisplayType.cs" />
+    <Compile Include="..\Shared\CallTipClickEventArgs.cs" Link="CallTipClickEventArgs.cs" />
+    <Compile Include="..\Shared\CallTipClickType.cs" Link="CallTipClickType.cs" />
+    <Compile Include="..\Shared\CaretStyle.cs" Link="CaretStyle.cs" />
+    <Compile Include="..\Shared\ChangeAnnotationEventArgs.cs" Link="ChangeAnnotationEventArgs.cs" />
+    <Compile Include="..\Shared\CharAddedEventArgs.cs" Link="CharAddedEventArgs.cs" />
+    <Compile Include="..\Shared\Command.cs" Link="Command.cs" />
+    <Compile Include="..\Shared\CopyFormat.cs" Link="CopyFormat.cs" />
+    <Compile Include="..\Shared\Document.cs" Link="Document.cs" />
+    <Compile Include="..\Shared\DoubleClickEventArgs.cs" Link="DoubleClickEventArgs.cs" />
+    <Compile Include="..\Shared\DwellEventArgs.cs" Link="DwellEventArgs.cs" />
+    <Compile Include="..\Shared\EdgeMode.cs" Link="EdgeMode.cs" />
+    <Compile Include="..\Shared\Eol.cs" Link="Eol.cs" />
+    <Compile Include="..\Shared\FlagsEnumConverter.cs" Link="FlagsEnumConverter.cs" />
+    <Compile Include="..\Shared\FoldAction.cs" Link="FoldAction.cs" />
+    <Compile Include="..\Shared\FoldDisplayText.cs" Link="FoldDisplayText.cs" />
+    <Compile Include="..\Shared\FoldFlags.cs" Link="FoldFlags.cs" />
+    <Compile Include="..\Shared\FoldLevelFlags.cs" Link="FoldLevelFlags.cs" />
+    <Compile Include="..\Shared\FontQuality.cs" Link="FontQuality.cs" />
+    <Compile Include="..\Shared\GapBuffer.cs" Link="GapBuffer.cs" />
+    <Compile Include="..\Shared\Helpers.cs" Link="Helpers.cs" />
+    <Compile Include="..\Shared\HotspotClickEventArgs.cs" Link="HotspotClickEventArgs.cs" />
+    <Compile Include="..\Shared\IdleStyling.cs" Link="IdleStyling.cs" />
+    <Compile Include="..\Shared\ILoader.cs" Link="ILoader.cs" />
+    <Compile Include="..\Shared\IndentView.cs" Link="IndentView.cs" />
+    <Compile Include="..\Shared\Indicator.cs" Link="Indicator.cs" />
+    <Compile Include="..\Shared\IndicatorClickEventArgs.cs" Link="IndicatorClickEventArgs.cs" />
+    <Compile Include="..\Shared\IndicatorCollection.cs" Link="IndicatorCollection.cs" />
+    <Compile Include="..\Shared\IndicatorFlags.cs" Link="IndicatorFlags.cs" />
+    <Compile Include="..\Shared\IndicatorReleaseEventArgs.cs" Link="IndicatorReleaseEventArgs.cs" />
+    <Compile Include="..\Shared\IndicatorStyle.cs" Link="IndicatorStyle.cs" />
+    <Compile Include="..\Shared\InsertCheckEventArgs.cs" Link="InsertCheckEventArgs.cs" />
+    <Compile Include="..\Shared\Lexer.cs" Link="Lexer.cs" />
+    <Compile Include="..\Shared\Line.cs" Link="Line.cs" />
+    <Compile Include="..\Shared\LineCollection.cs" Link="LineCollection.cs" />
+    <Compile Include="..\Shared\LineEndType.cs" Link="LineEndType.cs" />
+    <Compile Include="..\Shared\ListCompletionMethod.cs" Link="ListCompletionMethod.cs" />
+    <Compile Include="..\Shared\Loader.cs" Link="Loader.cs" />
+    <Compile Include="..\Shared\Margin.cs" Link="Margin.cs" />
+    <Compile Include="..\Shared\MarginClickEventArgs.cs" Link="MarginClickEventArgs.cs" />
+    <Compile Include="..\Shared\MarginCollection.cs" Link="MarginCollection.cs" />
+    <Compile Include="..\Shared\MarginCursor.cs" Link="MarginCursor.cs" />
+    <Compile Include="..\Shared\MarginOptions.cs" Link="MarginOptions.cs" />
+    <Compile Include="..\Shared\MarginType.cs" Link="MarginType.cs" />
+    <Compile Include="..\Shared\Marker.cs" Link="Marker.cs" />
+    <Compile Include="..\Shared\MarkerCollection.cs" Link="MarkerCollection.cs" />
+    <Compile Include="..\Shared\MarkerHandle.cs" Link="MarkerHandle.cs" />
+    <Compile Include="..\Shared\MarkerSymbol.cs" Link="MarkerSymbol.cs" />
+    <Compile Include="..\Shared\ModificationEventArgs.cs" Link="ModificationEventArgs.cs" />
+    <Compile Include="..\Shared\ModificationSource.cs" Link="ModificationSource.cs" />
+    <Compile Include="..\Shared\MultiPaste.cs" Link="MultiPaste.cs" />
+    <Compile Include="..\Shared\NativeMemoryStream.cs" Link="NativeMemoryStream.cs" />
+    <Compile Include="..\Shared\NativeMethods.cs" Link="NativeMethods.cs" />
+    <Compile Include="..\Shared\NeedShownEventArgs.cs" Link="NeedShownEventArgs.cs" />
+    <Compile Include="..\Shared\Order.cs" Link="Order.cs" />
+    <Compile Include="..\Shared\Phases.cs" Link="Phases.cs" />
+    <Compile Include="..\Shared\PopupMode.cs" Link="PopupMode.cs" />
+    <Compile Include="..\Shared\ProjectionEqualityComparer.cs" Link="ProjectionEqualityComparer.cs" />
+    <Compile Include="..\Shared\PropertyType.cs" Link="PropertyType.cs" />
+    <Compile Include="..\Shared\Scintilla.cs" Link="Scintilla.cs" />
+    <Compile Include="..\Shared\ScintillaReader.cs" Link="ScintillaReader.cs" />
+    <Compile Include="..\Shared\SCNotificationEventArgs.cs" Link="SCNotificationEventArgs.cs" />
+    <Compile Include="..\Shared\SearchFlags.cs" Link="SearchFlags.cs" />
+    <Compile Include="..\Shared\Selection.cs" Link="Selection.cs" />
+    <Compile Include="..\Shared\SelectionCollection.cs" Link="SelectionCollection.cs" />
+    <Compile Include="..\Shared\Status.cs" Link="Status.cs" />
+    <Compile Include="..\Shared\Style.cs" Link="Style.cs" />
+    <Compile Include="..\Shared\StyleCase.cs" Link="StyleCase.cs" />
+    <Compile Include="..\Shared\StyleCollection.cs" Link="StyleCollection.cs" />
+    <Compile Include="..\Shared\StyleNeededEventArgs.cs" Link="StyleNeededEventArgs.cs" />
+    <Compile Include="..\Shared\TabDrawMode.cs" Link="TabDrawMode.cs" />
+    <Compile Include="..\Shared\Technology.cs" Link="Technology.cs" />
+    <Compile Include="..\Shared\Tuple.cs" Link="Tuple.cs" />
+    <Compile Include="..\Shared\UpdateChange.cs" Link="UpdateChange.cs" />
+    <Compile Include="..\Shared\UpdateUIEventArgs.cs" Link="UpdateUIEventArgs.cs" />
+    <Compile Include="..\Shared\VirtualSpace.cs" Link="VirtualSpace.cs" />
+    <Compile Include="..\Shared\WhitespaceMode.cs" Link="WhitespaceMode.cs" />
+    <Compile Include="..\Shared\WinApiHelper.cs" Link="WinApiHelper.cs" />
+    <Compile Include="..\Shared\WrapIndentMode.cs" Link="WrapIndentMode.cs" />
+    <Compile Include="..\Shared\WrapMode.cs" Link="WrapMode.cs" />
+    <Compile Include="..\Shared\WrapVisualFlagLocation.cs" Link="WrapVisualFlagLocation.cs" />
+    <Compile Include="..\Shared\WrapVisualFlags.cs" Link="WrapVisualFlags.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Scintilla.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="x64\" />
+    <Folder Include="x86\" />
+  </ItemGroup>
+</Project>
