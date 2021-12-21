@@ -1009,12 +1009,19 @@ namespace ScintillaNET
                 var scintillaName = "Scintilla.NET";
                 var scintillaBaseName = "Scintilla.NET";
 
-                modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
-                modulePathLexilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Lexilla.dll");
+                modulePathScintilla =
+                    Path.Combine(
+                        Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version),
+                            (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
+                modulePathLexilla =
+                    Path.Combine(
+                        Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version),
+                            (IntPtr.Size == 4 ? "x86" : "x64")), "Lexilla.dll");
                 #elif SCINTILLA4
                 var scintillaName = "ScintillaNET";
 
-                modulePathScintilla = Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
+                modulePathScintilla =
+                    Path.Combine(Path.Combine(Path.Combine(Path.Combine(Path.GetTempPath(), scintillaName), version), (IntPtr.Size == 4 ? "x86" : "x64")), "Scintilla.dll");
                 #endif
 
 
@@ -1029,13 +1036,15 @@ namespace ScintillaNET
                     var guid = assembly?.FullName;
 
                     #if !NETCOREAPP
-                        guid = ((GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
+                        guid =
+ ((GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
                     #endif
 
                     var name = string.Format(CultureInfo.InvariantCulture, "Global\\{{{0}}}", guid);
                     using (var mutex = new Mutex(false, name))
                     {
-                        var access = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
+                        var access = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                            MutexRights.FullControl, AccessControlType.Allow);
                         var security = new MutexSecurity();
                         security.AddAccessRule(access);
                         mutex.SetAccessControl(security);
@@ -1048,7 +1057,8 @@ namespace ScintillaNET
                                 ownsHandle = mutex.WaitOne(5000, false); // 5 sec
                                 if (ownsHandle == false)
                                 {
-                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timeout waiting for exclusive access to '{0}'.", modulePathScintilla);
+                                    var timeoutMessage = string.Format(CultureInfo.InvariantCulture,
+                                        "Timeout waiting for exclusive access to '{0}'.", modulePathScintilla);
                                     throw new TimeoutException(timeoutMessage);
                                 }
                             }
@@ -1067,7 +1077,8 @@ namespace ScintillaNET
                                     Directory.CreateDirectory(directory);
 
                                 #if SCINTILLA5
-                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaBaseName.Replace(".", "")}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+                                var resource = string.Format(CultureInfo.InvariantCulture,
+                                    $"{scintillaBaseName.Replace(".", "")}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
 
                                 using var resourceStream =
                                     typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
@@ -1090,8 +1101,10 @@ namespace ScintillaNET
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
 
-                                var resource = string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
-                                using (var resourceStream = typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
+                                var resource =
+                                    string.Format(CultureInfo.InvariantCulture, $"{scintillaName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.SciLexer.dll.gz");
+                                using (var resourceStream =
+                                    typeof(Scintilla).Assembly.GetManifestResourceStream(resource))
                                 using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
                                 using (var fileStream = File.Create(modulePathScintilla))
                                     gzipStream.CopyTo(fileStream);
@@ -1105,10 +1118,41 @@ namespace ScintillaNET
                         }
                     }
                 }
+
+                #if SCINTILLA5
+                try
+                {
+                    var info = FileVersionInfo.GetVersionInfo(modulePathScintilla);
+                    scintillaVersion = info.ProductVersion ?? info.FileVersion;
+                    info = FileVersionInfo.GetVersionInfo(modulePathLexilla);
+                    lexillaVersion = info.ProductVersion ?? info.FileVersion;
+                }
+                catch
+                {
+                    scintillaVersion = "ERROR";
+                    lexillaVersion = "ERROR";
+                }
+                #endif
             }
 
             return modulePathScintilla;
+
         }
+
+        #if SCINTILLA5
+        private static string scintillaVersion;
+        private static string lexillaVersion;
+
+        /// <summary>
+        /// Gets the product version of the Scintilla.dll user by the control.
+        /// </summary>
+        public string ScintillaVersion => scintillaVersion;
+
+        /// <summary>
+        /// Gets the product version of the Lexilla.dll user by the control.
+        /// </summary>
+        public string LexillaVersion => lexillaVersion;
+        #endif
 
         /// <summary>
         /// Gets the Primary style associated with the given Secondary style.
