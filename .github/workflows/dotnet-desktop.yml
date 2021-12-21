@@ -108,6 +108,6 @@ jobs:
             Write-Output (-join("Pushing NuGet:", $file, " ..."))
             nuget.exe $arguments
             
-            $arguments = @("push", $file, "@env:GH_PACKAGES_APIKEY", "-Source", "$env:PACKAGESAPI", "-SkipDuplicate")
+            $arguments = @("push", $file, "$env:GH_PACKAGES_APIKEY", "-Source", "$env:PACKAGESAPI", "-SkipDuplicate")
             nuget.exe $arguments
         }
