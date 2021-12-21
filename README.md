@@ -8,7 +8,7 @@ ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft
 
 ### Project Status
 
-ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/jacobslusser/ScintillaNET/issues) feature at our GitHub page.
+ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
 
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/jacobslusser.ScintillaNET) or the [Releases](https://github.com/jacobslusser/ScintillaNET/releases) page.
 
@@ -20,8 +20,8 @@ A fairly vibrant ScintillaNET community exists here on GitHub. We specifically r
 
 - The [ScintillaNET.Demo](https://github.com/robinrodricks/ScintillaNET.Demo) project to see ScintillaNET used in an easy to understand, well-documented text editor (thanks to @robinrodricks)
 - The [ScintillaNET-Kitchen](https://github.com/uuf6429/ScintillaNET-Kitchen) project for seeing the effect of some of ScintillaNET's features in real time and generating boilerplate code for configuring styles (thanks to @uuf6429)
-- The [ScintillaNET-FindReplaceDialog](https://github.com/Stumpii/ScintillaNET-FindReplaceDialog) project for adding a Find/Replace dialog to ScintillaNET (thanks to @Stumpii)
-- The [SintillaNetPrinting](https://github.com/poloab/SintillaNetPrinting) project for adding printer support to ScintillaNET (thanks to @poloab).
+- The [ScintillaNET-FindReplaceDialog](https://github.com/VPKSoft/ScintillaNET-FindReplaceDialog) project for adding a Find/Replace dialog to ScintillaNET (thanks to @Stumpii)
+- The [SintillaNetPrinting](https://github.com/VPKSoft/ScintillaNetPrinting) project for adding printer support to ScintillaNET (thanks to @poloab).
 
 Additional projects and user-submitted code are tracked in the [User Submitted Recipes](https://github.com/jacobslusser/ScintillaNET/wiki/User-Submitted-Recipes) page of the [wiki](https://github.com/jacobslusser/ScintillaNET/wiki).
 
