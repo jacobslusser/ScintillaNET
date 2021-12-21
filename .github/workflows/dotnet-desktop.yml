@@ -36,7 +36,7 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop
+name: .NET Desktop
 
 on:
   push:
@@ -59,6 +59,10 @@ jobs:
       Solution_Name: Scintilla.NET.sln
       App_Project_Directory: Scintilla.NET
       App_Project_Path: Scintilla.NET\Scintilla.NET.csproj
+      NUGET_APIKEY: ${{ secrets.NUGET_APIKEY }}
+      NUGETAPI: ${{ secrets.NUGETAPI }}      
+      GH_PACKAGES_APIKEY: ${{ secrets.GH_PACKAGES_APIKEY }}
+      PACKAGESAPI: ${{ secrets.PACKAGESAPI }}
 
     steps:
     - name: Checkout
@@ -95,12 +99,12 @@ jobs:
         { 
             $file = $files[$i].FullName
             
-            $arguments = @("push", $file, "${{ secrets.NUGET_APIKEY }}", "-Source", "${{ secrets.NUGETAPI }}", "-SkipDuplicate")
+            $arguments = @("push", $file, "$env:NUGET_APIKEY", "-Source", "$env:NUGETAPI", "-SkipDuplicate")
             
             # sign the NuGet packages.
             Write-Output (-join("Pushing NuGet:", $file, " ..."))
             nuget.exe $arguments
             
-            $arguments = @("push", $file, "${{ secrets.GH_PACKAGES_APIKEY }}", "-Source", "${{ secrets.PACKAGESAPI }}", "-SkipDuplicate")
+            $arguments = @("push", $file, "@env:GH_PACKAGES_APIKEY", "-Source", "$env:PACKAGESAPI", "-SkipDuplicate")
             nuget.exe $arguments
         }
