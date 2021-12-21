@@ -95,6 +95,9 @@ jobs:
       run: |
         $currentDirectory = Get-Location
         $files = Get-ChildItem $currentDirectory -r -Filter *Scintilla.NET*.nupkg # use the mask to discard possible third party packages..
+
+        Write-Output $files.Count
+
         for ($i = 0; $i -lt $files.Count; $i++) 
         { 
             $file = $files[$i].FullName
