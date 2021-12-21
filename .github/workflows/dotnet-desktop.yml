@@ -63,6 +63,7 @@ jobs:
       NUGETAPI: ${{ secrets.NUGETAPI }}      
       GH_PACKAGES_APIKEY: ${{ secrets.GH_PACKAGES_APIKEY }}
       PACKAGESAPI: ${{ secrets.PACKAGESAPI }}
+      NUGETCONFIG: ${{ secrets.NUGETCONFIG }}
 
     steps:
     - name: Checkout
@@ -87,8 +88,16 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     # Create the app package by building and packaging the Windows Application Packaging project
-    - name: Create the app package
+    - name: Create the app NuGet package
       run: msbuild $env:App_Project_Path /p:Configuration=$env:Configuration
+
+    - name: Decode nuget.config
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        $nuget_config_bytes = [System.Convert]::FromBase64String("$env:NUGETCONFIG")
+        $currentDirectory = Get-Location
+        $nugetConfigFile = Join-Path -Path $currentDirectory -ChildPath "nuget.config"
+        [IO.File]::WriteAllBytes("$nugetConfigFile", $nuget_config_bytes)
 
     - name: NuGet push
       if: ${{ github.event_name != 'pull_request' }}
