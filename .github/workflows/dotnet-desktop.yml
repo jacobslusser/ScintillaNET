@@ -47,7 +47,7 @@ on:
 jobs:
 
   build:
-
+    environment: NuGet
     strategy:
       matrix:
         configuration: [Release]
