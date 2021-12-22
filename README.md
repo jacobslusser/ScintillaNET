@@ -1,4 +1,4 @@
-# ScintillaNET
+# Scintilla.NET
 
 ScintillaNET is a Windows Forms control, wrapper, and bindings for the versatile [Scintilla](http://www.scintilla.org/) source code editing component.
 
