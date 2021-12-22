@@ -10,7 +10,7 @@ ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft
 
 ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
 
-Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/VPKSoft/ScintillaNET) or the [Releases](https://github.com/VPKSoft/ScintillaNET/releases) page.
+Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/VPKSoft/Scintilla.NET) or the [Releases](https://github.com/VPKSoft/ScintillaNET/releases) page.
 
 For the latest and greatest you can build the [Master](https://github.com/VPKSoft/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2022.
 
