@@ -12,7 +12,7 @@ ScintillaNET is in active development. If you find any issues or just have a que
 
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/VPKSoft/ScintillaNET) or the [Releases](https://github.com/VPKSoft/ScintillaNET/releases) page.
 
-For the latest and greatest you can build the [Master](https://github.com/jacobslusser/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2015.
+For the latest and greatest you can build the [Master](https://github.com/VPKSoft/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2022.
 
 ### Related Projects
 
