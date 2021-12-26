@@ -57,6 +57,7 @@
             this.scintilla.TabIndex = 0;
             this.scintilla.UseRightToLeftReadingLayout = false;
             this.scintilla.WrapMode = ScintillaNET.WrapMode.None;
+            this.scintilla.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.scintilla_MouseDoubleClick);
             // 
             // msMain
             // 

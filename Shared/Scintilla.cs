@@ -4375,7 +4375,7 @@ namespace ScintillaNET
             {
                 // Should always be UTF-8 unless someone has done an end run around us
                 int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
-                return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
+                return (codePage == 0 ? Encoding.UTF8 : Encoding.GetEncoding(codePage));
             }
         }
 
@@ -5414,7 +5414,11 @@ namespace ScintillaNET
             get
             {
                 // NOTE: For some reason the length returned by this API includes the terminating NULL
+                #if SCINTILLA5
+                var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32();
+                #else
                 var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
+                #endif
                 if (length <= 0)
                     return string.Empty;
 

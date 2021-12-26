@@ -82,5 +82,10 @@ namespace Scintilla.NET.TestApp
                 scintilla.AppendText(Lexilla.GetLexerName(i) + Environment.NewLine);
             }
         }
+
+        private void scintilla_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show($@"Selected text: {scintilla.SelectedText}.", @"Double-click", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+        }
     }
 }
