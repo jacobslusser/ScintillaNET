@@ -1078,10 +1078,10 @@ namespace ScintillaNET
 
                                 #if SCINTILLA5
                                 var resource = string.Format(CultureInfo.InvariantCulture,
-                                    $"{scintillaBaseName.Replace(".", "")}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
+                                    $"{scintillaBaseName}.{(IntPtr.Size == 4 ? "x86" : "x64")}.Scintilla.zip");
 
                                 using var resourceStream =
-                                    typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
+                                        typeof(Scintilla).Assembly.GetManifestResourceStream(resource);
 
                                 using var zipArchive = new ZipArchive(resourceStream, ZipArchiveMode.Read);
 
@@ -1097,6 +1097,7 @@ namespace ScintillaNET
                                         entry.ExtractToFile(modulePathLexilla);
                                     }
                                 }
+
                                 #elif SCINTILLA4
                                 if (!Directory.Exists(directory))
                                     Directory.CreateDirectory(directory);
