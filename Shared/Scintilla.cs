@@ -5694,18 +5694,18 @@ namespace ScintillaNET
         [DefaultValue(Technology.Default)]
         [Category("Misc")]
         [Description("The rendering technology used to draw text.")]
-        public Technology Technology
+    public Technology Technology
+    {
+        get
         {
-            get
-            {
-                return (Technology)DirectMessage(NativeMethods.SCI_GETTECHNOLOGY);
-            }
-            set
-            {
-                var technology = (int)value;
-                DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(technology));
-            }
+            return (Technology)DirectMessage(NativeMethods.SCI_GETTECHNOLOGY);
         }
+        set
+        {
+            var technology = (int)value;
+            DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(technology));
+        }
+    }
 
         /// <summary>
         /// Gets or sets the current document text in the <see cref="Scintilla" /> control.
@@ -6850,5 +6850,15 @@ namespace ScintillaNET
         }
 
         #endregion Constructors
+
+        /// <summary>
+        /// Gets or sets a value indicating whether control's elements are aligned to support locales using right-to-left fonts.
+        /// </summary>
+        /// <value>The right to left.</value>
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Not used by the Scintilla.NET control.")]
+        public new RightToLeft RightToLeft { get; set; }
     }
 }
