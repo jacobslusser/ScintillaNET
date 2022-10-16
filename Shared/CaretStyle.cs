@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace ScintillaNET;
 
-namespace ScintillaNET
-{
     /// <summary>
     /// The caret visual style.
     /// </summary>
@@ -25,4 +20,4 @@ namespace ScintillaNET
         /// </summary>
         Block = NativeMethods.CARETSTYLE_BLOCK
     }
-}
+

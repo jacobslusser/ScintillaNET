@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("The MIT License (MIT)")]
 

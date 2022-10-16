@@ -37,6 +37,8 @@
             this.lexillaTestsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listLexersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.odFile = new System.Windows.Forms.OpenFileDialog();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.scintilla1 = new ScintillaNET.Scintilla();
             this.msMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,13 +48,12 @@
             this.scintilla.BiDirectionality = ScintillaNET.BiDirectionalDisplayType.Disabled;
             this.scintilla.CaretLineBackColor = System.Drawing.Color.White;
             this.scintilla.CaretLineVisible = true;
-            this.scintilla.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scintilla.LexerName = null;
             this.scintilla.Location = new System.Drawing.Point(0, 24);
             this.scintilla.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.scintilla.Name = "scintilla";
             this.scintilla.ScrollWidth = 6;
-            this.scintilla.Size = new System.Drawing.Size(800, 426);
+            this.scintilla.Size = new System.Drawing.Size(331, 426);
             this.scintilla.TabIndents = true;
             this.scintilla.TabIndex = 0;
             this.scintilla.UseRightToLeftReadingLayout = false;
@@ -121,17 +122,44 @@
             this.odFile.DefaultExt = "*.*";
             this.odFile.Filter = "All Files|*.*";
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(364, 56);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(169, 23);
+            this.textBox1.TabIndex = 2;
+            // 
+            // scintilla1
+            // 
+            this.scintilla1.AutoCMaxHeight = 9;
+            this.scintilla1.BiDirectionality = ScintillaNET.BiDirectionalDisplayType.Disabled;
+            this.scintilla1.CaretLineBackColor = System.Drawing.Color.Black;
+            this.scintilla1.CaretLineVisible = true;
+            this.scintilla1.LexerName = null;
+            this.scintilla1.Location = new System.Drawing.Point(364, 96);
+            this.scintilla1.Name = "scintilla1";
+            this.scintilla1.ScrollWidth = 49;
+            this.scintilla1.Size = new System.Drawing.Size(374, 323);
+            this.scintilla1.TabIndents = true;
+            this.scintilla1.TabIndex = 3;
+            this.scintilla1.Text = "scintilla1";
+            this.scintilla1.UseRightToLeftReadingLayout = false;
+            this.scintilla1.WrapMode = ScintillaNET.WrapMode.None;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.scintilla1);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.scintilla);
             this.Controls.Add(this.msMain);
             this.MainMenuStrip = this.msMain;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FormMain";
             this.Text = "ScintillaNET.TestApp";
+            this.Shown += new System.EventHandler(this.FormMain_Shown);
             this.msMain.ResumeLayout(false);
             this.msMain.PerformLayout();
             this.ResumeLayout(false);
@@ -150,6 +178,8 @@
         private System.Windows.Forms.ToolStripMenuItem mnuTestMethod;
         private System.Windows.Forms.ToolStripMenuItem lexillaTestsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem listLexersToolStripMenuItem;
+        private System.Windows.Forms.TextBox textBox1;
+        private ScintillaNET.Scintilla scintilla1;
     }
 }
 
