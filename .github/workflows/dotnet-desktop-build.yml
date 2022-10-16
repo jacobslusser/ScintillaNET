@@ -24,6 +24,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore "$Env:GITHUB_WORKSPACE/.sln"
+      run: dotnet restore "$Env:GITHUB_WORKSPACE/Scintilla.NET.sln"
     - name: Build
       run: dotnet build --no-restore "$Env:GITHUB_WORKSPACE/Scintilla.NET.sln"
