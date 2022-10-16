@@ -4,15 +4,18 @@ ScintillaNET is a Windows Forms control, wrapper, and bindings for the versatile
 
 > "As well as features found in standard text editing components, Scintilla includes features especially useful when editing and debugging source code. These include support for syntax styling, error indicators, code completion and call tips. The selection margin can contain markers like those used in debuggers to indicate breakpoints and the current line. Styling choices are more open than with many editors, allowing the use of proportional fonts, bold and italics, multiple foreground and background colours and multiple fonts." -- [scintilla.org](http://www.scintilla.org/)
 
-ScintillaNET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
+Scintilla.NET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
 
 ### Project Status
 
-ScintillaNET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
+Scintilla.NET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
 
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/Scintilla.NET/) or the [Releases](https://github.com/VPKSoft/ScintillaNET/releases) page.
 
 For the latest and greatest you can build the [Master](https://github.com/VPKSoft/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2022.
+
+### Technical notes
+[Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, 2019, and 2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) is required for the component to work, see [#16](https://github.com/VPKSoft/ScintillaNET/issues/16).
 
 ### Related Projects
 
