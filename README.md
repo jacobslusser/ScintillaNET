@@ -2,7 +2,7 @@
 
 Scintilla.NET is a Windows Forms control, wrapper, and bindings for the versatile [Scintilla](http://www.scintilla.org/) source code editing component.
 
-[![.NET Desktop](https://github.com/VPKSoft/ScintillaNET/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/VPKSoft/ScintillaNET/actions/workflows/dotnet-desktop.yml) ![Nuget](https://img.shields.io/nuget/v/Scintilla.NET)
+[![.NET Desktop](https://github.com/VPKSoft/ScintillaNET/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/VPKSoft/ScintillaNET/actions/workflows/dotnet-desktop.yml) [![Nuget](https://img.shields.io/nuget/v/Scintilla.NET)](https://www.nuget.org/packages/Scintilla.NET)
 
 > "As well as features found in standard text editing components, Scintilla includes features especially useful when editing and debugging source code. These include support for syntax styling, error indicators, code completion and call tips. The selection margin can contain markers like those used in debuggers to indicate breakpoints and the current line. Styling choices are more open than with many editors, allowing the use of proportional fonts, bold and italics, multiple foreground and background colours and multiple fonts." -- [scintilla.org](http://www.scintilla.org/)
 
