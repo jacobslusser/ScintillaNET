@@ -15,6 +15,7 @@ Compiled versions which are production ready can be downloaded from [NuGet](http
 For the latest and greatest you can build the [Master](https://github.com/VPKSoft/ScintillaNET/archive/master.zip) branch from source using Visual Studio 2022.
 
 ### Technical notes
+**Versions before v.5.3.1.1:**
 [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, 2019, and 2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) is required for the component to work, see [#16](https://github.com/VPKSoft/ScintillaNET/issues/16).
 
 ### Related Projects
