@@ -177,6 +177,11 @@ internal static class NativeMethods
     // Line end type
     public const int SC_LINE_END_TYPE_DEFAULT = 0;
     public const int SC_LINE_END_TYPE_UNICODE = 1;
+    
+    //Line layers
+    public const int SC_LAYER_BASE = 0;
+    public const int SC_LAYER_UNDER_TEXT = 1;
+    public const int SC_LAYER_OVER_TEXT = 2;
 
     // Margins
     public const int SC_MAX_MARGIN = 4;
@@ -953,6 +958,10 @@ internal static class NativeMethods
     public const int SCI_FOLDDISPLAYTEXTSETSTYLE = 2701;
     public const int SCI_GETCARETLINEFRAME = 2704;
     public const int SCI_SETCARETLINEFRAME = 2705;
+    public const int SCI_GETSELECTIONLAYER = 2762;
+    public const int SCI_SETSELECTIONLAYER = 2763;
+    public const int SCI_GETCARETLINELAYER = 2764;
+    public const int SCI_SETCARETLINELAYER = 2765;
     public const int SCI_STARTRECORD = 3001;
     public const int SCI_STOPRECORD = 3002;
     public const int SCI_SETLEXER = 4001;

@@ -100,6 +100,9 @@
 		<Compile Include="..\Shared\IndicatorReleaseEventArgs.cs" Link="IndicatorReleaseEventArgs.cs" />
 		<Compile Include="..\Shared\IndicatorStyle.cs" Link="IndicatorStyle.cs" />
 		<Compile Include="..\Shared\InsertCheckEventArgs.cs" Link="InsertCheckEventArgs.cs" />
+		<Compile Include="..\Shared\Layer.cs">
+		  <Link>Layer.cs</Link>
+		</Compile>
 		<Compile Include="..\Shared\Lexer.cs" Link="Lexer.cs" />
 		<Compile Include="..\Shared\Line.cs" Link="Line.cs" />
 		<Compile Include="..\Shared\LineCollection.cs" Link="LineCollection.cs" />

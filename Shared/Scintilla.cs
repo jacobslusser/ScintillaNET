@@ -2678,6 +2678,25 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Gets or sets the layer where the text selection will be painted. Default value is <see cref="Layer.Base"/>
+        /// </summary>
+        [DefaultValue(Layer.Base)]
+        [Category("Selection")]
+        [Description("The layer where the text selection will be painted.")]
+        public Layer SelectionLayer
+        {
+            get
+            {
+                return (Layer)DirectMessage(NativeMethods.SCI_GETSELECTIONLAYER).ToInt32();
+            }
+            set
+            {
+                int layer = (int)value;
+                DirectMessage(NativeMethods.SCI_SETSELECTIONLAYER, new IntPtr(layer), IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
         /// Styles the specified length of characters.
         /// </summary>
         /// <param name="length">The number of characters to style.</param>
@@ -4021,6 +4040,25 @@ namespace ScintillaNET
             {
                 var visibleAlways = (value ? new IntPtr(1) : IntPtr.Zero);
                 DirectMessage(NativeMethods.SCI_SETCARETLINEVISIBLEALWAYS, visibleAlways);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the layer where the line caret will be painted. Default value is <see cref="Layer.Base"/>
+        /// </summary>
+        [DefaultValue(Layer.Base)]
+        [Category("Caret")]
+        [Description("The layer where the line caret will be painted.")]
+        public Layer CaretLineLayer
+        {
+            get
+            {
+                return (Layer)DirectMessage(NativeMethods.SCI_GETCARETLINELAYER).ToInt32();
+            }
+            set
+            {
+                int layer = (int)value;
+                DirectMessage(NativeMethods.SCI_SETCARETLINELAYER, new IntPtr(layer));
             }
         }
 
