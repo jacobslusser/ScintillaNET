@@ -1,7 +1,7 @@
 namespace ScintillaNET;
 
 /// <summary>
-/// 
+/// The layer on which a <see cref="Scintilla"/> control will draw elements like for example the text selection.
 /// </summary>
 public enum Layer
 {
@@ -11,7 +11,7 @@ public enum Layer
 	Base = NativeMethods.SC_LAYER_BASE,
 
 	/// <summary>
-	/// Draw the selection background translucently under the text. This will not work in single phase drawing mode
+	/// Draw the selection background translucently under the text. This will not work in single phase drawing mode.
 	/// (<see cref="Phases.One"/>) as there is no under-text phase.
 	/// </summary>
 	UnderText = NativeMethods.SC_LAYER_UNDER_TEXT,
