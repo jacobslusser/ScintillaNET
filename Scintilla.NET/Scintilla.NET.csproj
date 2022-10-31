@@ -8,7 +8,7 @@
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<Description>Source Editing Component based on Scintilla 5 series.</Description>
 		<Copyright>Copyright (c) 2018, Jacob Slusser. All rights reserved. VPKSoft, cyber960 2021.</Copyright>
-		<Version>5.3.1.2</Version>
+		<Version>5.3.1.3</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DocumentationFile>bin\$(Configuration)\ScintillaNET.xml</DocumentationFile>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -101,7 +101,7 @@
 		<Compile Include="..\Shared\IndicatorStyle.cs" Link="IndicatorStyle.cs" />
 		<Compile Include="..\Shared\InsertCheckEventArgs.cs" Link="InsertCheckEventArgs.cs" />
 		<Compile Include="..\Shared\Layer.cs">
-		  <Link>Layer.cs</Link>
+			<Link>Layer.cs</Link>
 		</Compile>
 		<Compile Include="..\Shared\Lexer.cs" Link="Lexer.cs" />
 		<Compile Include="..\Shared\Line.cs" Link="Line.cs" />
