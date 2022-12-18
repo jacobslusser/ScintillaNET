@@ -1043,11 +1043,16 @@ namespace ScintillaNET
                     var name = string.Format(CultureInfo.InvariantCulture, "Global\\{{{0}}}", guid);
                     using (var mutex = new Mutex(false, name))
                     {
+// Blocked because the library version conflicted in the designer using .NET 7 and DevExpress WinForms,
+// See: https://github.com/VPKSoft/ScintillaNET/issues/28
+// See: https://supportcenter.devexpress.com/ticket/details/t1133409/scintilla-net-5-3-1-3-don-t-work-when-devexpress-libraries-added-to-project
+#if USE_MUTEX_ACCESS
                         var access = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
                             MutexRights.FullControl, AccessControlType.Allow);
                         var security = new MutexSecurity();
                         security.AddAccessRule(access);
                         mutex.SetAccessControl(security);
+#endif
 
                         var ownsHandle = false;
                         try
