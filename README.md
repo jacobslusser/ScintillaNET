@@ -10,10 +10,11 @@ Scintilla.NET can also be used with WPF using the <a href="https://msdn.microsof
 
 ## Utility assemblies
 * [ScintillaLexers](https://github.com/VPKSoft/ScintillaLexers) - A class library containing lexer definitions for the Scintilla.NET
-* [ScintillaDiff](https://github.com/VPKSoft/ScintillaDiff) - A class library for comparing two text files with the Scintilla.NET control
+* [VPKSoft.ScintillaUrlDetect](https://github.com/VPKSoft/VPKSoft.ScintillaUrlDetect) - A library to detect URLs with the ScintillaNET control
 * [VPKSoft.ScintillaSpellCheck](https://github.com/VPKSoft/VPKSoft.ScintillaSpellCheck) - A spell checking library for the Scintilla.NET
-* [ScintillaNetPrinting](https://github.com/VPKSoft/ScintillaNetPrinting) - Add print functionallity to Scintilla.NET
+* [ScintillaDiff](https://github.com/VPKSoft/ScintillaDiff) - A class library for comparing two text files with the Scintilla.NET control
 * [ScintillaTabbedTextControl](https://github.com/VPKSoft/ScintillaTabbedTextControl) - A tabbed control for Scintilla.NET to display multiple documents
+* [ScintillaNetPrinting](https://github.com/VPKSoft/ScintillaNetPrinting) - Add print functionallity to Scintilla.NET
 
 ### Project Status
 This project is continuing from the abandoned [ScintllaNET](https://github.com/jacobslusser/ScintillaNET) by Jacob Slusser.
