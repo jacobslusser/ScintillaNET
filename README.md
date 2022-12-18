@@ -8,9 +8,17 @@ Scintilla.NET is a Windows Forms control, wrapper, and bindings for the versatil
 
 Scintilla.NET can also be used with WPF using the <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.integration.windowsformshost(v=vs.110).aspx">WindowsFormsHost</a>.
 
-### Project Status
+## Utility assemblies
+* [ScintillaLexers](https://github.com/VPKSoft/ScintillaLexers) - A class library containing lexer definitions for the Scintilla.NET
+* [ScintillaDiff](https://github.com/VPKSoft/ScintillaDiff) - A class library for comparing two text files with the Scintilla.NET control
+* [VPKSoft.ScintillaSpellCheck](https://github.com/VPKSoft/VPKSoft.ScintillaSpellCheck) - A spell checking library for the Scintilla.NET
+* [ScintillaNetPrinting](https://github.com/VPKSoft/ScintillaNetPrinting) - Add print functionallity to Scintilla.NET
+* [ScintillaTabbedTextControl](https://github.com/VPKSoft/ScintillaTabbedTextControl) - A tabbed control for Scintilla.NET to display multiple documents
 
-Scintilla.NET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page.
+### Project Status
+This project is continuing from the abandoned [ScintllaNET](https://github.com/jacobslusser/ScintillaNET) by Jacob Slusser.
+
+Scintilla.NET is in active development. If you find any issues or just have a question feel free to use the [Issues](https://github.com/VPKSoft/ScintillaNET/issues) feature at our GitHub page. **NOTE:** I don't read the issues posted to the main fork - so if your issue is about this project, post it here.
 
 Compiled versions which are production ready can be downloaded from [NuGet](https://www.nuget.org/packages/Scintilla.NET/) or the [Releases](https://github.com/VPKSoft/ScintillaNET/releases) page.
 
@@ -21,19 +29,12 @@ For the latest and greatest you can build the [Master](https://github.com/VPKSof
 [Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, 2019, and 2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) is required for the component to work, see [#16](https://github.com/VPKSoft/ScintillaNET/issues/16).
 
 ### Related Projects
-
-A fairly vibrant ScintillaNET community exists here on GitHub. We specifically recommend you look at the following projects:
-
-- The [ScintillaNET.Demo](https://github.com/robinrodricks/ScintillaNET.Demo) project to see ScintillaNET used in an easy to understand, well-documented text editor (thanks to @robinrodricks)
-- The [ScintillaNET-Kitchen](https://github.com/uuf6429/ScintillaNET-Kitchen) project for seeing the effect of some of ScintillaNET's features in real time and generating boilerplate code for configuring styles (thanks to @uuf6429)
 - The [ScintillaNET-FindReplaceDialog](https://github.com/VPKSoft/ScintillaNET-FindReplaceDialog) project for adding a Find/Replace dialog to ScintillaNET (thanks to @Stumpii)
-- The [SintillaNetPrinting](https://github.com/VPKSoft/ScintillaNetPrinting) project for adding printer support to ScintillaNET (thanks to @poloab).
-
-Additional projects and user-submitted code are tracked in the [User Submitted Recipes](https://github.com/jacobslusser/ScintillaNET/wiki/User-Submitted-Recipes) page of the [wiki](https://github.com/jacobslusser/ScintillaNET/wiki).
 
 ## Background
+> This project is a rewrite of the [ScintillaNET project hosted at CodePlex](http://scintillanet.codeplex.com/) and maintained by myself and others. After many years of contributing to that project I decided to think differently about the API we had created and felt I could make better one if I was willing to go back to a blank canvas. Thus, this project is the spiritual successor to the original ScintillaNET but has been written from scratch.
 
-This project is a rewrite of the [ScintillaNET project hosted at CodePlex](http://scintillanet.codeplex.com/) and maintained by myself and others. After many years of contributing to that project I decided to think differently about the API we had created and felt I could make better one if I was willing to go back to a blank canvas. Thus, this project is the spiritual successor to the original ScintillaNET but has been written from scratch.
+This project with one letter difference continues keeping the code base alive.
 
 ### First Class Characters
 
