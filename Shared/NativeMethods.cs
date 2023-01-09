@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace ScintillaNET;
 
-internal static class NativeMethods
+public static class NativeMethods
 {
     #region Constants
 
