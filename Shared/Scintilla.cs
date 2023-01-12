@@ -4804,7 +4804,7 @@ namespace ScintillaNET
                 #if SCINTILLA5
                 if (!SetLexerByName(value))
                 {
-                    throw new InvalidOperationException(@$"Lexer with the name of '{lexerName}' was not found.");
+                    throw new InvalidOperationException(@$"Lexer with the name of '{value}' was not found.");
                 }
                 #elif SCINTILLA4
                 if (NativeMethods.NameConstantMap.ContainsValue(value))
