@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Text;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -54,7 +55,7 @@ public class Style
 
     #region Fields
 
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     #endregion Fields
 
@@ -357,7 +358,7 @@ public class Style
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this style.</param>
     /// <param name="index">The index of this style within the <see cref="StyleCollection" /> that created it.</param>
-    public Style(Scintilla scintilla, int index)
+    public Style(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int index)
     {
         this.scintilla = scintilla;
         Index = index;

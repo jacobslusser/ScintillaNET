@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Scintilla.NET.Abstractions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ public class LineCollection : IEnumerable<Line>
 {
     #region Fields
 
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private GapBuffer<PerLine> perLineData;
 
     // The 'step' is a break in the continuity of our line starts. It allows us
@@ -490,7 +491,7 @@ public class LineCollection : IEnumerable<Line>
     /// Initializes a new instance of the <see cref="LineCollection" /> class.
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this collection.</param>
-    public LineCollection(Scintilla scintilla)
+    public LineCollection(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla)
     {
         this.scintilla = scintilla;
         this.scintilla.SCNotification += scintilla_SCNotification;

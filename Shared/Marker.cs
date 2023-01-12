@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -8,7 +9,7 @@ namespace ScintillaNET;
 /// </summary>
 public class Marker
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     /// <summary>
     /// An unsigned 32-bit mask of all <see cref="Margin" /> indexes where each bit cooresponds to a margin index.
@@ -150,7 +151,7 @@ public class Marker
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this marker.</param>
     /// <param name="index">The index of this style within the <see cref="MarkerCollection" /> that created it.</param>
-    public Marker(Scintilla scintilla, int index)
+    public Marker(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int index)
     {
         this.scintilla = scintilla;
         Index = index;

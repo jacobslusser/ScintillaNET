@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Scintilla.NET.Abstractions;
+using System;
 
 namespace ScintillaNET;
 
@@ -9,7 +10,7 @@ public class Line
 {
     #region Fields
 
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     #endregion Fields
 
@@ -626,7 +627,7 @@ public class Line
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this line.</param>
     /// <param name="index">The index of this line within the <see cref="LineCollection" /> that created it.</param>
-    public Line(Scintilla scintilla, int index)
+    public Line(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int index)
     {
         this.scintilla = scintilla;
         Index = index;
