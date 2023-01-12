@@ -163,4 +163,7 @@
 		<Folder Include="x64\" />
 		<Folder Include="x86\" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Scintilla.NET.Abstractions\Scintilla.NET.Abstractions.csproj" />
+	</ItemGroup>
 </Project>

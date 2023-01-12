@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{2FB155AE-B1BA-44AB-A670-794DE6635AAA}</ProjectGuid>
-    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net40</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net45</TargetFrameworks>
     <AssemblyTitle>ScintillaNET</AssemblyTitle>
     <Company>Jacob Slusser, VPKSoft, cyber960</Company>
     <Product>ScintillaNET</Product>
@@ -17,7 +17,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants>SCINTILLA4</DefineConstants>
@@ -98,6 +98,7 @@
     <Compile Include="..\Shared\IndicatorReleaseEventArgs.cs" Link="IndicatorReleaseEventArgs.cs" />
     <Compile Include="..\Shared\IndicatorStyle.cs" Link="IndicatorStyle.cs" />
     <Compile Include="..\Shared\InsertCheckEventArgs.cs" Link="InsertCheckEventArgs.cs" />
+    <Compile Include="..\Shared\Layer.cs" Link="Layer.cs" />
     <Compile Include="..\Shared\Lexer.cs" Link="Lexer.cs" />
     <Compile Include="..\Shared\Line.cs" Link="Line.cs" />
     <Compile Include="..\Shared\LineCollection.cs" Link="LineCollection.cs" />
@@ -157,5 +158,8 @@
   <ItemGroup>
     <Folder Include="x64\" />
     <Folder Include="x86\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Scintilla.NET.Abstractions\Scintilla.NET.Abstractions.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -8,7 +9,7 @@ namespace ScintillaNET;
 /// </summary>
 public class MarkerCollection : IEnumerable<Marker>
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     /// <summary>
     /// Provides an enumerator that iterates through the collection.
@@ -59,7 +60,7 @@ public class MarkerCollection : IEnumerable<Marker>
     /// Initializes a new instance of the <see cref="MarkerCollection" /> class.
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this collection.</param>
-    public MarkerCollection(Scintilla scintilla)
+    public MarkerCollection(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla)
     {
         this.scintilla = scintilla;
     }
