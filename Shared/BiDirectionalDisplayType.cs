@@ -1,3 +1,5 @@
+using Scintilla.NET.Abstractions;
+
 namespace ScintillaNET;
 
 /// <summary>
@@ -8,15 +10,15 @@ public enum BiDirectionalDisplayType
     /// <summary>
     /// The bi-directional display type is disabled.
     /// </summary>
-    Disabled = NativeMethods.SC_BIDIRECTIONAL_DISABLED,
+    Disabled = ScintillaConstants.SC_BIDIRECTIONAL_DISABLED,
 
     /// <summary>
     /// The bi-directional display type is left-to-right.
     /// </summary>
-    LeftToRight = NativeMethods.SC_BIDIRECTIONAL_L2R,
+    LeftToRight = ScintillaConstants.SC_BIDIRECTIONAL_L2R,
 
     /// <summary>
     /// The bi-directional display type is right-to-left.
     /// </summary>
-    RightToLeft = NativeMethods.SC_BIDIRECTIONAL_R2L
+    RightToLeft = ScintillaConstants.SC_BIDIRECTIONAL_R2L
 }

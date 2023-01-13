@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Scintilla.NET.Abstractions;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -37,7 +38,7 @@ public class StyleCollection : IEnumerable<Style>
     {
         get
         {
-            return (NativeMethods.STYLE_MAX + 1);
+            return (STYLE_MAX + 1);
         }
     }
 

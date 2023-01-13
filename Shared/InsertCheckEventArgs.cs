@@ -1,4 +1,5 @@
 ﻿using System;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -49,7 +50,7 @@ public class InsertCheckEventArgs : EventArgs
 
             var bytes = Helpers.GetBytes(CachedText, scintilla.Encoding, zeroTerminated: false);
             fixed (byte* bp = bytes)
-                scintilla.DirectMessage(NativeMethods.SCI_CHANGEINSERTION, new IntPtr(bytes.Length), new IntPtr(bp));
+                scintilla.DirectMessage(SCI_CHANGEINSERTION, new IntPtr(bytes.Length), new IntPtr(bp));
         }
     }
 

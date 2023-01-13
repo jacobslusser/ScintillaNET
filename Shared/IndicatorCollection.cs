@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -39,7 +40,7 @@ public class IndicatorCollection : IEnumerable<Indicator>
     {
         get
         {
-            return (NativeMethods.INDIC_MAX + 1);
+            return (INDIC_MAX + 1);
         }
     }
 

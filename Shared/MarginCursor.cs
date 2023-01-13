@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// The display of a cursor when over a margin.
@@ -8,10 +10,10 @@ public enum MarginCursor
     /// <summary>
     /// A normal arrow.
     /// </summary>
-    Arrow = NativeMethods.SC_CURSORARROW,
+    Arrow = ScintillaConstants.SC_CURSORARROW,
 
     /// <summary>
     /// A reversed arrow.
     /// </summary>
-    ReverseArrow = NativeMethods.SC_CURSORREVERSEARROW
+    ReverseArrow = ScintillaConstants.SC_CURSORREVERSEARROW
 }

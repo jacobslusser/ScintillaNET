@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
     /// <summary>
     /// The caret visual style.
@@ -8,16 +10,16 @@
         /// <summary>
         /// The caret is not displayed.
         /// </summary>
-        Invisible = NativeMethods.CARETSTYLE_INVISIBLE,
+        Invisible = ScintillaConstants.CARETSTYLE_INVISIBLE,
 
         /// <summary>
         /// The caret is drawn as a vertical line.
         /// </summary>
-        Line = NativeMethods.CARETSTYLE_LINE,
+        Line = ScintillaConstants.CARETSTYLE_LINE,
 
         /// <summary>
         /// The caret is drawn as a block.
         /// </summary>
-        Block = NativeMethods.CARETSTYLE_BLOCK
+        Block = ScintillaConstants.CARETSTYLE_BLOCK
     }
 

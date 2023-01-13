@@ -1,4 +1,5 @@
 ﻿using System;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -58,7 +59,7 @@ public class BeforeModificationEventArgs : EventArgs
                 // SC_MOD_BEFOREDELETE... but we can get it from the document.
                 if (textPtr == IntPtr.Zero)
                 {
-                    var ptr = scintilla.DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(bytePosition), new IntPtr(byteLength));
+                    var ptr = scintilla.DirectMessage(SCI_GETRANGEPOINTER, new IntPtr(bytePosition), new IntPtr(byteLength));
                     CachedText = new string((sbyte*)ptr, 0, byteLength, scintilla.Encoding);
                 }
                 else

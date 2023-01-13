@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Specifies the behavior of pasting into multiple selections.
@@ -8,10 +10,10 @@ public enum MultiPaste
     /// <summary>
     /// Pasting into multiple selections only pastes to the main selection. This is the default.
     /// </summary>
-    Once = NativeMethods.SC_MULTIPASTE_ONCE,
+    Once = ScintillaConstants.SC_MULTIPASTE_ONCE,
 
     /// <summary>
     /// Pasting into multiple selections pastes into each selection.
     /// </summary>
-    Each = NativeMethods.SC_MULTIPASTE_EACH
+    Each = ScintillaConstants.SC_MULTIPASTE_EACH
 }

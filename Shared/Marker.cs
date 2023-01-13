@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Scintilla.NET.Abstractions;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -20,42 +21,42 @@ public class Marker
     /// An unsigned 32-bit mask of folder <see cref="Margin" /> indexes (25 through 31) where each bit cooresponds to a margin index.
     /// </summary>
     /// <seealso cref="Margin.Mask" />
-    public const uint MaskFolders = NativeMethods.SC_MASK_FOLDERS;
+    public const uint MaskFolders = SC_MASK_FOLDERS;
 
     /// <summary>
     /// Folder end marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxPlusConnected" /> symbol.
     /// </summary>
-    public const int FolderEnd = NativeMethods.SC_MARKNUM_FOLDEREND;
+    public const int FolderEnd = SC_MARKNUM_FOLDEREND;
 
     /// <summary>
     /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxMinusConnected" /> symbol.
     /// </summary>
-    public const int FolderOpenMid = NativeMethods.SC_MARKNUM_FOLDEROPENMID;
+    public const int FolderOpenMid = SC_MARKNUM_FOLDEROPENMID;
 
     /// <summary>
     /// Folder mid tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.TCorner" /> symbol.
     /// </summary>
-    public const int FolderMidTail = NativeMethods.SC_MARKNUM_FOLDERMIDTAIL;
+    public const int FolderMidTail = SC_MARKNUM_FOLDERMIDTAIL;
 
     /// <summary>
     /// Folder tail marker index. This marker is typically configured to display the <see cref="MarkerSymbol.LCorner" /> symbol.
     /// </summary>
-    public const int FolderTail = NativeMethods.SC_MARKNUM_FOLDERTAIL;
+    public const int FolderTail = SC_MARKNUM_FOLDERTAIL;
 
     /// <summary>
     /// Folder sub marker index. This marker is typically configured to display the <see cref="MarkerSymbol.VLine" /> symbol.
     /// </summary>
-    public const int FolderSub = NativeMethods.SC_MARKNUM_FOLDERSUB;
+    public const int FolderSub = SC_MARKNUM_FOLDERSUB;
 
     /// <summary>
     /// Folder marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxPlus" /> symbol.
     /// </summary>
-    public const int Folder = NativeMethods.SC_MARKNUM_FOLDER;
+    public const int Folder = SC_MARKNUM_FOLDER;
 
     /// <summary>
     /// Folder open marker index. This marker is typically configured to display the <see cref="MarkerSymbol.BoxMinus" /> symbol.
     /// </summary>
-    public const int FolderOpen = NativeMethods.SC_MARKNUM_FOLDEROPEN;
+    public const int FolderOpen = SC_MARKNUM_FOLDEROPEN;
 
     /// <summary>
     /// Sets the marker symbol to a custom image.
@@ -67,12 +68,12 @@ public class Marker
         if (image == null)
             return;
 
-        scintilla.DirectMessage(NativeMethods.SCI_RGBAIMAGESETWIDTH, new IntPtr(image.Width));
-        scintilla.DirectMessage(NativeMethods.SCI_RGBAIMAGESETHEIGHT, new IntPtr(image.Height));
+        scintilla.DirectMessage(SCI_RGBAIMAGESETWIDTH, new IntPtr(image.Width));
+        scintilla.DirectMessage(SCI_RGBAIMAGESETHEIGHT, new IntPtr(image.Height));
 
         var bytes = Helpers.BitmapToArgb(image);
         fixed (byte* bp = bytes)
-            scintilla.DirectMessage(NativeMethods.SCI_MARKERDEFINERGBAIMAGE, new IntPtr(Index), new IntPtr(bp));
+            scintilla.DirectMessage(SCI_MARKERDEFINERGBAIMAGE, new IntPtr(Index), new IntPtr(bp));
     }
 
     /// <summary>
@@ -92,7 +93,7 @@ public class Marker
     public void SetAlpha(int alpha)
     {
         alpha = Helpers.Clamp(alpha, 0, 255);
-        scintilla.DirectMessage(NativeMethods.SCI_MARKERSETALPHA, new IntPtr(Index), new IntPtr(alpha));
+        scintilla.DirectMessage(SCI_MARKERSETALPHA, new IntPtr(Index), new IntPtr(alpha));
     }
 
     /// <summary>
@@ -107,7 +108,7 @@ public class Marker
     public void SetBackColor(Color color)
     {
         var colour = ColorTranslator.ToWin32(color);
-        scintilla.DirectMessage(NativeMethods.SCI_MARKERSETBACK, new IntPtr(Index), new IntPtr(colour));
+        scintilla.DirectMessage(SCI_MARKERSETBACK, new IntPtr(Index), new IntPtr(colour));
     }
 
     /// <summary>
@@ -117,7 +118,7 @@ public class Marker
     public void SetForeColor(Color color)
     {
         var colour = ColorTranslator.ToWin32(color);
-        scintilla.DirectMessage(NativeMethods.SCI_MARKERSETFORE, new IntPtr(Index), new IntPtr(colour));
+        scintilla.DirectMessage(SCI_MARKERSETFORE, new IntPtr(Index), new IntPtr(colour));
     }
 
     /// <summary>
@@ -137,12 +138,12 @@ public class Marker
     {
         get
         {
-            return (MarkerSymbol)scintilla.DirectMessage(NativeMethods.SCI_MARKERSYMBOLDEFINED, new IntPtr(Index));
+            return (MarkerSymbol)scintilla.DirectMessage(SCI_MARKERSYMBOLDEFINED, new IntPtr(Index));
         }
         set
         {
             var markerSymbol = (int)value;
-            scintilla.DirectMessage(NativeMethods.SCI_MARKERDEFINE, new IntPtr(Index), new IntPtr(markerSymbol));
+            scintilla.DirectMessage(SCI_MARKERDEFINE, new IntPtr(Index), new IntPtr(markerSymbol));
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -25,7 +26,7 @@ public class Margin
     {
         get
         {
-            var color = scintilla.DirectMessage(NativeMethods.SCI_GETMARGINBACKN, new IntPtr(Index)).ToInt32();
+            var color = scintilla.DirectMessage(SCI_GETMARGINBACKN, new IntPtr(Index)).ToInt32();
             return ColorTranslator.FromWin32(color);
         }
         set
@@ -34,7 +35,7 @@ public class Margin
                 value = Color.Black;
 
             var color = ColorTranslator.ToWin32(value);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINBACKN, new IntPtr(Index), new IntPtr(color));
+            scintilla.DirectMessage(SCI_SETMARGINBACKN, new IntPtr(Index), new IntPtr(color));
         }
     }
 
@@ -46,12 +47,12 @@ public class Margin
     {
         get
         {
-            return (MarginCursor)scintilla.DirectMessage(NativeMethods.SCI_GETMARGINCURSORN, new IntPtr(Index));
+            return (MarginCursor)scintilla.DirectMessage(SCI_GETMARGINCURSORN, new IntPtr(Index));
         }
         set
         {
             var cursor = (int)value;
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINCURSORN, new IntPtr(Index), new IntPtr(cursor));
+            scintilla.DirectMessage(SCI_SETMARGINCURSORN, new IntPtr(Index), new IntPtr(cursor));
         }
     }
 
@@ -70,12 +71,12 @@ public class Margin
     {
         get
         {
-            return (scintilla.DirectMessage(NativeMethods.SCI_GETMARGINSENSITIVEN, new IntPtr(Index)) != IntPtr.Zero);
+            return (scintilla.DirectMessage(SCI_GETMARGINSENSITIVEN, new IntPtr(Index)) != IntPtr.Zero);
         }
         set
         {
             var sensitive = (value ? new IntPtr(1) : IntPtr.Zero);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINSENSITIVEN, new IntPtr(Index), sensitive);
+            scintilla.DirectMessage(SCI_SETMARGINSENSITIVEN, new IntPtr(Index), sensitive);
         }
     }
 
@@ -87,12 +88,12 @@ public class Margin
     {
         get
         {
-            return (MarginType)(scintilla.DirectMessage(NativeMethods.SCI_GETMARGINTYPEN, new IntPtr(Index)));
+            return (MarginType)(scintilla.DirectMessage(SCI_GETMARGINTYPEN, new IntPtr(Index)));
         }
         set
         {
             var type = (int)value;
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINTYPEN, new IntPtr(Index), new IntPtr(type));
+            scintilla.DirectMessage(SCI_SETMARGINTYPEN, new IntPtr(Index), new IntPtr(type));
         }
     }
 
@@ -105,12 +106,12 @@ public class Margin
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETMARGINWIDTHN, new IntPtr(Index)).ToInt32();
+            return scintilla.DirectMessage(SCI_GETMARGINWIDTHN, new IntPtr(Index)).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINWIDTHN, new IntPtr(Index), new IntPtr(value));
+            scintilla.DirectMessage(SCI_SETMARGINWIDTHN, new IntPtr(Index), new IntPtr(value));
         }
     }
 
@@ -129,12 +130,12 @@ public class Margin
     {
         get
         {
-            return unchecked((uint)scintilla.DirectMessage(NativeMethods.SCI_GETMARGINMASKN, new IntPtr(Index)).ToInt32());
+            return unchecked((uint)scintilla.DirectMessage(SCI_GETMARGINMASKN, new IntPtr(Index)).ToInt32());
         }
         set
         {
             var mask = unchecked((int)value);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINMASKN, new IntPtr(Index), new IntPtr(mask));
+            scintilla.DirectMessage(SCI_SETMARGINMASKN, new IntPtr(Index), new IntPtr(mask));
         }
     }
 

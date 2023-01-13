@@ -147,4 +147,11 @@ public interface IScintillaApi<out TMarkers, out TStyles, out TIndicators, out T
     /// </summary>
     // ReSharper disable once InconsistentNaming
     event EventHandler<TEventArgs> SCNotification;
+
+    /// <summary>
+    /// Gets the length of the text in the control.
+    /// </summary>
+    /// <returns>The number of characters in the document.</returns>
+    public int TextLength { get; }
+
 }

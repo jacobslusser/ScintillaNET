@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -17,7 +18,7 @@ public class MarginCollection : IEnumerable<Margin>
     /// </summary>
     public void ClearAllText()
     {
-        scintilla.DirectMessage(NativeMethods.SCI_MARGINTEXTCLEARALL);
+        scintilla.DirectMessage(SCI_MARGINTEXTCLEARALL);
     }
 
     /// <summary>
@@ -42,18 +43,18 @@ public class MarginCollection : IEnumerable<Margin>
     /// Gets or sets the number of margins in the <see cref="MarginCollection" />.
     /// </summary>
     /// <returns>The number of margins in the collection. The default is 5.</returns>
-    [DefaultValue(NativeMethods.SC_MAX_MARGIN + 1)]
+    [DefaultValue(SC_MAX_MARGIN + 1)]
     [Description("The maximum number of margins.")]
     public int Capacity
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETMARGINS).ToInt32();
+            return scintilla.DirectMessage(SCI_GETMARGINS).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINS, new IntPtr(value));
+            scintilla.DirectMessage(SCI_SETMARGINS, new IntPtr(value));
         }
     }
 
@@ -83,12 +84,12 @@ public class MarginCollection : IEnumerable<Margin>
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETMARGINLEFT).ToInt32();
+            return scintilla.DirectMessage(SCI_GETMARGINLEFT).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINLEFT, IntPtr.Zero, new IntPtr(value));
+            scintilla.DirectMessage(SCI_SETMARGINLEFT, IntPtr.Zero, new IntPtr(value));
         }
     }
 
@@ -128,12 +129,12 @@ public class MarginCollection : IEnumerable<Margin>
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETMARGINRIGHT).ToInt32();
+            return scintilla.DirectMessage(SCI_GETMARGINRIGHT).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            scintilla.DirectMessage(NativeMethods.SCI_SETMARGINRIGHT, IntPtr.Zero, new IntPtr(value));
+            scintilla.DirectMessage(SCI_SETMARGINRIGHT, IntPtr.Zero, new IntPtr(value));
         }
     }
 

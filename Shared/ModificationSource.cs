@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// The source of a modification
@@ -8,15 +10,15 @@ public enum ModificationSource
     /// <summary>
     /// Modification is the result of a user operation.
     /// </summary>
-    User = NativeMethods.SC_PERFORMED_USER,
+    User = ScintillaConstants.SC_PERFORMED_USER,
 
     /// <summary>
     /// Modification is the result of an undo operation.
     /// </summary>
-    Undo = NativeMethods.SC_PERFORMED_UNDO,
+    Undo = ScintillaConstants.SC_PERFORMED_UNDO,
 
     /// <summary>
     /// Modification is the result of a redo operation.
     /// </summary>
-    Redo = NativeMethods.SC_PERFORMED_REDO
+    Redo = ScintillaConstants.SC_PERFORMED_REDO
 }
