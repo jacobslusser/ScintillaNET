@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Indenting behavior of wrapped sublines.
@@ -19,5 +21,5 @@ public enum WrapIndentMode
     /// <summary>
     /// Wrapped sublines are aligned to first subline indent plus one more level of indentation.
     /// </summary>
-    Indent = NativeMethods.SC_WRAPINDENT_INDENT
+    Indent = ScintillaConstants.SC_WRAPINDENT_INDENT
 }

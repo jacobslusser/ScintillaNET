@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Display options for fold text tags.
@@ -8,15 +10,15 @@ public enum FoldDisplayText
     /// <summary>
     /// Do not display the text tags. This is the default.
     /// </summary>
-    Hidden = NativeMethods.SC_FOLDDISPLAYTEXT_HIDDEN,
+    Hidden = ScintillaConstants.SC_FOLDDISPLAYTEXT_HIDDEN,
 
     /// <summary>
     /// Display the text tags.
     /// </summary>
-    Standard = NativeMethods.SC_FOLDDISPLAYTEXT_STANDARD,
+    Standard = ScintillaConstants.SC_FOLDDISPLAYTEXT_STANDARD,
 
     /// <summary>
     /// Display the text tags with a box drawn around them.
     /// </summary>
-    Boxed = NativeMethods.SC_FOLDDISPLAYTEXT_BOXED
+    Boxed = ScintillaConstants.SC_FOLDDISPLAYTEXT_BOXED
 }

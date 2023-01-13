@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Fold actions.
@@ -8,15 +10,15 @@ public enum FoldAction
     /// <summary>
     /// Contract the fold.
     /// </summary>
-    Contract = NativeMethods.SC_FOLDACTION_CONTRACT,
+    Contract = ScintillaConstants.SC_FOLDACTION_CONTRACT,
 
     /// <summary>
     /// Expand the fold.
     /// </summary>
-    Expand = NativeMethods.SC_FOLDACTION_EXPAND,
+    Expand = ScintillaConstants.SC_FOLDACTION_EXPAND,
 
     /// <summary>
     /// Toggle between contracted and expanded.
     /// </summary>
-    Toggle = NativeMethods.SC_FOLDACTION_TOGGLE
+    Toggle = ScintillaConstants.SC_FOLDACTION_TOGGLE
 }

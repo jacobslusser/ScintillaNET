@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -17,28 +18,28 @@ public enum SearchFlags
     /// <summary>
     /// A match only occurs with text that matches the case of the search string.
     /// </summary>
-    MatchCase = NativeMethods.SCFIND_MATCHCASE,
+    MatchCase = ScintillaConstants.SCFIND_MATCHCASE,
 
     /// <summary>
     /// A match only occurs if the characters before and after are not word characters.
     /// </summary>
-    WholeWord = NativeMethods.SCFIND_WHOLEWORD,
+    WholeWord = ScintillaConstants.SCFIND_WHOLEWORD,
 
     /// <summary>
     /// A match only occurs if the character before is not a word character.
     /// </summary>
-    WordStart = NativeMethods.SCFIND_WORDSTART,
+    WordStart = ScintillaConstants.SCFIND_WORDSTART,
 
     /// <summary>
     /// The search string should be interpreted as a regular expression.
     /// Regular expressions will only match ranges within a single line, never matching over multiple lines.
     /// </summary>
-    Regex = NativeMethods.SCFIND_REGEXP,
+    Regex = ScintillaConstants.SCFIND_REGEXP,
 
     /// <summary>
     /// Treat regular expression in a more POSIX compatible manner by interpreting bare '(' and ')' for tagged sections rather than "\(" and "\)".
     /// </summary>
-    Posix = NativeMethods.SCFIND_POSIX,
+    Posix = ScintillaConstants.SCFIND_POSIX,
 
     /// <summary>
     /// The search string should be interpreted as a regular expression and use the C++11 &lt;regex&gt; standard library engine.
@@ -46,5 +47,5 @@ public enum SearchFlags
     /// The ECMAScript flag is set on the regex object and documents will exhibit Unicode-compliant behaviour.
     /// Regular expressions will only match ranges within a single line, never matching over multiple lines.
     /// </summary>
-    Cxx11Regex = NativeMethods.SCFIND_CXX11REGEX
+    Cxx11Regex = ScintillaConstants.SCFIND_CXX11REGEX
 }

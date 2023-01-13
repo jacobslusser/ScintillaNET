@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -17,15 +18,15 @@ public enum AutomaticFold
     /// <summary>
     /// Automatically show lines as needed. The <see cref="Scintilla.NeedShown" /> event is not raised when this value is used.
     /// </summary>
-    Show = NativeMethods.SC_AUTOMATICFOLD_SHOW,
+    Show = ScintillaConstants.SC_AUTOMATICFOLD_SHOW,
 
     /// <summary>
     /// Handle clicks in fold margin automatically. The <see cref="Scintilla.MarginClick" /> event is not raised for folding margins when this value is used.
     /// </summary>
-    Click = NativeMethods.SC_AUTOMATICFOLD_CLICK,
+    Click = ScintillaConstants.SC_AUTOMATICFOLD_CLICK,
 
     /// <summary>
     /// Show lines as needed when the fold structure is changed.
     /// </summary>
-    Change = NativeMethods.SC_AUTOMATICFOLD_CHANGE
+    Change = ScintillaConstants.SC_AUTOMATICFOLD_CHANGE
 }

@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Possible status codes returned by the <see cref="Scintilla.Status" /> property.
@@ -8,20 +10,20 @@ public enum Status
     /// <summary>
     /// No failures.
     /// </summary>
-    Ok = NativeMethods.SC_STATUS_OK,
+    Ok = ScintillaConstants.SC_STATUS_OK,
 
     /// <summary>
     /// Generic failure.
     /// </summary>
-    Failure = NativeMethods.SC_STATUS_FAILURE,
+    Failure = ScintillaConstants.SC_STATUS_FAILURE,
 
     /// <summary>
     /// Memory is exhausted.
     /// </summary>
-    BadAlloc = NativeMethods.SC_STATUS_BADALLOC,
+    BadAlloc = ScintillaConstants.SC_STATUS_BADALLOC,
 
     /// <summary>
     /// Regular expression is invalid.
     /// </summary>
-    WarnRegex = NativeMethods.SC_STATUS_WARN_REGEX
+    WarnRegex = ScintillaConstants.SC_STATUS_WARN_REGEX
 }

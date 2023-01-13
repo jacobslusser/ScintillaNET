@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Visibility and location of annotations in a <see cref="Scintilla" /> control
@@ -8,20 +10,20 @@ public enum Annotation
     /// <summary>
     /// Annotations are not displayed. This is the default.
     /// </summary>
-    Hidden = NativeMethods.ANNOTATION_HIDDEN,
+    Hidden = ScintillaConstants.ANNOTATION_HIDDEN,
 
     /// <summary>
     /// Annotations are drawn left justified with no adornment.
     /// </summary>
-    Standard = NativeMethods.ANNOTATION_STANDARD,
+    Standard = ScintillaConstants.ANNOTATION_STANDARD,
 
     /// <summary>
     /// Annotations are indented to match the text and are surrounded by a box.
     /// </summary>
-    Boxed = NativeMethods.ANNOTATION_BOXED,
+    Boxed = ScintillaConstants.ANNOTATION_BOXED,
 
     /// <summary>
     /// Annotations are indented to match the text.
     /// </summary>
-    Indented = NativeMethods.ANNOTATION_INDENTED
+    Indented = ScintillaConstants.ANNOTATION_INDENTED
 }

@@ -8,6 +8,7 @@
   </PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>10</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">

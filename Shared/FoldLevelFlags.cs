@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -12,10 +13,10 @@ public enum FoldLevelFlags
     /// Indicates that the line is blank and should be treated slightly different than its level may indicate;
     /// otherwise, blank lines should generally not be fold points.
     /// </summary>
-    White = NativeMethods.SC_FOLDLEVELWHITEFLAG,
+    White = ScintillaConstants.SC_FOLDLEVELWHITEFLAG,
 
     /// <summary>
     /// Indicates that the line is a header (fold point).
     /// </summary>
-    Header = NativeMethods.SC_FOLDLEVELHEADERFLAG
+    Header = ScintillaConstants.SC_FOLDLEVELHEADERFLAG
 }

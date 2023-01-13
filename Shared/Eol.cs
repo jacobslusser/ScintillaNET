@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// End-of-line format.
@@ -8,15 +10,15 @@ public enum Eol
     /// <summary>
     /// Carriage Return, Line Feed pair "\r\n" (0x0D0A).
     /// </summary>
-    CrLf = NativeMethods.SC_EOL_CRLF,
+    CrLf = ScintillaConstants.SC_EOL_CRLF,
 
     /// <summary>
     /// Carriage Return '\r' (0x0D).
     /// </summary>
-    Cr = NativeMethods.SC_EOL_CR,
+    Cr = ScintillaConstants.SC_EOL_CR,
 
     /// <summary>
     /// Line Feed '\n' (0x0A).
     /// </summary>
-    Lf = NativeMethods.SC_EOL_LF
+    Lf = ScintillaConstants.SC_EOL_LF
 }

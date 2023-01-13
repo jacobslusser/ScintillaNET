@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// The sorting order for autocompletion lists.
@@ -8,15 +10,15 @@ public enum Order
     /// <summary>
     /// Requires that an autocompletion lists be sorted in alphabetical order. This is the default.
     /// </summary>
-    Presorted = NativeMethods.SC_ORDER_PRESORTED,
+    Presorted = ScintillaConstants.SC_ORDER_PRESORTED,
 
     /// <summary>
     /// Instructs a <see cref="Scintilla" /> control to perform an alphabetical sort of autocompletion lists.
     /// </summary>
-    PerformSort = NativeMethods.SC_ORDER_PERFORMSORT,
+    PerformSort = ScintillaConstants.SC_ORDER_PERFORMSORT,
 
     /// <summary>
     /// User-defined order.
     /// </summary>
-    Custom = NativeMethods.SC_ORDER_CUSTOM
+    Custom = ScintillaConstants.SC_ORDER_CUSTOM
 }

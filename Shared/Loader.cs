@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
+using static Scintilla.NET.Abstractions.ScintillaApiStructs;
 
 namespace ScintillaNET;
 
 internal sealed class Loader : ILoader
 {
     private readonly IntPtr self;
-    private readonly NativeMethods.ILoaderVTable32 loader32;
-    private readonly NativeMethods.ILoaderVTable64 loader64;
+    private readonly ILoaderVTable32 loader32;
+    private readonly ILoaderVTable64 loader64;
     private readonly Encoding encoding;
 
     public unsafe bool AddData(char[] data, int length)
@@ -20,7 +22,7 @@ internal sealed class Loader : ILoader
             fixed (byte* bp = bytes)
             {
                 var status = (IntPtr.Size == 4 ? loader32.AddData(self, bp, bytes.Length) : loader64.AddData(self, bp, bytes.Length));
-                if (status != NativeMethods.SC_STATUS_OK)
+                if (status != SC_STATUS_OK)
                     return false;
             }
         }
@@ -60,8 +62,8 @@ internal sealed class Loader : ILoader
 
         IntPtr vfptr = *(IntPtr*)ptr;
         if(IntPtr.Size == 4)
-            loader32 = (NativeMethods.ILoaderVTable32)Marshal.PtrToStructure(vfptr, typeof(NativeMethods.ILoaderVTable32));
+            loader32 = (ILoaderVTable32)Marshal.PtrToStructure(vfptr, typeof(ILoaderVTable32));
         else
-            loader64 = (NativeMethods.ILoaderVTable64)Marshal.PtrToStructure(vfptr, typeof(NativeMethods.ILoaderVTable64));
+            loader64 = (ILoaderVTable64)Marshal.PtrToStructure(vfptr, typeof(ILoaderVTable64));
     }
 }

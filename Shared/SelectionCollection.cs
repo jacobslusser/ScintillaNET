@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
 
@@ -37,7 +38,7 @@ public class SelectionCollection : IEnumerable<Selection>
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
+            return scintilla.DirectMessage(SCI_GETSELECTIONS).ToInt32();
         }
     }
 
@@ -49,7 +50,7 @@ public class SelectionCollection : IEnumerable<Selection>
     {
         get
         {
-            return scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+            return scintilla.DirectMessage(SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
         }
     }
 

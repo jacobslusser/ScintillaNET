@@ -12,7 +12,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Scintilla.NET;
 using Scintilla.NET.Abstractions;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
+using static Scintilla.NET.Abstractions.ScintillaApiStructs;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace ScintillaNET;
 
@@ -100,12 +104,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <summary>
     /// A constant used to specify an infinite mouse dwell wait time.
     /// </summary>
-    public const int TimeForever = NativeMethods.SC_TIME_FOREVER;
+    public const int TimeForever = SC_TIME_FOREVER;
 
     /// <summary>
     /// A constant used to specify an invalid document position.
     /// </summary>
-    public const int InvalidPosition = NativeMethods.INVALID_POSITION;
+    public const int InvalidPosition = INVALID_POSITION;
 
     #endregion Fields
 
@@ -126,7 +130,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             return false;
         }
 
-        DirectMessage(NativeMethods.SCI_SETILEXER, IntPtr.Zero, ptr);
+        DirectMessage(SCI_SETILEXER, IntPtr.Zero, ptr);
 
         return true;
     }
@@ -139,7 +143,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void AddRefDocument(Document document)
     {
         var ptr = document.Value;
-        DirectMessage(NativeMethods.SCI_ADDREFDOCUMENT, IntPtr.Zero, ptr);
+        DirectMessage(SCI_ADDREFDOCUMENT, IntPtr.Zero, ptr);
     }
 
     /// <summary>
@@ -157,7 +161,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         caret = Lines.CharToBytePosition(caret);
         anchor = Lines.CharToBytePosition(anchor);
 
-        DirectMessage(NativeMethods.SCI_ADDSELECTION, new IntPtr(caret), new IntPtr(anchor));
+        DirectMessage(SCI_ADDSELECTION, new IntPtr(caret), new IntPtr(anchor));
     }
 
     /// <summary>
@@ -169,7 +173,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+            DirectMessage(SCI_ADDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
     }
 
     /// <summary>
@@ -180,7 +184,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>Returns the first substyle number allocated.</returns>
     public int AllocateSubstyles(int styleBase, int numberStyles)
     {
-        return this.DirectMessage(NativeMethods.SCI_ALLOCATESUBSTYLES, new IntPtr(styleBase), new IntPtr(numberStyles)).ToInt32();
+        return this.DirectMessage(SCI_ALLOCATESUBSTYLES, new IntPtr(styleBase), new IntPtr(numberStyles)).ToInt32();
     }
 
     /// <summary>
@@ -188,7 +192,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void AnnotationClearAll()
     {
-        DirectMessage(NativeMethods.SCI_ANNOTATIONCLEARALL);
+        DirectMessage(SCI_ANNOTATIONCLEARALL);
     }
 
     /// <summary>
@@ -200,7 +204,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
+            DirectMessage(SCI_APPENDTEXT, new IntPtr(bytes.Length), new IntPtr(bp));
     }
 
     /// <summary>
@@ -211,7 +215,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void AssignCmdKey(Keys keyDefinition, Command sciCommand)
     {
         var keys = Helpers.TranslateKeys(keyDefinition);
-        DirectMessage(NativeMethods.SCI_ASSIGNCMDKEY, new IntPtr(keys), new IntPtr((int)sciCommand));
+        DirectMessage(SCI_ASSIGNCMDKEY, new IntPtr(keys), new IntPtr((int)sciCommand));
     }
 
     /// <summary>
@@ -220,7 +224,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="AutoCStops" />
     public void AutoCCancel()
     {
-        DirectMessage(NativeMethods.SCI_AUTOCCANCEL);
+        DirectMessage(SCI_AUTOCCANCEL);
     }
 
     /// <summary>
@@ -228,7 +232,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void AutoCComplete()
     {
-        DirectMessage(NativeMethods.SCI_AUTOCCOMPLETE);
+        DirectMessage(SCI_AUTOCCOMPLETE);
     }
 
     /// <summary>
@@ -250,7 +254,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         var bytes = Helpers.GetBytes(select, Encoding, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_AUTOCSELECT, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_AUTOCSELECT, IntPtr.Zero, new IntPtr(bp));
     }
 
     /// <summary>
@@ -283,7 +287,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         // var str = new String((sbyte*)fillUpChars, 0, count, Encoding);
 
-        DirectMessage(NativeMethods.SCI_AUTOCSETFILLUPS, IntPtr.Zero, fillUpChars);
+        DirectMessage(SCI_AUTOCSETFILLUPS, IntPtr.Zero, fillUpChars);
     }
 
     /// <summary>
@@ -300,17 +304,17 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         if (lenEntered > 0)
         {
             // Convert to bytes by counting back the specified number of characters
-            var endPos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+            var endPos = DirectMessage(SCI_GETCURRENTPOS).ToInt32();
             var startPos = endPos;
             for (int i = 0; i < lenEntered; i++)
-                startPos = DirectMessage(NativeMethods.SCI_POSITIONRELATIVE, new IntPtr(startPos), new IntPtr(-1)).ToInt32();
+                startPos = DirectMessage(SCI_POSITIONRELATIVE, new IntPtr(startPos), new IntPtr(-1)).ToInt32();
 
             lenEntered = (endPos - startPos);
         }
 
         var bytes = Helpers.GetBytes(list, Encoding, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_AUTOCSHOW, new IntPtr(lenEntered), new IntPtr(bp));
+            DirectMessage(SCI_AUTOCSHOW, new IntPtr(lenEntered), new IntPtr(bp));
     }
 
     /// <summary>
@@ -322,7 +326,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         var bytes = Helpers.GetBytes(chars ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_AUTOCSTOPS, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_AUTOCSTOPS, IntPtr.Zero, new IntPtr(bp));
     }
 
     /// <summary>
@@ -332,7 +336,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="EndUndoAction" />
     public void BeginUndoAction()
     {
-        DirectMessage(NativeMethods.SCI_BEGINUNDOACTION);
+        DirectMessage(SCI_BEGINUNDOACTION);
     }
 
     /// <summary>
@@ -345,7 +349,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         if (position > 0)
             position = Lines.CharToBytePosition(position);
 
-        DirectMessage(NativeMethods.SCI_BRACEBADLIGHT, new IntPtr(position));
+        DirectMessage(SCI_BRACEBADLIGHT, new IntPtr(position));
     }
 
     /// <summary>
@@ -367,7 +371,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         if (position2 > 0)
             position2 = Lines.CharToBytePosition(position2);
 
-        DirectMessage(NativeMethods.SCI_BRACEHIGHLIGHT, new IntPtr(position1), new IntPtr(position2));
+        DirectMessage(SCI_BRACEHIGHLIGHT, new IntPtr(position1), new IntPtr(position2));
     }
 
     /// <summary>
@@ -382,7 +386,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
 
-        var match = DirectMessage(NativeMethods.SCI_BRACEMATCH, new IntPtr(position), IntPtr.Zero).ToInt32();
+        var match = DirectMessage(SCI_BRACEMATCH, new IntPtr(position), IntPtr.Zero).ToInt32();
         if (match > 0)
             match = Lines.ByteToCharPosition(match);
 
@@ -394,7 +398,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void CallTipCancel()
     {
-        DirectMessage(NativeMethods.SCI_CALLTIPCANCEL);
+        DirectMessage(SCI_CALLTIPCANCEL);
     }
 
     /// <summary>
@@ -404,7 +408,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void CallTipSetForeHlt(Color color)
     {
         var colour = ColorTranslator.ToWin32(color);
-        DirectMessage(NativeMethods.SCI_CALLTIPSETFOREHLT, new IntPtr(colour));
+        DirectMessage(SCI_CALLTIPSETFOREHLT, new IntPtr(colour));
     }
 
     /// <summary>
@@ -425,7 +429,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             hlEnd += hlStart;                                              // The bytes between 0 and end
         }
 
-        DirectMessage(NativeMethods.SCI_CALLTIPSETHLT, new IntPtr(hlStart), new IntPtr(hlEnd));
+        DirectMessage(SCI_CALLTIPSETHLT, new IntPtr(hlStart), new IntPtr(hlEnd));
     }
 
     /// <summary>
@@ -435,7 +439,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void CallTipSetPosition(bool above)
     {
         var val = (above ? new IntPtr(1) : IntPtr.Zero);
-        DirectMessage(NativeMethods.SCI_CALLTIPSETPOSITION, val);
+        DirectMessage(SCI_CALLTIPSETPOSITION, val);
     }
 
     /// <summary>
@@ -457,7 +461,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         posStart = Lines.CharToBytePosition(posStart);
         var bytes = Helpers.GetBytes(definition, Encoding, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_CALLTIPSHOW, new IntPtr(posStart), new IntPtr(bp));
+            DirectMessage(SCI_CALLTIPSHOW, new IntPtr(posStart), new IntPtr(bp));
     }
 
     /// <summary>
@@ -471,7 +475,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         // that's okay because the Scintilla convention is lame.
 
         tabSize = Helpers.ClampMin(tabSize, 0);
-        DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(tabSize));
+        DirectMessage(SCI_CALLTIPUSESTYLE, new IntPtr(tabSize));
     }
 
     /// <summary>
@@ -489,7 +493,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         startPos = Lines.CharToBytePosition(startPos);
         endPos = Lines.CharToBytePosition(endPos);
 
-        DirectMessage(NativeMethods.SCI_CHANGELEXERSTATE, new IntPtr(startPos), new IntPtr(endPos));
+        DirectMessage(SCI_CHANGELEXERSTATE, new IntPtr(startPos), new IntPtr(endPos));
     }
 
     /// <summary>
@@ -500,7 +504,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>The zero-based document position of the nearest character to the point specified.</returns>
     public int CharPositionFromPoint(int x, int y)
     {
-        var pos = DirectMessage(NativeMethods.SCI_CHARPOSITIONFROMPOINT, new IntPtr(x), new IntPtr(y)).ToInt32();
+        var pos = DirectMessage(SCI_CHARPOSITIONFROMPOINT, new IntPtr(x), new IntPtr(y)).ToInt32();
         pos = Lines.ByteToCharPosition(pos);
 
         return pos;
@@ -515,7 +519,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>The zero-based document position of the nearest character to the point specified when near a character; otherwise, -1.</returns>
     public int CharPositionFromPointClose(int x, int y)
     {
-        var pos = DirectMessage(NativeMethods.SCI_CHARPOSITIONFROMPOINTCLOSE, new IntPtr(x), new IntPtr(y)).ToInt32();
+        var pos = DirectMessage(SCI_CHARPOSITIONFROMPOINTCLOSE, new IntPtr(x), new IntPtr(y)).ToInt32();
         if (pos >= 0)
             pos = Lines.ByteToCharPosition(pos);
 
@@ -532,7 +536,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </remarks>
     public void ChooseCaretX()
     {
-        DirectMessage(NativeMethods.SCI_CHOOSECARETX);
+        DirectMessage(SCI_CHOOSECARETX);
     }
 
     /// <summary>
@@ -540,7 +544,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Clear()
     {
-        DirectMessage(NativeMethods.SCI_CLEAR);
+        DirectMessage(SCI_CLEAR);
     }
 
     /// <summary>
@@ -548,7 +552,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ClearAll()
     {
-        DirectMessage(NativeMethods.SCI_CLEARALL);
+        DirectMessage(SCI_CLEARALL);
     }
 
     /// <summary>
@@ -559,7 +563,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void ClearCmdKey(Keys keyDefinition)
     {
         var keys = Helpers.TranslateKeys(keyDefinition);
-        DirectMessage(NativeMethods.SCI_CLEARCMDKEY, new IntPtr(keys));
+        DirectMessage(SCI_CLEARCMDKEY, new IntPtr(keys));
     }
 
     /// <summary>
@@ -567,7 +571,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ClearAllCmdKeys()
     {
-        DirectMessage(NativeMethods.SCI_CLEARALLCMDKEYS);
+        DirectMessage(SCI_CLEARALLCMDKEYS);
     }
 
     /// <summary>
@@ -575,7 +579,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ClearDocumentStyle()
     {
-        DirectMessage(NativeMethods.SCI_CLEARDOCUMENTSTYLE);
+        DirectMessage(SCI_CLEARDOCUMENTSTYLE);
     }
 
     /// <summary>
@@ -583,7 +587,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ClearRegisteredImages()
     {
-        DirectMessage(NativeMethods.SCI_CLEARREGISTEREDIMAGES);
+        DirectMessage(SCI_CLEARREGISTEREDIMAGES);
     }
 
     /// <summary>
@@ -591,7 +595,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ClearSelections()
     {
-        DirectMessage(NativeMethods.SCI_CLEARSELECTIONS);
+        DirectMessage(SCI_CLEARSELECTIONS);
     }
 
     /// <summary>
@@ -609,7 +613,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         startPos = Lines.CharToBytePosition(startPos);
         endPos = Lines.CharToBytePosition(endPos);
 
-        DirectMessage(NativeMethods.SCI_COLOURISE, new IntPtr(startPos), new IntPtr(endPos));
+        DirectMessage(SCI_COLOURISE, new IntPtr(startPos), new IntPtr(endPos));
     }
 
     /// <summary>
@@ -619,7 +623,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void ConvertEols(Eol eolMode)
     {
         var eol = (int)eolMode;
-        DirectMessage(NativeMethods.SCI_CONVERTEOLS, new IntPtr(eol));
+        DirectMessage(SCI_CONVERTEOLS, new IntPtr(eol));
     }
 
     /// <summary>
@@ -627,7 +631,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Copy()
     {
-        DirectMessage(NativeMethods.SCI_COPY);
+        DirectMessage(SCI_COPY);
     }
 
     /// <summary>
@@ -649,7 +653,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </remarks>
     public void CopyAllowLine()
     {
-        DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+        DirectMessage(SCI_COPYALLOWLINE);
     }
 
     /// <summary>
@@ -681,7 +685,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         start = Lines.CharToBytePosition(start);
         end = Lines.CharToBytePosition(end);
 
-        DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(start), new IntPtr(end));
+        DirectMessage(SCI_COPYRANGE, new IntPtr(start), new IntPtr(end));
     }
 
     /// <summary>
@@ -712,7 +716,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <remarks>You are responsible for ensuring the reference count eventually reaches 0 or memory leaks will occur.</remarks>
     public Document CreateDocument()
     {
-        var ptr = DirectMessage(NativeMethods.SCI_CREATEDOCUMENT);
+        var ptr = DirectMessage(SCI_CREATEDOCUMENT);
         return new Document { Value = ptr };
     }
 
@@ -724,7 +728,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public ILoader CreateLoader(int length)
     {
         length = Helpers.ClampMin(length, 0);
-        var ptr = DirectMessage(NativeMethods.SCI_CREATELOADER, new IntPtr(length));
+        var ptr = DirectMessage(SCI_CREATELOADER, new IntPtr(length));
         if (ptr == IntPtr.Zero)
             return null;
 
@@ -736,7 +740,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Cut()
     {
-        DirectMessage(NativeMethods.SCI_CUT);
+        DirectMessage(SCI_CUT);
     }
 
     /// <summary>
@@ -754,7 +758,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var byteStartPos = Lines.CharToBytePosition(position);
         var byteEndPos = Lines.CharToBytePosition(position + length);
 
-        DirectMessage(NativeMethods.SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
+        DirectMessage(SCI_DELETERANGE, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
     }
 
     /// <summary>
@@ -763,11 +767,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>A String describing each keyword set separated by line breaks for the current lexer.</returns>
     public unsafe string DescribeKeywordSets()
     {
-        var length = DirectMessage(NativeMethods.SCI_DESCRIBEKEYWORDSETS).ToInt32();
+        var length = DirectMessage(SCI_DESCRIBEKEYWORDSETS).ToInt32();
         var bytes = new byte[length + 1];
 
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_DESCRIBEKEYWORDSETS, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_DESCRIBEKEYWORDSETS, IntPtr.Zero, new IntPtr(bp));
 
         var str = Encoding.ASCII.GetString(bytes, 0, length);
         return str;
@@ -787,14 +791,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* nb = nameBytes)
         {
-            var length = DirectMessage(NativeMethods.SCI_DESCRIBEPROPERTY, new IntPtr(nb), IntPtr.Zero).ToInt32();
+            var length = DirectMessage(SCI_DESCRIBEPROPERTY, new IntPtr(nb), IntPtr.Zero).ToInt32();
             if (length == 0)
                 return string.Empty;
 
             var descriptionBytes = new byte[length + 1];
             fixed (byte* db = descriptionBytes)
             {
-                DirectMessage(NativeMethods.SCI_DESCRIBEPROPERTY, new IntPtr(nb), new IntPtr(db));
+                DirectMessage(SCI_DESCRIBEPROPERTY, new IntPtr(nb), new IntPtr(db));
                 return Helpers.GetString(new IntPtr(db), length, Encoding.ASCII);
             }
         }
@@ -881,7 +885,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public int DocLineFromVisible(int displayLine)
     {
         displayLine = Helpers.Clamp(displayLine, 0, VisibleLineCount);
-        return DirectMessage(NativeMethods.SCI_DOCLINEFROMVISIBLE, new IntPtr(displayLine)).ToInt32();
+        return DirectMessage(SCI_DOCLINEFROMVISIBLE, new IntPtr(displayLine)).ToInt32();
     }
 
     /// <summary>
@@ -892,7 +896,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void DropSelection(int selection)
     {
         selection = Helpers.ClampMin(selection, 0);
-        DirectMessage(NativeMethods.SCI_DROPSELECTIONN, new IntPtr(selection));
+        DirectMessage(SCI_DROPSELECTIONN, new IntPtr(selection));
     }
 
     /// <summary>
@@ -901,7 +905,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <remarks>This will also cause <see cref="SetSavePoint" /> to be called but will not raise the <see cref="SavePointReached" /> event.</remarks>
     public void EmptyUndoBuffer()
     {
-        DirectMessage(NativeMethods.SCI_EMPTYUNDOBUFFER);
+        DirectMessage(SCI_EMPTYUNDOBUFFER);
     }
 
     /// <summary>
@@ -910,7 +914,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="BeginUndoAction" />
     public void EndUndoAction()
     {
-        DirectMessage(NativeMethods.SCI_ENDUNDOACTION);
+        DirectMessage(SCI_ENDUNDOACTION);
     }
 
     /// <summary>
@@ -930,7 +934,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <remarks>When using <see cref="FoldAction.Toggle" /> the first fold header in the document is examined to decide whether to expand or contract.</remarks>
     public void FoldAll(FoldAction action)
     {
-        DirectMessage(NativeMethods.SCI_FOLDALL, new IntPtr((int)action));
+        DirectMessage(SCI_FOLDALL, new IntPtr((int)action));
     }
 
     /// <summary>
@@ -941,7 +945,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="Line.ToggleFoldShowText" />.
     public void FoldDisplayTextSetStyle(FoldDisplayText style)
     {
-        DirectMessage(NativeMethods.SCI_FOLDDISPLAYTEXTSETSTYLE, new IntPtr((int)style));
+        DirectMessage(SCI_FOLDDISPLAYTEXTSETSTYLE, new IntPtr((int)style));
     }
 
     /// <summary>
@@ -949,7 +953,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void FreeSubstyles()
     {
-        DirectMessage(NativeMethods.SCI_FREESUBSTYLES);
+        DirectMessage(SCI_FREESUBSTYLES);
     }
 
     /// <summary>
@@ -962,24 +966,24 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
 
-        var nextPosition = DirectMessage(NativeMethods.SCI_POSITIONRELATIVE, new IntPtr(position), new IntPtr(1)).ToInt32();
+        var nextPosition = DirectMessage(SCI_POSITIONRELATIVE, new IntPtr(position), new IntPtr(1)).ToInt32();
         var length = (nextPosition - position);
         if (length <= 1)
         {
             // Position is at single-byte character
-            return DirectMessage(NativeMethods.SCI_GETCHARAT, new IntPtr(position)).ToInt32();
+            return DirectMessage(SCI_GETCHARAT, new IntPtr(position)).ToInt32();
         }
 
         // Position is at multibyte character
         var bytes = new byte[length + 1];
         fixed (byte* bp = bytes)
         {
-            NativeMethods.Sci_TextRange* range = stackalloc NativeMethods.Sci_TextRange[1];
+            Sci_TextRange* range = stackalloc Sci_TextRange[1];
             range->chrg.cpMin = position;
             range->chrg.cpMax = nextPosition;
             range->lpstrText = new IntPtr(bp);
 
-            DirectMessage(NativeMethods.SCI_GETTEXTRANGE, IntPtr.Zero, new IntPtr(range));
+            DirectMessage(SCI_GETTEXTRANGE, IntPtr.Zero, new IntPtr(range));
             var str = Helpers.GetString(new IntPtr(bp), length, Encoding);
             return str[0];
         }
@@ -994,7 +998,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
-        return DirectMessage(NativeMethods.SCI_GETCOLUMN, new IntPtr(position)).ToInt32();
+        return DirectMessage(SCI_GETCOLUMN, new IntPtr(position)).ToInt32();
     }
 
     /// <summary>
@@ -1003,7 +1007,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>The zero-based document position of the last styled character.</returns>
     public int GetEndStyled()
     {
-        var pos = DirectMessage(NativeMethods.SCI_GETENDSTYLED).ToInt32();
+        var pos = DirectMessage(SCI_GETENDSTYLED).ToInt32();
         return Lines.ByteToCharPosition(pos);
     }
 
@@ -1178,7 +1182,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>For a secondary style, return the primary style, else return the argument.</returns>
     public int GetPrimaryStyleFromStyle(int style)
     {
-        return DirectMessage(NativeMethods.SCI_GETPRIMARYSTYLEFROMSTYLE, new IntPtr(style)).ToInt32();
+        return DirectMessage(SCI_GETPRIMARYSTYLEFROMSTYLE, new IntPtr(style)).ToInt32();
     }
 
     /// <summary>
@@ -1198,14 +1202,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* nb = nameBytes)
         {
-            var length = DirectMessage(NativeMethods.SCI_GETPROPERTY, new IntPtr(nb)).ToInt32();
+            var length = DirectMessage(SCI_GETPROPERTY, new IntPtr(nb)).ToInt32();
             if (length == 0)
                 return String.Empty;
 
             var valueBytes = new byte[length + 1];
             fixed (byte* vb = valueBytes)
             {
-                DirectMessage(NativeMethods.SCI_GETPROPERTY, new IntPtr(nb), new IntPtr(vb));
+                DirectMessage(SCI_GETPROPERTY, new IntPtr(nb), new IntPtr(vb));
                 return Helpers.GetString(new IntPtr(vb), length, Encoding.ASCII);
             }
         }
@@ -1228,14 +1232,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var nameBytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* nb = nameBytes)
         {
-            var length = DirectMessage(NativeMethods.SCI_GETPROPERTYEXPANDED, new IntPtr(nb)).ToInt32();
+            var length = DirectMessage(SCI_GETPROPERTYEXPANDED, new IntPtr(nb)).ToInt32();
             if (length == 0)
                 return String.Empty;
 
             var valueBytes = new byte[length + 1];
             fixed (byte* vb = valueBytes)
             {
-                DirectMessage(NativeMethods.SCI_GETPROPERTYEXPANDED, new IntPtr(nb), new IntPtr(vb));
+                DirectMessage(SCI_GETPROPERTYEXPANDED, new IntPtr(nb), new IntPtr(vb));
                 return Helpers.GetString(new IntPtr(vb), length, Encoding.ASCII);
             }
         }
@@ -1258,7 +1262,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         var bytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            return DirectMessage(NativeMethods.SCI_GETPROPERTYINT, new IntPtr(bp), new IntPtr(defaultValue)).ToInt32();
+            return DirectMessage(SCI_GETPROPERTYINT, new IntPtr(bp), new IntPtr(defaultValue)).ToInt32();
     }
 
     /// <summary>
@@ -1271,7 +1275,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
 
-        return DirectMessage(NativeMethods.SCI_GETSTYLEAT, new IntPtr(position)).ToInt32();
+        return DirectMessage(SCI_GETSTYLEAT, new IntPtr(position)).ToInt32();
     }
 
     /// <summary>
@@ -1281,7 +1285,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>Returns the base style, else returns the argument.</returns>
     public int GetStyleFromSubstyle(int subStyle)
     {
-        return DirectMessage(NativeMethods.SCI_GETSTYLEFROMSUBSTYLE, new IntPtr(subStyle)).ToInt32();
+        return DirectMessage(SCI_GETSTYLEFROMSUBSTYLE, new IntPtr(subStyle)).ToInt32();
     }
 
     /// <summary>
@@ -1291,7 +1295,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>Returns the length of the substyles allocated for a base style.</returns>
     public int GetSubstylesLength(int styleBase)
     {
-        return DirectMessage(NativeMethods.SCI_GETSUBSTYLESLENGTH, new IntPtr(styleBase)).ToInt32();
+        return DirectMessage(SCI_GETSUBSTYLESLENGTH, new IntPtr(styleBase)).ToInt32();
     }
 
     /// <summary>
@@ -1301,7 +1305,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>Returns the start of the substyles allocated for a base style.</returns>
     public int GetSubstylesStart(int styleBase)
     {
-        return DirectMessage(NativeMethods.SCI_GETSUBSTYLESSTART, new IntPtr(styleBase)).ToInt32();
+        return DirectMessage(SCI_GETSUBSTYLESSTART, new IntPtr(styleBase)).ToInt32();
     }
 
     /// <summary>
@@ -1313,14 +1317,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public unsafe string GetTag(int tagNumber)
     {
         tagNumber = Helpers.Clamp(tagNumber, 1, 9);
-        var length = DirectMessage(NativeMethods.SCI_GETTAG, new IntPtr(tagNumber), IntPtr.Zero).ToInt32();
+        var length = DirectMessage(SCI_GETTAG, new IntPtr(tagNumber), IntPtr.Zero).ToInt32();
         if (length <= 0)
             return string.Empty;
 
         var bytes = new byte[length + 1];
         fixed (byte* bp = bytes)
         {
-            DirectMessage(NativeMethods.SCI_GETTAG, new IntPtr(tagNumber), new IntPtr(bp));
+            DirectMessage(SCI_GETTAG, new IntPtr(tagNumber), new IntPtr(bp));
             return Helpers.GetString(new IntPtr(bp), length, Encoding);
         }
     }
@@ -1341,7 +1345,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var byteStartPos = Lines.CharToBytePosition(position);
         var byteEndPos = Lines.CharToBytePosition(position + length);
 
-        var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
+        var ptr = DirectMessage(SCI_GETRANGEPOINTER, new IntPtr(byteStartPos), new IntPtr(byteEndPos - byteStartPos));
         if (ptr == IntPtr.Zero)
             return string.Empty;
 
@@ -1399,7 +1403,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
-        DirectMessage(NativeMethods.SCI_GOTOPOS, new IntPtr(position));
+        DirectMessage(SCI_GOTOPOS, new IntPtr(position));
     }
 
     /// <summary>
@@ -1414,7 +1418,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         lineStart = Helpers.Clamp(lineStart, 0, Lines.Count);
         lineEnd = Helpers.Clamp(lineEnd, lineStart, Lines.Count);
 
-        DirectMessage(NativeMethods.SCI_HIDELINES, new IntPtr(lineStart), new IntPtr(lineEnd));
+        DirectMessage(SCI_HIDELINES, new IntPtr(lineStart), new IntPtr(lineEnd));
     }
 
     /// <summary>
@@ -1427,7 +1431,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
 
-        var bitmap = DirectMessage(NativeMethods.SCI_INDICATORALLONFOR, new IntPtr(position)).ToInt32();
+        var bitmap = DirectMessage(SCI_INDICATORALLONFOR, new IntPtr(position)).ToInt32();
         return unchecked((uint)bitmap);
     }
 
@@ -1445,7 +1449,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var startPos = Lines.CharToBytePosition(position);
         var endPos = Lines.CharToBytePosition(position + length);
 
-        DirectMessage(NativeMethods.SCI_INDICATORCLEARRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
+        DirectMessage(SCI_INDICATORCLEARRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
     }
 
     /// <summary>
@@ -1462,7 +1466,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var startPos = Lines.CharToBytePosition(position);
         var endPos = Lines.CharToBytePosition(position + length);
 
-        DirectMessage(NativeMethods.SCI_INDICATORFILLRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
+        DirectMessage(SCI_INDICATORFILLRANGE, new IntPtr(startPos), new IntPtr(endPos - startPos));
     }
 
     private void InitDocument(Eol eolMode = Eol.CrLf, bool useTabs = false, int tabWidth = 4, int indentWidth = 0)
@@ -1475,12 +1479,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         // they have selected into the control. This is where we carry forward any of the user's
         // current settings -- and our default overrides -- to a new document.
 
-        DirectMessage(NativeMethods.SCI_SETCODEPAGE, new IntPtr(NativeMethods.SC_CP_UTF8));
-        DirectMessage(NativeMethods.SCI_SETUNDOCOLLECTION, new IntPtr(1));
-        DirectMessage(NativeMethods.SCI_SETEOLMODE, new IntPtr((int)eolMode));
-        DirectMessage(NativeMethods.SCI_SETUSETABS, useTabs ? new IntPtr(1) : IntPtr.Zero);
-        DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(tabWidth));
-        DirectMessage(NativeMethods.SCI_SETINDENT, new IntPtr(indentWidth));
+        DirectMessage(SCI_SETCODEPAGE, new IntPtr(SC_CP_UTF8));
+        DirectMessage(SCI_SETUNDOCOLLECTION, new IntPtr(1));
+        DirectMessage(SCI_SETEOLMODE, new IntPtr((int)eolMode));
+        DirectMessage(SCI_SETUSETABS, useTabs ? new IntPtr(1) : IntPtr.Zero);
+        DirectMessage(SCI_SETTABWIDTH, new IntPtr(tabWidth));
+        DirectMessage(SCI_SETINDENT, new IntPtr(indentWidth));
     }
 
     /// <summary>
@@ -1508,7 +1512,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         }
 
         fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
-            DirectMessage(NativeMethods.SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
+            DirectMessage(SCI_INSERTTEXT, new IntPtr(position), new IntPtr(bp));
     }
 
     /// <summary>
@@ -1534,7 +1538,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         start = Lines.CharToBytePosition(start);
         end = Lines.CharToBytePosition(end);
 
-        return (DirectMessage(NativeMethods.SCI_ISRANGEWORD, new IntPtr(start), new IntPtr(end)) != IntPtr.Zero);
+        return (DirectMessage(SCI_ISRANGEWORD, new IntPtr(start), new IntPtr(end)) != IntPtr.Zero);
     }
 
     /// <summary>
@@ -1559,7 +1563,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </remarks>
     public void LineScroll(int lines, int columns)
     {
-        DirectMessage(NativeMethods.SCI_LINESCROLL, new IntPtr(columns), new IntPtr(lines));
+        DirectMessage(SCI_LINESCROLL, new IntPtr(columns), new IntPtr(lines));
     }
 
     /// <summary>
@@ -1573,7 +1577,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         var bytes = Helpers.GetBytes(path, Encoding.Default, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_LOADLEXERLIBRARY, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_LOADLEXERLIBRARY, IntPtr.Zero, new IntPtr(bp));
     }
 
     /// <summary>
@@ -1583,7 +1587,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void MarkerDeleteAll(int marker)
     {
         marker = Helpers.Clamp(marker, -1, Markers.Count - 1);
-        DirectMessage(NativeMethods.SCI_MARKERDELETEALL, new IntPtr(marker));
+        DirectMessage(SCI_MARKERDELETEALL, new IntPtr(marker));
     }
 
     /// <summary>
@@ -1592,7 +1596,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <param name="markerHandle">The <see cref="MarkerHandle" /> created by a previous call to <see cref="Line.MarkerAdd" /> of the marker to delete.</param>
     public void MarkerDeleteHandle(MarkerHandle markerHandle)
     {
-        DirectMessage(NativeMethods.SCI_MARKERDELETEHANDLE, markerHandle.Value);
+        DirectMessage(SCI_MARKERDELETEHANDLE, markerHandle.Value);
     }
 
     /// <summary>
@@ -1602,7 +1606,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void MarkerEnableHighlight(bool enabled)
     {
         var val = (enabled ? new IntPtr(1) : IntPtr.Zero);
-        DirectMessage(NativeMethods.SCI_MARKERENABLEHIGHLIGHT, val);
+        DirectMessage(SCI_MARKERENABLEHIGHLIGHT, val);
     }
 
     /// <summary>
@@ -1612,7 +1616,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>If found, the zero-based line index containing the marker; otherwise, -1.</returns>
     public int MarkerLineFromHandle(MarkerHandle markerHandle)
     {
-        return DirectMessage(NativeMethods.SCI_MARKERLINEFROMHANDLE, markerHandle.Value).ToInt32();
+        return DirectMessage(SCI_MARKERLINEFROMHANDLE, markerHandle.Value).ToInt32();
     }
 
     /// <summary>
@@ -1627,7 +1631,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         column = Helpers.ClampMin(column, 0);
         var colour = ColorTranslator.ToWin32(edgeColor);
 
-        DirectMessage(NativeMethods.SCI_MULTIEDGEADDLINE, new IntPtr(column), new IntPtr(colour));
+        DirectMessage(SCI_MULTIEDGEADDLINE, new IntPtr(column), new IntPtr(colour));
     }
 
     /// <summary>
@@ -1636,7 +1640,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="MultiEdgeAddLine" />
     public void MultiEdgeClearAll()
     {
-        DirectMessage(NativeMethods.SCI_MULTIEDGECLEARALL);
+        DirectMessage(SCI_MULTIEDGECLEARALL);
     }
 
     /// <summary>
@@ -1650,7 +1654,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="MultipleSelectAddNext" />
     public void MultipleSelectAddEach()
     {
-        DirectMessage(NativeMethods.SCI_MULTIPLESELECTADDEACH);
+        DirectMessage(SCI_MULTIPLESELECTADDEACH);
     }
 
     /// <summary>
@@ -1664,7 +1668,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="MultipleSelectAddNext" />
     public void MultipleSelectAddNext()
     {
-        DirectMessage(NativeMethods.SCI_MULTIPLESELECTADDNEXT);
+        DirectMessage(SCI_MULTIPLESELECTADDNEXT);
     }
 
     /// <summary>
@@ -1831,8 +1835,8 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         InitDocument();
 
         // I would like to see all of my text please
-        DirectMessage(NativeMethods.SCI_SETSCROLLWIDTH, new IntPtr(1));
-        DirectMessage(NativeMethods.SCI_SETSCROLLWIDTHTRACKING, new IntPtr(1));
+        DirectMessage(SCI_SETSCROLLWIDTH, new IntPtr(1));
+        DirectMessage(SCI_SETSCROLLWIDTHTRACKING, new IntPtr(1));
 
         //hide all default margins
         foreach (var margin in Margins)
@@ -1841,12 +1845,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         }
 
         // Enable support for the call tip style and tabs
-        DirectMessage(NativeMethods.SCI_CALLTIPUSESTYLE, new IntPtr(16));
+        DirectMessage(SCI_CALLTIPUSESTYLE, new IntPtr(16));
 
         // Reset the valid "word chars" to work around a bug? in Scintilla which includes those below plus non-printable (beyond ASCII 127) characters
         var bytes = Helpers.GetBytes("abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", Encoding.ASCII, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
 
         // Native Scintilla uses the WM_CREATE message to register itself as an
         // IDropTarget... beating Windows Forms to the punch. There are many possible
@@ -2073,7 +2077,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Paste()
     {
-        DirectMessage(NativeMethods.SCI_PASTE);
+        DirectMessage(SCI_PASTE);
     }
 
     /// <summary>
@@ -2085,7 +2089,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         pos = Helpers.Clamp(pos, 0, TextLength);
         pos = Lines.CharToBytePosition(pos);
-        return DirectMessage(NativeMethods.SCI_POINTXFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
+        return DirectMessage(SCI_POINTXFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
     }
 
     /// <summary>
@@ -2097,7 +2101,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         pos = Helpers.Clamp(pos, 0, TextLength);
         pos = Lines.CharToBytePosition(pos);
-        return DirectMessage(NativeMethods.SCI_POINTYFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
+        return DirectMessage(SCI_POINTYFROMPOSITION, IntPtr.Zero, new IntPtr(pos)).ToInt32();
     }
 
     /// <summary>
@@ -2106,14 +2110,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <returns>A String of property names separated by line breaks.</returns>
     public unsafe string PropertyNames()
     {
-        var length = DirectMessage(NativeMethods.SCI_PROPERTYNAMES).ToInt32();
+        var length = DirectMessage(SCI_PROPERTYNAMES).ToInt32();
         if (length == 0)
             return string.Empty;
 
         var bytes = new byte[length + 1];
         fixed (byte* bp = bytes)
         {
-            DirectMessage(NativeMethods.SCI_PROPERTYNAMES, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_PROPERTYNAMES, IntPtr.Zero, new IntPtr(bp));
             return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
         }
     }
@@ -2131,7 +2135,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         var bytes = Helpers.GetBytes(name, Encoding.ASCII, zeroTerminated: true);
         fixed (byte* bp = bytes)
-            return (PropertyType)DirectMessage(NativeMethods.SCI_PROPERTYTYPE, new IntPtr(bp));
+            return (PropertyType)DirectMessage(SCI_PROPERTYTYPE, new IntPtr(bp));
     }
 
     /// <summary>
@@ -2139,7 +2143,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Redo()
     {
-        DirectMessage(NativeMethods.SCI_REDO);
+        DirectMessage(SCI_REDO);
     }
 
     /// <summary>
@@ -2159,12 +2163,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         if (image == null)
             return;
 
-        DirectMessage(NativeMethods.SCI_RGBAIMAGESETWIDTH, new IntPtr(image.Width));
-        DirectMessage(NativeMethods.SCI_RGBAIMAGESETHEIGHT, new IntPtr(image.Height));
+        DirectMessage(SCI_RGBAIMAGESETWIDTH, new IntPtr(image.Width));
+        DirectMessage(SCI_RGBAIMAGESETHEIGHT, new IntPtr(image.Height));
 
         var bytes = Helpers.BitmapToArgb(image);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_REGISTERRGBAIMAGE, new IntPtr(type), new IntPtr(bp));
+            DirectMessage(SCI_REGISTERRGBAIMAGE, new IntPtr(type), new IntPtr(bp));
     }
 
     /// <summary>
@@ -2177,7 +2181,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void ReleaseDocument(Document document)
     {
         var ptr = document.Value;
-        DirectMessage(NativeMethods.SCI_RELEASEDOCUMENT, IntPtr.Zero, ptr);
+        DirectMessage(SCI_RELEASEDOCUMENT, IntPtr.Zero, ptr);
     }
 
     /// <summary>
@@ -2191,7 +2195,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public unsafe void ReplaceSelection(string text)
     {
         fixed (byte* bp = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: true))
-            DirectMessage(NativeMethods.SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
+            DirectMessage(SCI_REPLACESEL, IntPtr.Zero, new IntPtr(bp));
     }
 
     /// <summary>
@@ -2210,7 +2214,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         var bytes = Helpers.GetBytes(text, Encoding, false);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_REPLACETARGET, new IntPtr(bytes.Length), new IntPtr(bp));
+            DirectMessage(SCI_REPLACETARGET, new IntPtr(bytes.Length), new IntPtr(bp));
 
         return text.Length;
     }
@@ -2230,7 +2234,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, false);
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_REPLACETARGETRE, new IntPtr(bytes.Length), new IntPtr(bp));
+            DirectMessage(SCI_REPLACETARGETRE, new IntPtr(bytes.Length), new IntPtr(bp));
 
         return Math.Abs(TargetEnd - TargetStart);
     }
@@ -2245,69 +2249,69 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void RotateSelection()
     {
-        DirectMessage(NativeMethods.SCI_ROTATESELECTION);
+        DirectMessage(SCI_ROTATESELECTION);
     }
 
-    private void ScnDoubleClick(ref NativeMethods.SCNotification scn)
+    private void ScnDoubleClick(ref SCNotification scn)
     {
         var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
         var eventArgs = new DoubleClickEventArgs(this, keys, scn.position.ToInt32(), scn.line.ToInt32());
         OnDoubleClick(eventArgs);
     }
 
-    private void ScnHotspotClick(ref NativeMethods.SCNotification scn)
+    private void ScnHotspotClick(ref SCNotification scn)
     {
         var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
         var eventArgs = new HotspotClickEventArgs(this, keys, scn.position.ToInt32());
         switch (scn.nmhdr.code)
         {
-            case NativeMethods.SCN_HOTSPOTCLICK:
+            case SCN_HOTSPOTCLICK:
                 OnHotspotClick(eventArgs);
                 break;
 
-            case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
+            case SCN_HOTSPOTDOUBLECLICK:
                 OnHotspotDoubleClick(eventArgs);
                 break;
 
-            case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+            case SCN_HOTSPOTRELEASECLICK:
                 OnHotspotReleaseClick(eventArgs);
                 break;
         }
     }
 
-    private void ScnIndicatorClick(ref NativeMethods.SCNotification scn)
+    private void ScnIndicatorClick(ref SCNotification scn)
     {
         switch (scn.nmhdr.code)
         {
-            case NativeMethods.SCN_INDICATORCLICK:
+            case SCN_INDICATORCLICK:
                 var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
                 OnIndicatorClick(new IndicatorClickEventArgs(this, keys, scn.position.ToInt32()));
                 break;
 
-            case NativeMethods.SCN_INDICATORRELEASE:
+            case SCN_INDICATORRELEASE:
                 OnIndicatorRelease(new IndicatorReleaseEventArgs(this, scn.position.ToInt32()));
                 break;
         }
     }
 
-    private void ScnMarginClick(ref NativeMethods.SCNotification scn)
+    private void ScnMarginClick(ref SCNotification scn)
     {
         var keys = Keys.Modifiers & (Keys)(scn.modifiers << 16);
         var eventArgs = new MarginClickEventArgs(this, keys, scn.position.ToInt32(), scn.margin);
 
-        if (scn.nmhdr.code == NativeMethods.SCN_MARGINCLICK)
+        if (scn.nmhdr.code == SCN_MARGINCLICK)
             OnMarginClick(eventArgs);
         else
             OnMarginRightClick(eventArgs);
     }
 
-    private void ScnModified(ref NativeMethods.SCNotification scn)
+    private void ScnModified(ref SCNotification scn)
     {
         // The InsertCheck, BeforeInsert, BeforeDelete, Insert, and Delete events can all potentially require
         // the same conversions: byte to char position, char* to string, etc.... To avoid doing the same work
         // multiple times we share that data between events.
 
-        if ((scn.modificationType & NativeMethods.SC_MOD_INSERTCHECK) > 0)
+        if ((scn.modificationType & SC_MOD_INSERTCHECK) > 0)
         {
             var eventArgs = new InsertCheckEventArgs(this, scn.position.ToInt32(), scn.length.ToInt32(), scn.text);
             OnInsertCheck(eventArgs);
@@ -2316,9 +2320,9 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             cachedText = eventArgs.CachedText;
         }
 
-        const int sourceMask = (NativeMethods.SC_PERFORMED_USER | NativeMethods.SC_PERFORMED_UNDO | NativeMethods.SC_PERFORMED_REDO);
+        const int sourceMask = (SC_PERFORMED_USER | SC_PERFORMED_UNDO | SC_PERFORMED_REDO);
 
-        if ((scn.modificationType & (NativeMethods.SC_MOD_BEFOREDELETE | NativeMethods.SC_MOD_BEFOREINSERT)) > 0)
+        if ((scn.modificationType & (SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT)) > 0)
         {
             var source = (ModificationSource)(scn.modificationType & sourceMask);
             var eventArgs = new BeforeModificationEventArgs(this, source, scn.position.ToInt32(), scn.length.ToInt32(), scn.text);
@@ -2326,7 +2330,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             eventArgs.CachedPosition = cachedPosition;
             eventArgs.CachedText = cachedText;
 
-            if ((scn.modificationType & NativeMethods.SC_MOD_BEFOREINSERT) > 0)
+            if ((scn.modificationType & SC_MOD_BEFOREINSERT) > 0)
             {
                 OnBeforeInsert(eventArgs);
             }
@@ -2339,7 +2343,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             cachedText = eventArgs.CachedText;
         }
 
-        if ((scn.modificationType & (NativeMethods.SC_MOD_DELETETEXT | NativeMethods.SC_MOD_INSERTTEXT)) > 0)
+        if ((scn.modificationType & (SC_MOD_DELETETEXT | SC_MOD_INSERTTEXT)) > 0)
         {
             var source = (ModificationSource)(scn.modificationType & sourceMask);
             var eventArgs = new ModificationEventArgs(this, source, scn.position.ToInt32(), scn.length.ToInt32(), scn.text, scn.linesAdded.ToInt32());
@@ -2347,7 +2351,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             eventArgs.CachedPosition = cachedPosition;
             eventArgs.CachedText = cachedText;
 
-            if ((scn.modificationType & NativeMethods.SC_MOD_INSERTTEXT) > 0)
+            if ((scn.modificationType & SC_MOD_INSERTTEXT) > 0)
             {
                 OnInsert(eventArgs);
             }
@@ -2365,7 +2369,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             OnTextChanged(EventArgs.Empty);
         }
 
-        if ((scn.modificationType & NativeMethods.SC_MOD_CHANGEANNOTATION) > 0)
+        if ((scn.modificationType & SC_MOD_CHANGEANNOTATION) > 0)
         {
             var eventArgs = new ChangeAnnotationEventArgs(scn.line.ToInt32());
             OnChangeAnnotation(eventArgs);
@@ -2377,7 +2381,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void ScrollCaret()
     {
-        DirectMessage(NativeMethods.SCI_SCROLLCARET);
+        DirectMessage(SCI_SCROLLCARET);
     }
 
     /// <summary>
@@ -2401,7 +2405,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         // The arguments would  seem reverse from Scintilla documentation
         // but empirical  evidence suggests this is correct....
-        DirectMessage(NativeMethods.SCI_SCROLLRANGE, new IntPtr(start), new IntPtr(end));
+        DirectMessage(SCI_SCROLLRANGE, new IntPtr(start), new IntPtr(end));
     }
 
     /// <summary>
@@ -2418,7 +2422,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         int bytePos = 0;
         var bytes = Helpers.GetBytes(text ?? string.Empty, Encoding, zeroTerminated: false);
         fixed (byte* bp = bytes)
-            bytePos = DirectMessage(NativeMethods.SCI_SEARCHINTARGET, new IntPtr(bytes.Length), new IntPtr(bp)).ToInt32();
+            bytePos = DirectMessage(SCI_SEARCHINTARGET, new IntPtr(bytes.Length), new IntPtr(bp)).ToInt32();
 
         if (bytePos == -1)
             return bytePos;
@@ -2432,7 +2436,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <remarks>The current position is not scrolled into view.</remarks>
     public void SelectAll()
     {
-        DirectMessage(NativeMethods.SCI_SELECTALL);
+        DirectMessage(SCI_SELECTALL);
     }
 
     /// <summary>
@@ -2443,7 +2447,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void SetAdditionalSelBack(Color color)
     {
         var colour = ColorTranslator.ToWin32(color);
-        DirectMessage(NativeMethods.SCI_SETADDITIONALSELBACK, new IntPtr(colour));
+        DirectMessage(SCI_SETADDITIONALSELBACK, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2454,7 +2458,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     public void SetAdditionalSelFore(Color color)
     {
         var colour = ColorTranslator.ToWin32(color);
-        DirectMessage(NativeMethods.SCI_SETADDITIONALSELFORE, new IntPtr(colour));
+        DirectMessage(SCI_SETADDITIONALSELFORE, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2466,7 +2470,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         pos = Helpers.Clamp(pos, 0, TextLength);
         pos = Lines.CharToBytePosition(pos);
-        DirectMessage(NativeMethods.SCI_SETEMPTYSELECTION, new IntPtr(pos));
+        DirectMessage(SCI_SETEMPTYSELECTION, new IntPtr(pos));
     }
 
     /// <summary>
@@ -2475,7 +2479,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <param name="flags">A bitwise combination of the <see cref="FoldFlags" /> enumeration.</param>
     public void SetFoldFlags(FoldFlags flags)
     {
-        DirectMessage(NativeMethods.SCI_SETFOLDFLAGS, new IntPtr((int)flags));
+        DirectMessage(SCI_SETFOLDFLAGS, new IntPtr((int)flags));
     }
 
     /// <summary>
@@ -2489,7 +2493,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useFoldMarginColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETFOLDMARGINCOLOUR, useFoldMarginColour, new IntPtr(colour));
+        DirectMessage(SCI_SETFOLDMARGINCOLOUR, useFoldMarginColour, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2503,7 +2507,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useFoldMarginHighlightColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETFOLDMARGINHICOLOUR, useFoldMarginHighlightColour, new IntPtr(colour));
+        DirectMessage(SCI_SETFOLDMARGINHICOLOUR, useFoldMarginHighlightColour, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2522,7 +2526,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var bytes = Helpers.GetBytes(identifiers ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
 
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_SETIDENTIFIERS, new IntPtr(style), new IntPtr(bp));
+            DirectMessage(SCI_SETIDENTIFIERS, new IntPtr(style), new IntPtr(bp));
     }
 
     /// <summary>
@@ -2536,11 +2540,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="DescribeKeywordSets" />
     public unsafe void SetKeywords(int set, string keywords)
     {
-        set = Helpers.Clamp(set, 0, NativeMethods.KEYWORDSET_MAX);
+        set = Helpers.Clamp(set, 0, KEYWORDSET_MAX);
         var bytes = Helpers.GetBytes(keywords ?? string.Empty, Encoding.ASCII, zeroTerminated: true);
 
         fixed (byte* bp = bytes)
-            DirectMessage(NativeMethods.SCI_SETKEYWORDS, new IntPtr(set), new IntPtr(bp));
+            DirectMessage(SCI_SETKEYWORDS, new IntPtr(set), new IntPtr(bp));
     }
 
     /// <summary>
@@ -2597,7 +2601,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         fixed (byte* nb = nameBytes)
         fixed (byte* vb = valueBytes)
         {
-            DirectMessage(NativeMethods.SCI_SETPROPERTY, new IntPtr(nb), new IntPtr(vb));
+            DirectMessage(SCI_SETPROPERTY, new IntPtr(nb), new IntPtr(vb));
         }
     }
 
@@ -2607,7 +2611,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="Modified" />
     public void SetSavePoint()
     {
-        DirectMessage(NativeMethods.SCI_SETSAVEPOINT);
+        DirectMessage(SCI_SETSAVEPOINT);
     }
 
     /// <summary>
@@ -2644,7 +2648,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             currentPos = Lines.CharToBytePosition(currentPos);
         }
 
-        DirectMessage(NativeMethods.SCI_SETSEL, new IntPtr(anchorPos), new IntPtr(currentPos));
+        DirectMessage(SCI_SETSEL, new IntPtr(anchorPos), new IntPtr(currentPos));
     }
 
     /// <summary>
@@ -2662,7 +2666,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         caret = Lines.CharToBytePosition(caret);
         anchor = Lines.CharToBytePosition(anchor);
 
-        DirectMessage(NativeMethods.SCI_SETSELECTION, new IntPtr(caret), new IntPtr(anchor));
+        DirectMessage(SCI_SETSELECTION, new IntPtr(caret), new IntPtr(anchor));
     }
 
     /// <summary>
@@ -2676,7 +2680,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useSelectionForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETSELBACK, useSelectionForeColour, new IntPtr(colour));
+        DirectMessage(SCI_SETSELBACK, useSelectionForeColour, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2690,7 +2694,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useSelectionForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETSELFORE, useSelectionForeColour, new IntPtr(colour));
+        DirectMessage(SCI_SETSELFORE, useSelectionForeColour, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2703,12 +2707,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Layer)DirectMessage(NativeMethods.SCI_GETSELECTIONLAYER).ToInt32();
+            return (Layer)DirectMessage(SCI_GETSELECTIONLAYER).ToInt32();
         }
         set
         {
             int layer = (int)value;
-            DirectMessage(NativeMethods.SCI_SETSELECTIONLAYER, new IntPtr(layer), IntPtr.Zero);
+            DirectMessage(SCI_SETSELECTIONLAYER, new IntPtr(layer), IntPtr.Zero);
         }
     }
 
@@ -2740,7 +2744,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         var endPos = stylingPosition + length;
         var endBytePos = Lines.CharToBytePosition(endPos);
-        DirectMessage(NativeMethods.SCI_SETSTYLING, new IntPtr(endBytePos - stylingBytePosition), new IntPtr(style));
+        DirectMessage(SCI_SETSTYLING, new IntPtr(endBytePos - stylingBytePosition), new IntPtr(style));
 
         // Track this for the next call
         stylingPosition = endPos;
@@ -2763,7 +2767,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         start = Lines.CharToBytePosition(start);
         end = Lines.CharToBytePosition(end);
 
-        DirectMessage(NativeMethods.SCI_SETTARGETRANGE, new IntPtr(start), new IntPtr(end));
+        DirectMessage(SCI_SETTARGETRANGE, new IntPtr(start), new IntPtr(end));
     }
 
     /// <summary>
@@ -2779,7 +2783,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useWhitespaceBackColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETWHITESPACEBACK, useWhitespaceBackColour, new IntPtr(colour));
+        DirectMessage(SCI_SETWHITESPACEBACK, useWhitespaceBackColour, new IntPtr(colour));
     }
 
     /// <summary>
@@ -2795,7 +2799,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var colour = ColorTranslator.ToWin32(color);
         var useWhitespaceForeColour = (use ? new IntPtr(1) : IntPtr.Zero);
 
-        DirectMessage(NativeMethods.SCI_SETWHITESPACEFORE, useWhitespaceForeColour, new IntPtr(colour));
+        DirectMessage(SCI_SETWHITESPACEFORE, useWhitespaceForeColour, new IntPtr(colour));
     }
 
     private bool ShouldSerializeAdditionalCaretForeColor()
@@ -2815,7 +2819,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         lineStart = Helpers.Clamp(lineStart, 0, Lines.Count);
         lineEnd = Helpers.Clamp(lineEnd, lineStart, Lines.Count);
 
-        DirectMessage(NativeMethods.SCI_SHOWLINES, new IntPtr(lineStart), new IntPtr(lineEnd));
+        DirectMessage(SCI_SHOWLINES, new IntPtr(lineStart), new IntPtr(lineEnd));
     }
 
     /// <summary>
@@ -2831,7 +2835,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         position = Helpers.Clamp(position, 0, TextLength);
         var pos = Lines.CharToBytePosition(position);
-        DirectMessage(NativeMethods.SCI_STARTSTYLING, new IntPtr(pos));
+        DirectMessage(SCI_STARTSTYLING, new IntPtr(pos));
 
         // Track this so we can validate calls to SetStyling
         stylingPosition = position;
@@ -2844,7 +2848,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="StyleResetDefault" />
     public void StyleClearAll()
     {
-        DirectMessage(NativeMethods.SCI_STYLECLEARALL);
+        DirectMessage(SCI_STYLECLEARALL);
     }
 
     /// <summary>
@@ -2853,7 +2857,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="StyleClearAll" />
     public void StyleResetDefault()
     {
-        DirectMessage(NativeMethods.SCI_STYLERESETDEFAULT);
+        DirectMessage(SCI_STYLERESETDEFAULT);
     }
 
     /// <summary>
@@ -2861,7 +2865,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void SwapMainAnchorCaret()
     {
-        DirectMessage(NativeMethods.SCI_SWAPMAINANCHORCARET);
+        DirectMessage(SCI_SWAPMAINANCHORCARET);
     }
 
     /// <summary>
@@ -2870,7 +2874,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="TargetWholeDocument" />
     public void TargetFromSelection()
     {
-        DirectMessage(NativeMethods.SCI_TARGETFROMSELECTION);
+        DirectMessage(SCI_TARGETFROMSELECTION);
     }
 
     /// <summary>
@@ -2879,7 +2883,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="TargetFromSelection" />
     public void TargetWholeDocument()
     {
-        DirectMessage(NativeMethods.SCI_TARGETWHOLEDOCUMENT);
+        DirectMessage(SCI_TARGETWHOLEDOCUMENT);
     }
 
     /// <summary>
@@ -2895,7 +2899,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         fixed (byte* bp = bytes)
         {
-            return DirectMessage(NativeMethods.SCI_TEXTWIDTH, new IntPtr(style), new IntPtr(bp)).ToInt32();
+            return DirectMessage(SCI_TEXTWIDTH, new IntPtr(style), new IntPtr(bp)).ToInt32();
         }
     }
 
@@ -2904,7 +2908,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </summary>
     public void Undo()
     {
-        DirectMessage(NativeMethods.SCI_UNDO);
+        DirectMessage(SCI_UNDO);
     }
 
     /// <summary>
@@ -2916,7 +2920,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         // NOTE: The behavior of UsePopup has changed in v3.7.1, however, this approach is still valid
         var bEnablePopup = (enablePopup ? new IntPtr(1) : IntPtr.Zero);
-        DirectMessage(NativeMethods.SCI_USEPOPUP, bEnablePopup);
+        DirectMessage(SCI_USEPOPUP, bEnablePopup);
     }
 
     /// <summary>
@@ -2925,7 +2929,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <param name="popupMode">One of the <seealso cref="PopupMode" /> enumeration values.</param>
     public void UsePopup(PopupMode popupMode)
     {
-        DirectMessage(NativeMethods.SCI_USEPOPUP, new IntPtr((int)popupMode));
+        DirectMessage(SCI_USEPOPUP, new IntPtr((int)popupMode));
     }
 
     private void WmDestroy(ref Message m)
@@ -2944,7 +2948,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             // temporary bait-and-switch gets reconciled again automatically. Our Dispose method ensures
             // that we truly get destroyed when the time is right.
 
-            NativeMethods.SetParent(Handle, new IntPtr(NativeMethods.HWND_MESSAGE));
+            NativeMethods.SetParent(Handle, new IntPtr(HWND_MESSAGE));
             m.Result = IntPtr.Zero;
             return;
         }
@@ -2955,8 +2959,8 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     private void WmReflectNotify(ref Message m)
     {
         // A standard Windows notification and a Scintilla notification header are compatible
-        NativeMethods.SCNotification scn = (NativeMethods.SCNotification)Marshal.PtrToStructure(m.LParam, typeof(NativeMethods.SCNotification));
-        if (scn.nmhdr.code >= NativeMethods.SCN_STYLENEEDED && scn.nmhdr.code <= NativeMethods.SCN_AUTOCCOMPLETED)
+        SCNotification scn = (SCNotification)Marshal.PtrToStructure(m.LParam, typeof(SCNotification));
+        if (scn.nmhdr.code >= SCN_STYLENEEDED && scn.nmhdr.code <= SCN_AUTOCCOMPLETED)
         {
             var handler = Events[scNotificationEventKey] as EventHandler<SCNotificationEventArgs>;
             if (handler != null)
@@ -2964,91 +2968,91 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
             switch (scn.nmhdr.code)
             {
-                case NativeMethods.SCN_PAINTED:
+                case SCN_PAINTED:
                     OnPainted(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_MODIFIED:
+                case SCN_MODIFIED:
                     ScnModified(ref scn);
                     break;
 
-                case NativeMethods.SCN_MODIFYATTEMPTRO:
+                case SCN_MODIFYATTEMPTRO:
                     OnModifyAttempt(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_STYLENEEDED:
+                case SCN_STYLENEEDED:
                     OnStyleNeeded(new StyleNeededEventArgs(this, scn.position.ToInt32()));
                     break;
 
-                case NativeMethods.SCN_SAVEPOINTLEFT:
+                case SCN_SAVEPOINTLEFT:
                     OnSavePointLeft(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_SAVEPOINTREACHED:
+                case SCN_SAVEPOINTREACHED:
                     OnSavePointReached(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_MARGINCLICK:
-                case NativeMethods.SCN_MARGINRIGHTCLICK:
+                case SCN_MARGINCLICK:
+                case SCN_MARGINRIGHTCLICK:
                     ScnMarginClick(ref scn);
                     break;
 
-                case NativeMethods.SCN_UPDATEUI:
+                case SCN_UPDATEUI:
                     OnUpdateUI(new UpdateUIEventArgs((UpdateChange)scn.updated));
                     break;
 
-                case NativeMethods.SCN_CHARADDED:
+                case SCN_CHARADDED:
                     OnCharAdded(new CharAddedEventArgs(scn.ch));
                     break;
 
-                case NativeMethods.SCN_AUTOCSELECTION:
+                case SCN_AUTOCSELECTION:
                     OnAutoCSelection(new AutoCSelectionEventArgs(this, scn.position.ToInt32(), scn.text, scn.ch, (ListCompletionMethod)scn.listCompletionMethod));
                     break;
 
-                case NativeMethods.SCN_AUTOCCOMPLETED:
+                case SCN_AUTOCCOMPLETED:
                     OnAutoCCompleted(new AutoCSelectionEventArgs(this, scn.position.ToInt32(), scn.text, scn.ch, (ListCompletionMethod)scn.listCompletionMethod));
                     break;
 
-                case NativeMethods.SCN_AUTOCCANCELLED:
+                case SCN_AUTOCCANCELLED:
                     OnAutoCCancelled(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_AUTOCCHARDELETED:
+                case SCN_AUTOCCHARDELETED:
                     OnAutoCCharDeleted(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_DWELLSTART:
+                case SCN_DWELLSTART:
                     OnDwellStart(new DwellEventArgs(this, scn.position.ToInt32(), scn.x, scn.y));
                     break;
 
-                case NativeMethods.SCN_DWELLEND:
+                case SCN_DWELLEND:
                     OnDwellEnd(new DwellEventArgs(this, scn.position.ToInt32(), scn.x, scn.y));
                     break;
 
-                case NativeMethods.SCN_DOUBLECLICK:
+                case SCN_DOUBLECLICK:
                     ScnDoubleClick(ref scn);
                     break;
 
-                case NativeMethods.SCN_NEEDSHOWN:
+                case SCN_NEEDSHOWN:
                     OnNeedShown(new NeedShownEventArgs(this, scn.position.ToInt32(), scn.length.ToInt32()));
                     break;
 
-                case NativeMethods.SCN_HOTSPOTCLICK:
-                case NativeMethods.SCN_HOTSPOTDOUBLECLICK:
-                case NativeMethods.SCN_HOTSPOTRELEASECLICK:
+                case SCN_HOTSPOTCLICK:
+                case SCN_HOTSPOTDOUBLECLICK:
+                case SCN_HOTSPOTRELEASECLICK:
                     ScnHotspotClick(ref scn);
                     break;
 
-                case NativeMethods.SCN_INDICATORCLICK:
-                case NativeMethods.SCN_INDICATORRELEASE:
+                case SCN_INDICATORCLICK:
+                case SCN_INDICATORRELEASE:
                     ScnIndicatorClick(ref scn);
                     break;
 
-                case NativeMethods.SCN_ZOOM:
+                case SCN_ZOOM:
                     OnZoomChanged(EventArgs.Empty);
                     break;
 
-                case NativeMethods.SCN_CALLTIPCLICK:
+                case SCN_CALLTIPCLICK:
                     OnCallTipClick(new CallTipClickEventArgs(this, (CallTipClickType)scn.position.ToInt32()));
                     // scn.position: 1 = Up Arrow, 2 = DownArrow: 0 = Elsewhere
                     break;
@@ -3069,22 +3073,22 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         switch (m.Msg)
         {
-            case (NativeMethods.WM_REFLECT + NativeMethods.WM_NOTIFY):
+            case (WM_REFLECT + WM_NOTIFY):
                 WmReflectNotify(ref m);
                 break;
 
-            case NativeMethods.WM_SETCURSOR:
+            case WM_SETCURSOR:
                 DefWndProc(ref m);
                 break;
 
-            case NativeMethods.WM_LBUTTONDBLCLK:
-            case NativeMethods.WM_RBUTTONDBLCLK:
-            case NativeMethods.WM_MBUTTONDBLCLK:
-            case NativeMethods.WM_XBUTTONDBLCLK:
+            case WM_LBUTTONDBLCLK:
+            case WM_RBUTTONDBLCLK:
+            case WM_MBUTTONDBLCLK:
+            case WM_XBUTTONDBLCLK:
                 doubleClick = true;
                 goto default;
 
-            case NativeMethods.WM_DESTROY:
+            case WM_DESTROY:
                 WmDestroy(ref m);
                 break;
 
@@ -3109,7 +3113,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var onlyWordChars = (onlyWordCharacters ? new IntPtr(1) : IntPtr.Zero);
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
-        position = DirectMessage(NativeMethods.SCI_WORDENDPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
+        position = DirectMessage(SCI_WORDENDPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
         return Lines.ByteToCharPosition(position);
     }
 
@@ -3128,7 +3132,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var onlyWordChars = (onlyWordCharacters ? new IntPtr(1) : IntPtr.Zero);
         position = Helpers.Clamp(position, 0, TextLength);
         position = Lines.CharToBytePosition(position);
-        position = DirectMessage(NativeMethods.SCI_WORDSTARTPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
+        position = DirectMessage(SCI_WORDSTARTPOSITION, new IntPtr(position), onlyWordChars).ToInt32();
         return Lines.ByteToCharPosition(position);
     }
 
@@ -3138,7 +3142,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="Zoom" />
     public void ZoomIn()
     {
-        DirectMessage(NativeMethods.SCI_ZOOMIN);
+        DirectMessage(SCI_ZOOMIN);
     }
 
     /// <summary>
@@ -3147,7 +3151,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <seealso cref="Zoom" />
     public void ZoomOut()
     {
-        DirectMessage(NativeMethods.SCI_ZOOMOUT);
+        DirectMessage(SCI_ZOOMOUT);
     }
 
     /// <summary>
@@ -3164,7 +3168,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             fixed (byte* bpRepresentation = bytesRepresentation)
             {
-                DirectMessage(NativeMethods.SCI_SETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
+                DirectMessage(SCI_SETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
             }
         }
     }
@@ -3180,12 +3184,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
         fixed (byte* bpEncoded = bytesEncoded)
         {
-            var length = DirectMessage(NativeMethods.SCI_GETREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero)
+            var length = DirectMessage(SCI_GETREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero)
                 .ToInt32();
             var bytesRepresentation = new byte[length + 1];
             fixed (byte* bpRepresentation = bytesRepresentation)
             {
-                DirectMessage(NativeMethods.SCI_GETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
+                DirectMessage(SCI_GETREPRESENTATION, new IntPtr(bpEncoded), new IntPtr(bpRepresentation));
                 return Helpers.GetString(new IntPtr(bpRepresentation), length, Encoding);
             }
         }
@@ -3200,7 +3204,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         var bytesEncoded = Helpers.GetBytes(encodedString, Encoding, zeroTerminated: true);
         fixed (byte* bpEncoded = bytesEncoded)
         {
-            DirectMessage(NativeMethods.SCI_CLEARREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero);
+            DirectMessage(SCI_CLEARREPRESENTATION, new IntPtr(bpEncoded), IntPtr.Zero);
         }
     }
     #endregion Methods
@@ -3216,20 +3220,20 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     [Description("The bi-directionality of the Scintilla control.")]
     public BiDirectionalDisplayType BiDirectionality
     {
-        get => (BiDirectionalDisplayType) DirectMessage(NativeMethods.SCI_GETBIDIRECTIONAL).ToInt32();
+        get => (BiDirectionalDisplayType) DirectMessage(SCI_GETBIDIRECTIONAL).ToInt32();
 
         set
         {
             if (value != BiDirectionalDisplayType.Disabled)
             {
-                var technology = DirectMessage(NativeMethods.SCI_GETTECHNOLOGY).ToInt32();
-                if (technology == NativeMethods.SC_TECHNOLOGY_DEFAULT)
+                var technology = DirectMessage(SCI_GETTECHNOLOGY).ToInt32();
+                if (technology == SC_TECHNOLOGY_DEFAULT)
                 {
-                    DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(NativeMethods.SC_TECHNOLOGY_DIRECTWRITE));
+                    DirectMessage(SCI_SETTECHNOLOGY, new IntPtr(SC_TECHNOLOGY_DIRECTWRITE));
                 }
             }
 
-            DirectMessage(NativeMethods.SCI_SETBIDIRECTIONAL, new IntPtr((int)value));
+            DirectMessage(SCI_SETBIDIRECTIONAL, new IntPtr((int)value));
         }
     }
 
@@ -3263,10 +3267,10 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
             if (value)
             {
-                var technology = DirectMessage(NativeMethods.SCI_GETTECHNOLOGY).ToInt32();
-                if (technology != NativeMethods.SC_TECHNOLOGY_DEFAULT)
+                var technology = DirectMessage(SCI_GETTECHNOLOGY).ToInt32();
+                if (technology != SC_TECHNOLOGY_DEFAULT)
                 {
-                    DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(NativeMethods.SC_TECHNOLOGY_DEFAULT));
+                    DirectMessage(SCI_SETTECHNOLOGY, new IntPtr(SC_TECHNOLOGY_DEFAULT));
                 }
 
                 exStyle |= WinApiHelpers.WS_EX_LAYOUTRTL;
@@ -3276,7 +3280,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
                 exStyle &= ~WinApiHelpers.WS_EX_LAYOUTRTL;
             }
             Handle.SetWindowLongPtr(WinApiHelpers.GWL_EXSTYLE, new IntPtr(exStyle));
-            DirectMessage(NativeMethods.SCI_SETFOCUS, new IntPtr(1)); // needs focus to update
+            DirectMessage(SCI_SETFOCUS, new IntPtr(1)); // needs focus to update
         }
     }
 
@@ -3290,13 +3294,13 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var color = DirectMessage(NativeMethods.SCI_GETADDITIONALCARETFORE).ToInt32();
+            var color = DirectMessage(SCI_GETADDITIONALCARETFORE).ToInt32();
             return ColorTranslator.FromWin32(color);
         }
         set
         {
             var color = ColorTranslator.ToWin32(value);
-            DirectMessage(NativeMethods.SCI_SETADDITIONALCARETFORE, new IntPtr(color));
+            DirectMessage(SCI_SETADDITIONALCARETFORE, new IntPtr(color));
         }
     }
 
@@ -3311,12 +3315,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETADDITIONALCARETSBLINK) != IntPtr.Zero;
+            return DirectMessage(SCI_GETADDITIONALCARETSBLINK) != IntPtr.Zero;
         }
         set
         {
             var additionalCaretsBlink = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETADDITIONALCARETSBLINK, additionalCaretsBlink);
+            DirectMessage(SCI_SETADDITIONALCARETSBLINK, additionalCaretsBlink);
         }
     }
 
@@ -3331,12 +3335,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETADDITIONALCARETSVISIBLE) != IntPtr.Zero;
+            return DirectMessage(SCI_GETADDITIONALCARETSVISIBLE) != IntPtr.Zero;
         }
         set
         {
             var additionalCaretsBlink = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETADDITIONALCARETSVISIBLE, additionalCaretsBlink);
+            DirectMessage(SCI_SETADDITIONALCARETSVISIBLE, additionalCaretsBlink);
         }
     }
 
@@ -3354,12 +3358,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETADDITIONALSELALPHA).ToInt32();
+            return DirectMessage(SCI_GETADDITIONALSELALPHA).ToInt32();
         }
         set
         {
-            value = Helpers.Clamp(value, 0, NativeMethods.SC_ALPHA_NOALPHA);
-            DirectMessage(NativeMethods.SCI_SETADDITIONALSELALPHA, new IntPtr(value));
+            value = Helpers.Clamp(value, 0, SC_ALPHA_NOALPHA);
+            DirectMessage(SCI_SETADDITIONALSELALPHA, new IntPtr(value));
         }
     }
 
@@ -3374,12 +3378,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETADDITIONALSELECTIONTYPING) != IntPtr.Zero;
+            return DirectMessage(SCI_GETADDITIONALSELECTIONTYPING) != IntPtr.Zero;
         }
         set
         {
             var additionalSelectionTyping = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETADDITIONALSELECTIONTYPING, additionalSelectionTyping);
+            DirectMessage(SCI_SETADDITIONALSELECTIONTYPING, additionalSelectionTyping);
         }
     }
 
@@ -3398,14 +3402,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var bytePos = DirectMessage(NativeMethods.SCI_GETANCHOR).ToInt32();
+            var bytePos = DirectMessage(SCI_GETANCHOR).ToInt32();
             return Lines.ByteToCharPosition(bytePos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             var bytePos = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETANCHOR, new IntPtr(bytePos));
+            DirectMessage(SCI_SETANCHOR, new IntPtr(bytePos));
         }
     }
 
@@ -3420,12 +3424,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Annotation)DirectMessage(NativeMethods.SCI_ANNOTATIONGETVISIBLE).ToInt32();
+            return (Annotation)DirectMessage(SCI_ANNOTATIONGETVISIBLE).ToInt32();
         }
         set
         {
             var visible = (int)value;
-            DirectMessage(NativeMethods.SCI_ANNOTATIONSETVISIBLE, new IntPtr(visible));
+            DirectMessage(SCI_ANNOTATIONSETVISIBLE, new IntPtr(visible));
         }
     }
 
@@ -3439,7 +3443,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCACTIVE) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCACTIVE) != IntPtr.Zero;
         }
     }
 
@@ -3457,12 +3461,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETAUTOHIDE) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCGETAUTOHIDE) != IntPtr.Zero;
         }
         set
         {
             var autoHide = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_AUTOCSETAUTOHIDE, autoHide);
+            DirectMessage(SCI_AUTOCSETAUTOHIDE, autoHide);
         }
     }
 
@@ -3481,12 +3485,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETCANCELATSTART) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCGETCANCELATSTART) != IntPtr.Zero;
         }
         set
         {
             var cancel = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_AUTOCSETCANCELATSTART, cancel);
+            DirectMessage(SCI_AUTOCSETCANCELATSTART, cancel);
         }
     }
 
@@ -3500,7 +3504,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETCURRENT).ToInt32();
+            return DirectMessage(SCI_AUTOCGETCURRENT).ToInt32();
         }
     }
 
@@ -3518,12 +3522,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETCHOOSESINGLE) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCGETCHOOSESINGLE) != IntPtr.Zero;
         }
         set
         {
             var chooseSingle = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_AUTOCSETCHOOSESINGLE, chooseSingle);
+            DirectMessage(SCI_AUTOCSETCHOOSESINGLE, chooseSingle);
         }
     }
 
@@ -3540,12 +3544,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETDROPRESTOFWORD) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCGETDROPRESTOFWORD) != IntPtr.Zero;
         }
         set
         {
             var dropRestOfWord = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_AUTOCSETDROPRESTOFWORD, dropRestOfWord);
+            DirectMessage(SCI_AUTOCSETDROPRESTOFWORD, dropRestOfWord);
         }
     }
 
@@ -3560,12 +3564,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETIGNORECASE) != IntPtr.Zero;
+            return DirectMessage(SCI_AUTOCGETIGNORECASE) != IntPtr.Zero;
         }
         set
         {
             var ignoreCase = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_AUTOCSETIGNORECASE, ignoreCase);
+            DirectMessage(SCI_AUTOCSETIGNORECASE, ignoreCase);
         }
     }
 
@@ -3581,12 +3585,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETMAXHEIGHT).ToInt32();
+            return DirectMessage(SCI_AUTOCGETMAXHEIGHT).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_AUTOCSETMAXHEIGHT, new IntPtr(value));
+            DirectMessage(SCI_AUTOCSETMAXHEIGHT, new IntPtr(value));
         }
     }
 
@@ -3605,12 +3609,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_AUTOCGETMAXWIDTH).ToInt32();
+            return DirectMessage(SCI_AUTOCGETMAXWIDTH).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_AUTOCSETMAXWIDTH, new IntPtr(value));
+            DirectMessage(SCI_AUTOCSETMAXWIDTH, new IntPtr(value));
         }
     }
 
@@ -3625,12 +3629,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Order)DirectMessage(NativeMethods.SCI_AUTOCGETORDER).ToInt32();
+            return (Order)DirectMessage(SCI_AUTOCGETORDER).ToInt32();
         }
         set
         {
             var order = (int)value;
-            DirectMessage(NativeMethods.SCI_AUTOCSETORDER, new IntPtr(order));
+            DirectMessage(SCI_AUTOCSETORDER, new IntPtr(order));
         }
     }
 
@@ -3645,7 +3649,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_AUTOCPOSSTART).ToInt32();
+            var pos = DirectMessage(SCI_AUTOCPOSSTART).ToInt32();
             pos = Lines.ByteToCharPosition(pos);
 
             return pos;
@@ -3664,7 +3668,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var separator = DirectMessage(NativeMethods.SCI_AUTOCGETSEPARATOR).ToInt32();
+            var separator = DirectMessage(SCI_AUTOCGETSEPARATOR).ToInt32();
             return (Char)separator;
         }
         set
@@ -3674,7 +3678,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             // not fit within a single byte. The likelyhood of this, however, seems so remote that
             // I'm willing to risk a possible conversion error to provide a better user experience.
             var separator = (byte)value;
-            DirectMessage(NativeMethods.SCI_AUTOCSETSEPARATOR, new IntPtr(separator));
+            DirectMessage(SCI_AUTOCSETSEPARATOR, new IntPtr(separator));
         }
     }
 
@@ -3690,7 +3694,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var separatorCharacter = DirectMessage(NativeMethods.SCI_AUTOCGETTYPESEPARATOR).ToInt32();
+            var separatorCharacter = DirectMessage(SCI_AUTOCGETTYPESEPARATOR).ToInt32();
             return (Char)separatorCharacter;
         }
         set
@@ -3700,7 +3704,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             // not fit within a single byte. The likelyhood of this, however, seems so remote that
             // I'm willing to risk a possible conversion error to provide a better user experience.
             var separatorCharacter = (byte)value;
-            DirectMessage(NativeMethods.SCI_AUTOCSETTYPESEPARATOR, new IntPtr(separatorCharacter));
+            DirectMessage(SCI_AUTOCSETTYPESEPARATOR, new IntPtr(separatorCharacter));
         }
     }
 
@@ -3719,12 +3723,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (AutomaticFold)DirectMessage(NativeMethods.SCI_GETAUTOMATICFOLD);
+            return (AutomaticFold)DirectMessage(SCI_GETAUTOMATICFOLD);
         }
         set
         {
             var automaticFold = (int)value;
-            DirectMessage(NativeMethods.SCI_SETAUTOMATICFOLD, new IntPtr(automaticFold));
+            DirectMessage(SCI_SETAUTOMATICFOLD, new IntPtr(automaticFold));
         }
     }
 
@@ -3790,12 +3794,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETBACKSPACEUNINDENTS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETBACKSPACEUNINDENTS) != IntPtr.Zero);
         }
         set
         {
             var ptr = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETBACKSPACEUNINDENTS, ptr);
+            DirectMessage(SCI_SETBACKSPACEUNINDENTS, ptr);
         }
     }
 
@@ -3842,12 +3846,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETBUFFEREDDRAW) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETBUFFEREDDRAW) != IntPtr.Zero);
         }
         set
         {
             var isBuffered = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETBUFFEREDDRAW, isBuffered);
+            DirectMessage(SCI_SETBUFFEREDDRAW, isBuffered);
         }
     }
 
@@ -3862,7 +3866,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_CALLTIPPOSSTART).ToInt32();
+            var pos = DirectMessage(SCI_CALLTIPPOSSTART).ToInt32();
             if (pos < 0)
                 return pos;
 
@@ -3872,7 +3876,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_CALLTIPSETPOSSTART, new IntPtr(value));
+            DirectMessage(SCI_CALLTIPSETPOSSTART, new IntPtr(value));
         }
     }
     */
@@ -3887,7 +3891,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_CALLTIPACTIVE) != IntPtr.Zero;
+            return DirectMessage(SCI_CALLTIPACTIVE) != IntPtr.Zero;
         }
     }
 
@@ -3902,7 +3906,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_CANPASTE) != IntPtr.Zero);
+            return (DirectMessage(SCI_CANPASTE) != IntPtr.Zero);
         }
     }
 
@@ -3916,7 +3920,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_CANREDO) != IntPtr.Zero);
+            return (DirectMessage(SCI_CANREDO) != IntPtr.Zero);
         }
     }
 
@@ -3930,7 +3934,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_CANUNDO) != IntPtr.Zero);
+            return (DirectMessage(SCI_CANUNDO) != IntPtr.Zero);
         }
     }
 
@@ -3945,13 +3949,13 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var color = DirectMessage(NativeMethods.SCI_GETCARETFORE).ToInt32();
+            var color = DirectMessage(SCI_GETCARETFORE).ToInt32();
             return ColorTranslator.FromWin32(color);
         }
         set
         {
             var color = ColorTranslator.ToWin32(value);
-            DirectMessage(NativeMethods.SCI_SETCARETFORE, new IntPtr(color));
+            DirectMessage(SCI_SETCARETFORE, new IntPtr(color));
         }
     }
 
@@ -3966,13 +3970,13 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var color = DirectMessage(NativeMethods.SCI_GETCARETLINEBACK).ToInt32();
+            var color = DirectMessage(SCI_GETCARETLINEBACK).ToInt32();
             return ColorTranslator.FromWin32(color);
         }
         set
         {
             var color = ColorTranslator.ToWin32(value);
-            DirectMessage(NativeMethods.SCI_SETCARETLINEBACK, new IntPtr(color));
+            DirectMessage(SCI_SETCARETLINEBACK, new IntPtr(color));
         }
     }
 
@@ -3990,12 +3994,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETCARETLINEBACKALPHA).ToInt32();
+            return DirectMessage(SCI_GETCARETLINEBACKALPHA).ToInt32();
         }
         set
         {
-            value = Helpers.Clamp(value, 0, NativeMethods.SC_ALPHA_NOALPHA);
-            DirectMessage(NativeMethods.SCI_SETCARETLINEBACKALPHA, new IntPtr(value));
+            value = Helpers.Clamp(value, 0, SC_ALPHA_NOALPHA);
+            DirectMessage(SCI_SETCARETLINEBACKALPHA, new IntPtr(value));
         }
     }
 
@@ -4010,12 +4014,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETCARETLINEFRAME).ToInt32();
+            return DirectMessage(SCI_GETCARETLINEFRAME).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETCARETLINEFRAME, new IntPtr(value));
+            DirectMessage(SCI_SETCARETLINEFRAME, new IntPtr(value));
         }
     }
 
@@ -4030,12 +4034,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETCARETLINEVISIBLE) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETCARETLINEVISIBLE) != IntPtr.Zero);
         }
         set
         {
             var visible = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETCARETLINEVISIBLE, visible);
+            DirectMessage(SCI_SETCARETLINEVISIBLE, visible);
         }
     }
 
@@ -4050,12 +4054,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETCARETLINEVISIBLEALWAYS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETCARETLINEVISIBLEALWAYS) != IntPtr.Zero);
         }
         set
         {
             var visibleAlways = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETCARETLINEVISIBLEALWAYS, visibleAlways);
+            DirectMessage(SCI_SETCARETLINEVISIBLEALWAYS, visibleAlways);
         }
     }
 
@@ -4069,12 +4073,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Layer)DirectMessage(NativeMethods.SCI_GETCARETLINELAYER).ToInt32();
+            return (Layer)DirectMessage(SCI_GETCARETLINELAYER).ToInt32();
         }
         set
         {
             int layer = (int)value;
-            DirectMessage(NativeMethods.SCI_SETCARETLINELAYER, new IntPtr(layer));
+            DirectMessage(SCI_SETCARETLINELAYER, new IntPtr(layer));
         }
     }
 
@@ -4090,12 +4094,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETCARETPERIOD).ToInt32();
+            return DirectMessage(SCI_GETCARETPERIOD).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETCARETPERIOD, new IntPtr(value));
+            DirectMessage(SCI_SETCARETPERIOD, new IntPtr(value));
         }
     }
 
@@ -4113,12 +4117,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (CaretStyle)DirectMessage(NativeMethods.SCI_GETCARETSTYLE).ToInt32();
+            return (CaretStyle)DirectMessage(SCI_GETCARETSTYLE).ToInt32();
         }
         set
         {
             var style = (int)value;
-            DirectMessage(NativeMethods.SCI_SETCARETSTYLE, new IntPtr(style));
+            DirectMessage(SCI_SETCARETSTYLE, new IntPtr(style));
         }
     }
 
@@ -4137,12 +4141,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETCARETWIDTH).ToInt32();
+            return DirectMessage(SCI_GETCARETWIDTH).ToInt32();
         }
         set
         {
             value = Helpers.Clamp(value, 0, 3);
-            DirectMessage(NativeMethods.SCI_SETCARETWIDTH, new IntPtr(value));
+            DirectMessage(SCI_SETCARETWIDTH, new IntPtr(value));
         }
     }
 
@@ -4177,7 +4181,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
                 // Self-compiled DLLs required this:
                 //var exportName = is32Bit
                 //    ? "_Scintilla_DirectFunction@16"
-                //    : nameof(NativeMethods.Scintilla_DirectFunction);
+                //    : nameof(Scintilla_DirectFunction);
                     
                 // Native DLL:
                 var exportName = nameof(NativeMethods.Scintilla_DirectFunction);
@@ -4205,15 +4209,15 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             cp.ClassName = "Scintilla";
 
             // The border effect is achieved through a native Windows style
-            cp.ExStyle &= (~NativeMethods.WS_EX_CLIENTEDGE);
-            cp.Style &= (~NativeMethods.WS_BORDER);
+            cp.ExStyle &= (~WS_EX_CLIENTEDGE);
+            cp.Style &= (~WS_BORDER);
             switch (borderStyle)
             {
                 case BorderStyle.Fixed3D:
-                    cp.ExStyle |= NativeMethods.WS_EX_CLIENTEDGE;
+                    cp.ExStyle |= WS_EX_CLIENTEDGE;
                     break;
                 case BorderStyle.FixedSingle:
-                    cp.Style |= NativeMethods.WS_BORDER;
+                    cp.Style |= WS_BORDER;
                     break;
             }
 
@@ -4231,8 +4235,8 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var currentPos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
-            var line = DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(currentPos)).ToInt32();
+            var currentPos = DirectMessage(SCI_GETCURRENTPOS).ToInt32();
+            var line = DirectMessage(SCI_LINEFROMPOSITION, new IntPtr(currentPos)).ToInt32();
             return line;
         }
     }
@@ -4252,14 +4256,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var bytePos = DirectMessage(NativeMethods.SCI_GETCURRENTPOS).ToInt32();
+            var bytePos = DirectMessage(SCI_GETCURRENTPOS).ToInt32();
             return Lines.ByteToCharPosition(bytePos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             var bytePos = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETCURRENTPOS, new IntPtr(bytePos));
+            DirectMessage(SCI_SETCURRENTPOS, new IntPtr(bytePos));
         }
     }
 
@@ -4320,7 +4324,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_DISTANCETOSECONDARYSTYLES).ToInt32();
+            return DirectMessage(SCI_DISTANCETOSECONDARYSTYLES).ToInt32();
         }
     }
 
@@ -4339,7 +4343,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var ptr = DirectMessage(NativeMethods.SCI_GETDOCPOINTER);
+            var ptr = DirectMessage(SCI_GETDOCPOINTER);
             return new Document { Value = ptr };
         }
         set
@@ -4350,7 +4354,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             var indentWidth = IndentWidth;
 
             var ptr = value.Value;
-            DirectMessage(NativeMethods.SCI_SETDOCPOINTER, IntPtr.Zero, ptr);
+            DirectMessage(SCI_SETDOCPOINTER, IntPtr.Zero, ptr);
 
             // Carry over properties to new document
             InitDocument(eolMode, useTabs, tabWidth, indentWidth);
@@ -4372,13 +4376,13 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var color = DirectMessage(NativeMethods.SCI_GETEDGECOLOUR).ToInt32();
+            var color = DirectMessage(SCI_GETEDGECOLOUR).ToInt32();
             return ColorTranslator.FromWin32(color);
         }
         set
         {
             var color = ColorTranslator.ToWin32(value);
-            DirectMessage(NativeMethods.SCI_SETEDGECOLOUR, new IntPtr(color));
+            DirectMessage(SCI_SETEDGECOLOUR, new IntPtr(color));
         }
     }
 
@@ -4397,12 +4401,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETEDGECOLUMN).ToInt32();
+            return DirectMessage(SCI_GETEDGECOLUMN).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETEDGECOLUMN, new IntPtr(value));
+            DirectMessage(SCI_SETEDGECOLUMN, new IntPtr(value));
         }
     }
 
@@ -4420,12 +4424,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (EdgeMode)DirectMessage(NativeMethods.SCI_GETEDGEMODE);
+            return (EdgeMode)DirectMessage(SCI_GETEDGEMODE);
         }
         set
         {
             var edgeMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETEDGEMODE, new IntPtr(edgeMode));
+            DirectMessage(SCI_SETEDGEMODE, new IntPtr(edgeMode));
         }
     }
 
@@ -4434,7 +4438,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         get
         {
             // Should always be UTF-8 unless someone has done an end run around us
-            int codePage = (int)DirectMessage(NativeMethods.SCI_GETCODEPAGE);
+            int codePage = (int)DirectMessage(SCI_GETCODEPAGE);
             return (codePage == 0 ? Encoding.Default : Encoding.GetEncoding(codePage));
         }
     }
@@ -4450,12 +4454,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETENDATLASTLINE) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETENDATLASTLINE) != IntPtr.Zero);
         }
         set
         {
             var endAtLastLine = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETENDATLASTLINE, endAtLastLine);
+            DirectMessage(SCI_SETENDATLASTLINE, endAtLastLine);
         }
     }
 
@@ -4471,12 +4475,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Eol)DirectMessage(NativeMethods.SCI_GETEOLMODE);
+            return (Eol)DirectMessage(SCI_GETEOLMODE);
         }
         set
         {
             var eolMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETEOLMODE, new IntPtr(eolMode));
+            DirectMessage(SCI_SETEOLMODE, new IntPtr(eolMode));
         }
     }
 
@@ -4491,11 +4495,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETEXTRAASCENT).ToInt32();
+            return DirectMessage(SCI_GETEXTRAASCENT).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETEXTRAASCENT, new IntPtr(value));
+            DirectMessage(SCI_SETEXTRAASCENT, new IntPtr(value));
         }
     }
 
@@ -4510,11 +4514,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETEXTRADESCENT).ToInt32();
+            return DirectMessage(SCI_GETEXTRADESCENT).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETEXTRADESCENT, new IntPtr(value));
+            DirectMessage(SCI_SETEXTRADESCENT, new IntPtr(value));
         }
     }
 
@@ -4529,12 +4533,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETFIRSTVISIBLELINE).ToInt32();
+            return DirectMessage(SCI_GETFIRSTVISIBLELINE).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETFIRSTVISIBLELINE, new IntPtr(value));
+            DirectMessage(SCI_SETFIRSTVISIBLELINE, new IntPtr(value));
         }
     }
 
@@ -4596,12 +4600,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (FontQuality)DirectMessage(NativeMethods.SCI_GETFONTQUALITY);
+            return (FontQuality)DirectMessage(SCI_GETFONTQUALITY);
         }
         set
         {
             var fontQuality = (int)value;
-            DirectMessage(NativeMethods.SCI_SETFONTQUALITY, new IntPtr(fontQuality));
+            DirectMessage(SCI_SETFONTQUALITY, new IntPtr(fontQuality));
         }
     }
 
@@ -4633,12 +4637,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETHIGHLIGHTGUIDE).ToInt32();
+            return DirectMessage(SCI_GETHIGHLIGHTGUIDE).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETHIGHLIGHTGUIDE, new IntPtr(value));
+            DirectMessage(SCI_SETHIGHLIGHTGUIDE, new IntPtr(value));
         }
     }
 
@@ -4653,12 +4657,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETHSCROLLBAR) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETHSCROLLBAR) != IntPtr.Zero);
         }
         set
         {
             var visible = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETHSCROLLBAR, visible);
+            DirectMessage(SCI_SETHSCROLLBAR, visible);
         }
     }
 
@@ -4676,12 +4680,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (IdleStyling)DirectMessage(NativeMethods.SCI_GETIDLESTYLING);
+            return (IdleStyling)DirectMessage(SCI_GETIDLESTYLING);
         }
         set
         {
             var idleStyling = (int)value;
-            DirectMessage(NativeMethods.SCI_SETIDLESTYLING, new IntPtr(idleStyling));
+            DirectMessage(SCI_SETIDLESTYLING, new IntPtr(idleStyling));
         }
     }
 
@@ -4697,12 +4701,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETINDENT).ToInt32();
+            return DirectMessage(SCI_GETINDENT).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETINDENT, new IntPtr(value));
+            DirectMessage(SCI_SETINDENT, new IntPtr(value));
         }
     }
 
@@ -4718,12 +4722,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (IndentView)DirectMessage(NativeMethods.SCI_GETINDENTATIONGUIDES);
+            return (IndentView)DirectMessage(SCI_GETINDENTATIONGUIDES);
         }
         set
         {
             var indentView = (int)value;
-            DirectMessage(NativeMethods.SCI_SETINDENTATIONGUIDES, new IntPtr(indentView));
+            DirectMessage(SCI_SETINDENTATIONGUIDES, new IntPtr(indentView));
         }
     }
 
@@ -4737,12 +4741,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETINDICATORCURRENT).ToInt32();
+            return DirectMessage(SCI_GETINDICATORCURRENT).ToInt32();
         }
         set
         {
             value = Helpers.Clamp(value, 0, Indicators.Count - 1);
-            DirectMessage(NativeMethods.SCI_SETINDICATORCURRENT, new IntPtr(value));
+            DirectMessage(SCI_SETINDICATORCURRENT, new IntPtr(value));
         }
     }
 
@@ -4764,11 +4768,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETINDICATORVALUE).ToInt32();
+            return DirectMessage(SCI_GETINDICATORVALUE).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETINDICATORVALUE, new IntPtr(value));
+            DirectMessage(SCI_SETINDICATORVALUE, new IntPtr(value));
         }
     }
 
@@ -4782,12 +4786,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETFOCUS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETFOCUS) != IntPtr.Zero);
         }
         set
         {
             var focus = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETFOCUS, focus);
+            DirectMessage(SCI_SETFOCUS, focus);
         }
     }
 
@@ -4818,9 +4822,9 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
                 throw new InvalidOperationException(@$"Lexer with the name of '{value}' was not found.");
             }
 #elif SCINTILLA4
-                if (NativeMethods.NameConstantMap.ContainsValue(value))
+                if (NameConstantMap.ContainsValue(value))
                 {
-                    Lexer = (ScintillaNET.Lexer) NativeMethods.NameConstantMap.First(f => f.Value == value)
+                    Lexer = (ScintillaNET.Lexer) NameConstantMap.First(f => f.Value == value)
                         .Key;
                 }
 #endif
@@ -4852,9 +4856,9 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             }
 
 
-            if (NativeMethods.NameConstantMap.ContainsValue(lexerName))
+            if (NameConstantMap.ContainsValue(lexerName))
             {
-                return (Lexer) NativeMethods.NameConstantMap.First(f => f.Value == lexerName).Key;
+                return (Lexer) NameConstantMap.First(f => f.Value == lexerName).Key;
             }
 
             return Lexer.NotFound;
@@ -4868,9 +4872,9 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
 
             var lexer = (int)value;
 
-            if (NativeMethods.NameConstantMap.ContainsKey(lexer))
+            if (NameConstantMap.ContainsKey(lexer))
             {
-                lexerName = NativeMethods.NameConstantMap.First(f => f.Key == lexer).Value;
+                lexerName = NameConstantMap.First(f => f.Key == lexer).Value;
 
                 if (string.IsNullOrEmpty(lexerName))
                 {
@@ -4898,12 +4902,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             get
             {
-                return (Lexer)DirectMessage(NativeMethods.SCI_GETLEXER);
+                return (Lexer)DirectMessage(SCI_GETLEXER);
             }
             set
             {
                 var lexer = (int)value;
-                DirectMessage(NativeMethods.SCI_SETLEXER, new IntPtr(lexer));
+                DirectMessage(SCI_SETLEXER, new IntPtr(lexer));
             }
         }
 #endif
@@ -4919,14 +4923,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var length = DirectMessage(NativeMethods.SCI_GETLEXERLANGUAGE).ToInt32();
+            var length = DirectMessage(SCI_GETLEXERLANGUAGE).ToInt32();
             if (length == 0)
                 return string.Empty;
 
             var bytes = new byte[length + 1];
             fixed (byte* bp = bytes)
             {
-                DirectMessage(NativeMethods.SCI_GETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
+                DirectMessage(SCI_GETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
                 return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
             }
         }
@@ -4934,13 +4938,13 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             if (string.IsNullOrEmpty(value))
             {
-                DirectMessage(NativeMethods.SCI_SETLEXERLANGUAGE, IntPtr.Zero, IntPtr.Zero);
+                DirectMessage(SCI_SETLEXERLANGUAGE, IntPtr.Zero, IntPtr.Zero);
             }
             else
             {
                 var bytes = Helpers.GetBytes(value, Encoding.ASCII, zeroTerminated: true);
                 fixed (byte* bp = bytes)
-                    DirectMessage(NativeMethods.SCI_SETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
+                    DirectMessage(SCI_SETLEXERLANGUAGE, IntPtr.Zero, new IntPtr(bp));
             }
         }
     }
@@ -4956,7 +4960,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE);
+            return (LineEndType)DirectMessage(SCI_GETLINEENDTYPESACTIVE);
         }
     }
 
@@ -4976,12 +4980,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESALLOWED);
+            return (LineEndType)DirectMessage(SCI_GETLINEENDTYPESALLOWED);
         }
         set
         {
             var lineEndBitsSet = (int)value;
-            DirectMessage(NativeMethods.SCI_SETLINEENDTYPESALLOWED, new IntPtr(lineEndBitsSet));
+            DirectMessage(SCI_SETLINEENDTYPESALLOWED, new IntPtr(lineEndBitsSet));
         }
     }
 
@@ -4995,7 +4999,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (LineEndType)DirectMessage(NativeMethods.SCI_GETLINEENDTYPESSUPPORTED);
+            return (LineEndType)DirectMessage(SCI_GETLINEENDTYPESSUPPORTED);
         }
     }
 
@@ -5020,7 +5024,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_LINESONSCREEN).ToInt32();
+            return DirectMessage(SCI_LINESONSCREEN).ToInt32();
         }
     }
 
@@ -5034,12 +5038,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
+            return DirectMessage(SCI_GETMAINSELECTION).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETMAINSELECTION, new IntPtr(value));
+            DirectMessage(SCI_SETMAINSELECTION, new IntPtr(value));
         }
     }
 
@@ -5072,7 +5076,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETMODIFY) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETMODIFY) != IntPtr.Zero);
         }
     }
 
@@ -5090,12 +5094,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETMOUSEDWELLTIME).ToInt32();
+            return DirectMessage(SCI_GETMOUSEDWELLTIME).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETMOUSEDWELLTIME, new IntPtr(value));
+            DirectMessage(SCI_SETMOUSEDWELLTIME, new IntPtr(value));
         }
     }
 
@@ -5113,12 +5117,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETMOUSESELECTIONRECTANGULARSWITCH) != IntPtr.Zero;
+            return DirectMessage(SCI_GETMOUSESELECTIONRECTANGULARSWITCH) != IntPtr.Zero;
         }
         set
         {
             var mouseSelectionRectangularSwitch = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETMOUSESELECTIONRECTANGULARSWITCH, mouseSelectionRectangularSwitch);
+            DirectMessage(SCI_SETMOUSESELECTIONRECTANGULARSWITCH, mouseSelectionRectangularSwitch);
         }
     }
 
@@ -5141,12 +5145,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETMOUSEWHEELCAPTURES) != IntPtr.Zero;
+            return DirectMessage(SCI_GETMOUSEWHEELCAPTURES) != IntPtr.Zero;
         }
         set
         {
             var mouseWheelCaptures = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETMOUSEWHEELCAPTURES, mouseWheelCaptures);
+            DirectMessage(SCI_SETMOUSEWHEELCAPTURES, mouseWheelCaptures);
         }
     }
     */
@@ -5165,12 +5169,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETMULTIPLESELECTION) != IntPtr.Zero;
+            return DirectMessage(SCI_GETMULTIPLESELECTION) != IntPtr.Zero;
         }
         set
         {
             var multipleSelection = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETMULTIPLESELECTION, multipleSelection);
+            DirectMessage(SCI_SETMULTIPLESELECTION, multipleSelection);
         }
     }
 
@@ -5185,12 +5189,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (MultiPaste)DirectMessage(NativeMethods.SCI_GETMULTIPASTE);
+            return (MultiPaste)DirectMessage(SCI_GETMULTIPASTE);
         }
         set
         {
             var multiPaste = (int)value;
-            DirectMessage(NativeMethods.SCI_SETMULTIPASTE, new IntPtr(multiPaste));
+            DirectMessage(SCI_SETMULTIPASTE, new IntPtr(multiPaste));
         }
     }
 
@@ -5205,12 +5209,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETOVERTYPE) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETOVERTYPE) != IntPtr.Zero);
         }
         set
         {
             var overtype = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETOVERTYPE, overtype);
+            DirectMessage(SCI_SETOVERTYPE, overtype);
         }
     }
 
@@ -5242,12 +5246,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETPASTECONVERTENDINGS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETPASTECONVERTENDINGS) != IntPtr.Zero);
         }
         set
         {
             var convert = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETPASTECONVERTENDINGS, convert);
+            DirectMessage(SCI_SETPASTECONVERTENDINGS, convert);
         }
     }
 
@@ -5262,12 +5266,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Phases)DirectMessage(NativeMethods.SCI_GETPHASESDRAW);
+            return (Phases)DirectMessage(SCI_GETPHASESDRAW);
         }
         set
         {
             var phases = (int)value;
-            DirectMessage(NativeMethods.SCI_SETPHASESDRAW, new IntPtr(phases));
+            DirectMessage(SCI_SETPHASESDRAW, new IntPtr(phases));
         }
     }
 
@@ -5283,12 +5287,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETREADONLY) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETREADONLY) != IntPtr.Zero);
         }
         set
         {
             var readOnly = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETREADONLY, readOnly);
+            DirectMessage(SCI_SETREADONLY, readOnly);
         }
     }
 
@@ -5302,7 +5306,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONANCHOR).ToInt32();
+            var pos = DirectMessage(SCI_GETRECTANGULARSELECTIONANCHOR).ToInt32();
             if (pos <= 0)
                 return pos;
 
@@ -5312,7 +5316,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONANCHOR, new IntPtr(value));
+            DirectMessage(SCI_SETRECTANGULARSELECTIONANCHOR, new IntPtr(value));
         }
     }
 
@@ -5326,12 +5330,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE).ToInt32();
+            return DirectMessage(SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE, new IntPtr(value));
+            DirectMessage(SCI_SETRECTANGULARSELECTIONANCHORVIRTUALSPACE, new IntPtr(value));
         }
     }
 
@@ -5345,7 +5349,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONCARET).ToInt32();
+            var pos = DirectMessage(SCI_GETRECTANGULARSELECTIONCARET).ToInt32();
             if (pos <= 0)
                 return 0;
 
@@ -5355,7 +5359,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONCARET, new IntPtr(value));
+            DirectMessage(SCI_SETRECTANGULARSELECTIONCARET, new IntPtr(value));
         }
     }
 
@@ -5369,12 +5373,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE).ToInt32();
+            return DirectMessage(SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE, new IntPtr(value));
+            DirectMessage(SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE, new IntPtr(value));
         }
     }
 
@@ -5393,7 +5397,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             {
                 // Get a pointer to the native Scintilla object (i.e. C++ 'this') to use with the
                 // direct function. This will happen for each Scintilla control instance.
-                sciPtr = NativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.SCI_GETDIRECTPOINTER, IntPtr.Zero, IntPtr.Zero);
+                sciPtr = NativeMethods.SendMessage(new HandleRef(this, Handle), SCI_GETDIRECTPOINTER, IntPtr.Zero, IntPtr.Zero);
             }
 
             return sciPtr;
@@ -5412,11 +5416,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETSCROLLWIDTH).ToInt32();
+            return DirectMessage(SCI_GETSCROLLWIDTH).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETSCROLLWIDTH, new IntPtr(value));
+            DirectMessage(SCI_SETSCROLLWIDTH, new IntPtr(value));
         }
     }
 
@@ -5434,12 +5438,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETSCROLLWIDTHTRACKING) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETSCROLLWIDTHTRACKING) != IntPtr.Zero);
         }
         set
         {
             var tracking = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETSCROLLWIDTHTRACKING, tracking);
+            DirectMessage(SCI_SETSCROLLWIDTHTRACKING, tracking);
         }
     }
 
@@ -5454,12 +5458,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (SearchFlags)DirectMessage(NativeMethods.SCI_GETSEARCHFLAGS).ToInt32();
+            return (SearchFlags)DirectMessage(SCI_GETSEARCHFLAGS).ToInt32();
         }
         set
         {
             var searchFlags = (int)value;
-            DirectMessage(NativeMethods.SCI_SETSEARCHFLAGS, new IntPtr(searchFlags));
+            DirectMessage(SCI_SETSEARCHFLAGS, new IntPtr(searchFlags));
         }
     }
 
@@ -5475,9 +5479,9 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             // NOTE: For some reason the length returned by this API includes the terminating NULL
 #if SCINTILLA5
-            var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32();
+            var length = DirectMessage(SCI_GETSELTEXT).ToInt32();
 #else
-                var length = DirectMessage(NativeMethods.SCI_GETSELTEXT).ToInt32() - 1;
+                var length = DirectMessage(SCI_GETSELTEXT).ToInt32() - 1;
 #endif
             if (length <= 0)
                 return string.Empty;
@@ -5485,7 +5489,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             var bytes = new byte[length + 1];
             fixed (byte* bp = bytes)
             {
-                DirectMessage(NativeMethods.SCI_GETSELTEXT, IntPtr.Zero, new IntPtr(bp));
+                DirectMessage(SCI_GETSELTEXT, IntPtr.Zero, new IntPtr(bp));
                 return Helpers.GetString(new IntPtr(bp), length, Encoding);
             }
         }
@@ -5507,14 +5511,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_GETSELECTIONEND).ToInt32();
+            var pos = DirectMessage(SCI_GETSELECTIONEND).ToInt32();
             return Lines.ByteToCharPosition(pos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETSELECTIONEND, new IntPtr(value));
+            DirectMessage(SCI_SETSELECTIONEND, new IntPtr(value));
         }
     }
 
@@ -5529,12 +5533,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETSELEOLFILLED) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETSELEOLFILLED) != IntPtr.Zero);
         }
         set
         {
             var eolFilled = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETSELEOLFILLED, eolFilled);
+            DirectMessage(SCI_SETSELEOLFILLED, eolFilled);
         }
     }
 
@@ -5562,14 +5566,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var pos = DirectMessage(NativeMethods.SCI_GETSELECTIONSTART).ToInt32();
+            var pos = DirectMessage(SCI_GETSELECTIONSTART).ToInt32();
             return Lines.ByteToCharPosition(pos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETSELECTIONSTART, new IntPtr(value));
+            DirectMessage(SCI_SETSELECTIONSTART, new IntPtr(value));
         }
     }
 
@@ -5587,12 +5591,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Status)DirectMessage(NativeMethods.SCI_GETSTATUS);
+            return (Status)DirectMessage(SCI_GETSTATUS);
         }
         set
         {
             var status = (int)value;
-            DirectMessage(NativeMethods.SCI_SETSTATUS, new IntPtr(status));
+            DirectMessage(SCI_SETSTATUS, new IntPtr(status));
         }
     }
 
@@ -5619,12 +5623,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (TabDrawMode)DirectMessage(NativeMethods.SCI_GETTABDRAWMODE);
+            return (TabDrawMode)DirectMessage(SCI_GETTABDRAWMODE);
         }
         set
         {
             var tabDrawMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETTABDRAWMODE, new IntPtr(tabDrawMode));
+            DirectMessage(SCI_SETTABDRAWMODE, new IntPtr(tabDrawMode));
         }
     }
 
@@ -5639,12 +5643,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETTABINDENTS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETTABINDENTS) != IntPtr.Zero);
         }
         set
         {
             var ptr = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETTABINDENTS, ptr);
+            DirectMessage(SCI_SETTABINDENTS, ptr);
         }
     }
 
@@ -5659,11 +5663,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+            return DirectMessage(SCI_GETTABWIDTH).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETTABWIDTH, new IntPtr(value));
+            DirectMessage(SCI_SETTABWIDTH, new IntPtr(value));
         }
     }
 
@@ -5681,14 +5685,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         get
         {
             // The position can become stale and point to a place outside of the document so we must clamp it
-            var bytePos = Helpers.Clamp(DirectMessage(NativeMethods.SCI_GETTARGETEND).ToInt32(), 0, DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32());
+            var bytePos = Helpers.Clamp(DirectMessage(SCI_GETTARGETEND).ToInt32(), 0, DirectMessage(SCI_GETTEXTLENGTH).ToInt32());
             return Lines.ByteToCharPosition(bytePos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETTARGETEND, new IntPtr(value));
+            DirectMessage(SCI_SETTARGETEND, new IntPtr(value));
         }
     }
 
@@ -5706,14 +5710,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         get
         {
             // The position can become stale and point to a place outside of the document so we must clamp it
-            var bytePos = Helpers.Clamp(DirectMessage(NativeMethods.SCI_GETTARGETSTART).ToInt32(), 0, DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32());
+            var bytePos = Helpers.Clamp(DirectMessage(SCI_GETTARGETSTART).ToInt32(), 0, DirectMessage(SCI_GETTEXTLENGTH).ToInt32());
             return Lines.ByteToCharPosition(bytePos);
         }
         set
         {
             value = Helpers.Clamp(value, 0, TextLength);
             value = Lines.CharToBytePosition(value);
-            DirectMessage(NativeMethods.SCI_SETTARGETSTART, new IntPtr(value));
+            DirectMessage(SCI_SETTARGETSTART, new IntPtr(value));
         }
     }
 
@@ -5730,14 +5734,14 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var length = DirectMessage(NativeMethods.SCI_GETTARGETTEXT).ToInt32();
+            var length = DirectMessage(SCI_GETTARGETTEXT).ToInt32();
             if (length == 0)
                 return string.Empty;
 
             var bytes = new byte[length + 1];
             fixed (byte* bp = bytes)
             {
-                DirectMessage(NativeMethods.SCI_GETTARGETTEXT, IntPtr.Zero, new IntPtr(bp));
+                DirectMessage(SCI_GETTARGETTEXT, IntPtr.Zero, new IntPtr(bp));
                 return Helpers.GetString(new IntPtr(bp), length, Encoding);
             }
         }
@@ -5757,12 +5761,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (Technology)DirectMessage(NativeMethods.SCI_GETTECHNOLOGY);
+            return (Technology)DirectMessage(SCI_GETTECHNOLOGY);
         }
         set
         {
             var technology = (int)value;
-            DirectMessage(NativeMethods.SCI_SETTECHNOLOGY, new IntPtr(technology));
+            DirectMessage(SCI_SETTECHNOLOGY, new IntPtr(technology));
         }
     }
 
@@ -5778,8 +5782,8 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var length = DirectMessage(NativeMethods.SCI_GETTEXTLENGTH).ToInt32();
-            var ptr = DirectMessage(NativeMethods.SCI_GETRANGEPOINTER, new IntPtr(0), new IntPtr(length));
+            var length = DirectMessage(SCI_GETTEXTLENGTH).ToInt32();
+            var ptr = DirectMessage(SCI_GETRANGEPOINTER, new IntPtr(0), new IntPtr(length));
             if (ptr == IntPtr.Zero)
             {
                 return string.Empty;
@@ -5797,28 +5801,28 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             // Allow Text property change in read-only mode when the designer is active.
             if (previousReadOnly && DesignMode)
             {
-                DirectMessage(NativeMethods.SCI_SETREADONLY, IntPtr.Zero);
+                DirectMessage(SCI_SETREADONLY, IntPtr.Zero);
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                DirectMessage(NativeMethods.SCI_CLEARALL);
+                DirectMessage(SCI_CLEARALL);
             }
             else if (value.Contains("\0"))
             {
-                DirectMessage(NativeMethods.SCI_CLEARALL);
+                DirectMessage(SCI_CLEARALL);
                 AppendText(value);
             }
             else
             {
                 fixed (byte* bp = Helpers.GetBytes(value, Encoding, zeroTerminated: true)) 
-                    DirectMessage(NativeMethods.SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
+                    DirectMessage(SCI_SETTEXT, IntPtr.Zero, new IntPtr(bp));
             }
 
             // Allow Text property change in read-only mode when the designer is active.
             if (previousReadOnly && DesignMode)
             {
-                DirectMessage(NativeMethods.SCI_SETREADONLY, new IntPtr(1));
+                DirectMessage(SCI_SETREADONLY, new IntPtr(1));
             }
         }
     }
@@ -5842,12 +5846,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETUSETABS) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETUSETABS) != IntPtr.Zero);
         }
         set
         {
             var useTabs = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETUSETABS, useTabs);
+            DirectMessage(SCI_SETUSETABS, useTabs);
         }
     }
 
@@ -5864,8 +5868,8 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         set
         {
             base.UseWaitCursor = value;
-            var cursor = (value ? NativeMethods.SC_CURSORWAIT : NativeMethods.SC_CURSORNORMAL);
-            DirectMessage(NativeMethods.SCI_SETCURSOR, new IntPtr(cursor));
+            var cursor = (value ? SC_CURSORWAIT : SC_CURSORNORMAL);
+            DirectMessage(SCI_SETCURSOR, new IntPtr(cursor));
         }
     }
 
@@ -5880,12 +5884,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETVIEWEOL) != IntPtr.Zero;
+            return DirectMessage(SCI_GETVIEWEOL) != IntPtr.Zero;
         }
         set
         {
             var visible = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETVIEWEOL, visible);
+            DirectMessage(SCI_SETVIEWEOL, visible);
         }
     }
 
@@ -5902,12 +5906,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (WhitespaceMode)DirectMessage(NativeMethods.SCI_GETVIEWWS);
+            return (WhitespaceMode)DirectMessage(SCI_GETVIEWWS);
         }
         set
         {
             var wsMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETVIEWWS, new IntPtr(wsMode));
+            DirectMessage(SCI_SETVIEWWS, new IntPtr(wsMode));
         }
     }
 
@@ -5926,12 +5930,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (VirtualSpace)DirectMessage(NativeMethods.SCI_GETVIRTUALSPACEOPTIONS);
+            return (VirtualSpace)DirectMessage(SCI_GETVIRTUALSPACEOPTIONS);
         }
         set
         {
             var virtualSpace = (int)value;
-            DirectMessage(NativeMethods.SCI_SETVIRTUALSPACEOPTIONS, new IntPtr(virtualSpace));
+            DirectMessage(SCI_SETVIRTUALSPACEOPTIONS, new IntPtr(virtualSpace));
         }
     }
 
@@ -5946,12 +5950,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (DirectMessage(NativeMethods.SCI_GETVSCROLLBAR) != IntPtr.Zero);
+            return (DirectMessage(SCI_GETVSCROLLBAR) != IntPtr.Zero);
         }
         set
         {
             var visible = (value ? new IntPtr(1) : IntPtr.Zero);
-            DirectMessage(NativeMethods.SCI_SETVSCROLLBAR, visible);
+            DirectMessage(SCI_SETVSCROLLBAR, visible);
         }
     }
 
@@ -5992,11 +5996,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETWHITESPACESIZE).ToInt32();
+            return DirectMessage(SCI_GETWHITESPACESIZE).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETWHITESPACESIZE, new IntPtr(value));
+            DirectMessage(SCI_SETWHITESPACESIZE, new IntPtr(value));
         }
     }
 
@@ -6010,11 +6014,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            var length = DirectMessage(NativeMethods.SCI_GETWORDCHARS, IntPtr.Zero, IntPtr.Zero).ToInt32();
+            var length = DirectMessage(SCI_GETWORDCHARS, IntPtr.Zero, IntPtr.Zero).ToInt32();
             var bytes = new byte[length + 1];
             fixed (byte* bp = bytes)
             {
-                DirectMessage(NativeMethods.SCI_GETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
+                DirectMessage(SCI_GETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
                 return Helpers.GetString(new IntPtr(bp), length, Encoding.ASCII);
             }
         }
@@ -6022,7 +6026,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         {
             if (value == null)
             {
-                DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, IntPtr.Zero);
+                DirectMessage(SCI_SETWORDCHARS, IntPtr.Zero, IntPtr.Zero);
                 return;
             }
 
@@ -6030,7 +6034,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
             // uses as a lookup for word matching logic. Thus, any multibyte chars wouldn't work.
             var bytes = Helpers.GetBytes(value, Encoding.ASCII, zeroTerminated: true);
             fixed (byte* bp = bytes)
-                DirectMessage(NativeMethods.SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
+                DirectMessage(SCI_SETWORDCHARS, IntPtr.Zero, new IntPtr(bp));
         }
     }
 
@@ -6048,12 +6052,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (WrapIndentMode)DirectMessage(NativeMethods.SCI_GETWRAPINDENTMODE);
+            return (WrapIndentMode)DirectMessage(SCI_GETWRAPINDENTMODE);
         }
         set
         {
             var wrapIndentMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETWRAPINDENTMODE, new IntPtr(wrapIndentMode));
+            DirectMessage(SCI_SETWRAPINDENTMODE, new IntPtr(wrapIndentMode));
         }
     }
 
@@ -6071,12 +6075,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (WrapMode)DirectMessage(NativeMethods.SCI_GETWRAPMODE);
+            return (WrapMode)DirectMessage(SCI_GETWRAPMODE);
         }
         set
         {
             var wrapMode = (int)value;
-            DirectMessage(NativeMethods.SCI_SETWRAPMODE, new IntPtr(wrapMode));
+            DirectMessage(SCI_SETWRAPMODE, new IntPtr(wrapMode));
         }
     }
 
@@ -6095,12 +6099,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETWRAPSTARTINDENT).ToInt32();
+            return DirectMessage(SCI_GETWRAPSTARTINDENT).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETWRAPSTARTINDENT, new IntPtr(value));
+            DirectMessage(SCI_SETWRAPSTARTINDENT, new IntPtr(value));
         }
     }
 
@@ -6119,12 +6123,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (WrapVisualFlags)DirectMessage(NativeMethods.SCI_GETWRAPVISUALFLAGS);
+            return (WrapVisualFlags)DirectMessage(SCI_GETWRAPVISUALFLAGS);
         }
         set
         {
             int wrapVisualFlags = (int)value;
-            DirectMessage(NativeMethods.SCI_SETWRAPVISUALFLAGS, new IntPtr(wrapVisualFlags));
+            DirectMessage(SCI_SETWRAPVISUALFLAGS, new IntPtr(wrapVisualFlags));
         }
     }
 
@@ -6142,12 +6146,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return (WrapVisualFlagLocation)DirectMessage(NativeMethods.SCI_GETWRAPVISUALFLAGSLOCATION);
+            return (WrapVisualFlagLocation)DirectMessage(SCI_GETWRAPVISUALFLAGSLOCATION);
         }
         set
         {
             var location = (int)value;
-            DirectMessage(NativeMethods.SCI_SETWRAPVISUALFLAGSLOCATION, new IntPtr(location));
+            DirectMessage(SCI_SETWRAPVISUALFLAGSLOCATION, new IntPtr(location));
         }
     }
 
@@ -6161,12 +6165,12 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETXOFFSET).ToInt32();
+            return DirectMessage(SCI_GETXOFFSET).ToInt32();
         }
         set
         {
             value = Helpers.ClampMin(value, 0);
-            DirectMessage(NativeMethods.SCI_SETXOFFSET, new IntPtr(value));
+            DirectMessage(SCI_SETXOFFSET, new IntPtr(value));
         }
     }
 
@@ -6184,11 +6188,11 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     {
         get
         {
-            return DirectMessage(NativeMethods.SCI_GETZOOM).ToInt32();
+            return DirectMessage(SCI_GETZOOM).ToInt32();
         }
         set
         {
-            DirectMessage(NativeMethods.SCI_SETZOOM, new IntPtr(value));
+            DirectMessage(SCI_SETZOOM, new IntPtr(value));
         }
     }
 

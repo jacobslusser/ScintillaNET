@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// Lexer property types.
@@ -8,15 +10,15 @@ public enum PropertyType
     /// <summary>
     /// A Boolean property. This is the default.
     /// </summary>
-    Boolean = NativeMethods.SC_TYPE_BOOLEAN,
+    Boolean = ScintillaConstants.SC_TYPE_BOOLEAN,
 
     /// <summary>
     /// An integer property.
     /// </summary>
-    Integer = NativeMethods.SC_TYPE_INTEGER,
+    Integer = ScintillaConstants.SC_TYPE_INTEGER,
 
     /// <summary>
     /// A string property.
     /// </summary>
-    String = NativeMethods.SC_TYPE_STRING
+    String = ScintillaConstants.SC_TYPE_STRING
 }

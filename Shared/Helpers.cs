@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using static Scintilla.NET.Abstractions.ScintillaConstants;
+using static Scintilla.NET.Abstractions.ScintillaApiStructs;
 
 namespace ScintillaNET;
 
@@ -132,13 +134,13 @@ internal static class Helpers
             if (useSelection)
             {
                 if (allowLine)
-                    scintilla.DirectMessage(NativeMethods.SCI_COPYALLOWLINE);
+                    scintilla.DirectMessage(SCI_COPYALLOWLINE);
                 else
-                    scintilla.DirectMessage(NativeMethods.SCI_COPY);
+                    scintilla.DirectMessage(SCI_COPY);
             }
             else
             {
-                scintilla.DirectMessage(NativeMethods.SCI_COPYRANGE, new IntPtr(startBytePos), new IntPtr(endBytePos));
+                scintilla.DirectMessage(SCI_COPYRANGE, new IntPtr(startBytePos), new IntPtr(endBytePos));
             }
         }
 
@@ -146,7 +148,7 @@ internal static class Helpers
         if ((format & (CopyFormat.Rtf | CopyFormat.Html)) > 0)
         {
             // If we ever allow more than UTF-8, this will have to be revisited
-            Debug.Assert(scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8);
+            Debug.Assert(scintilla.DirectMessage(SCI_GETCODEPAGE).ToInt32() == SC_CP_UTF8);
 
             if (!registeredFormats)
             {
@@ -168,7 +170,7 @@ internal static class Helpers
 
             if (useSelection)
             {
-                var selIsEmpty = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
+                var selIsEmpty = scintilla.DirectMessage(SCI_GETSELECTIONEMPTY) != IntPtr.Zero;
                 if (selIsEmpty)
                 {
                     if (allowLine)
@@ -275,7 +277,7 @@ internal static class Helpers
                 tw.Write("div#segments {");
                 tw.Write(" float: left;");
                 tw.Write(" white-space: pre;");
-                tw.Write(" line-height: {0}px;", scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
+                tw.Write(" line-height: {0}px;", scintilla.DirectMessage(SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
                 tw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
                 tw.WriteLine(" }");
 
@@ -313,12 +315,12 @@ internal static class Helpers
                 tw.Write(@"<div id=""segments""><span class=""s{0}"">", Style.Default);
                 tw.Flush();
 
-                var tabSize = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+                var tabSize = scintilla.DirectMessage(SCI_GETTABWIDTH).ToInt32();
                 var tab = new string(' ', tabSize);
 
                 tw.AutoFlush = true;
                 var lastStyle = Style.Default;
-                var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
+                var unicodeLineEndings = ((scintilla.DirectMessage(SCI_GETLINEENDTYPESACTIVE).ToInt32() & SC_LINE_END_TYPE_UNICODE) > 0);
                 foreach (var seg in styledSegments)
                 {
                     var endOffset = seg.Offset + seg.Count;
@@ -483,7 +485,7 @@ internal static class Helpers
             using (var ms = new NativeMemoryStream(styledSegments.Sum(s => s.Count)))
             using (var tw = new StreamWriter(ms, Encoding.ASCII))
             {
-                var tabWidth = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+                var tabWidth = scintilla.DirectMessage(SCI_GETTABWIDTH).ToInt32();
                 var deftab = tabWidth * twips;
 
                 tw.WriteLine(@"{{\rtf1\ansi\deff0\deftab{0}", deftab);
@@ -561,7 +563,7 @@ internal static class Helpers
 
                 tw.AutoFlush = true;
                 var lastStyle = Style.Default;
-                var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
+                var unicodeLineEndings = ((scintilla.DirectMessage(SCI_GETLINEENDTYPESACTIVE).ToInt32() & SC_LINE_END_TYPE_UNICODE) > 0);
                 foreach (var seg in styledSegments)
                 {
                     var endOffset = seg.Offset + seg.Count;
@@ -772,7 +774,7 @@ internal static class Helpers
     public static string GetHtml(Scintilla scintilla, int startBytePos, int endBytePos)
     {
         // If we ever allow more than UTF-8, this will have to be revisited
-        Debug.Assert(scintilla.DirectMessage(NativeMethods.SCI_GETCODEPAGE).ToInt32() == NativeMethods.SC_CP_UTF8);
+        Debug.Assert(scintilla.DirectMessage(SCI_GETCODEPAGE).ToInt32() == SC_CP_UTF8);
 
         if (startBytePos == endBytePos)
             return string.Empty;
@@ -788,7 +790,7 @@ internal static class Helpers
             sw.Write("div#segments {");
             sw.Write(" float: left;");
             sw.Write(" white-space: pre;");
-            sw.Write(" line-height: {0}px;", scintilla.DirectMessage(NativeMethods.SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
+            sw.Write(" line-height: {0}px;", scintilla.DirectMessage(SCI_TEXTHEIGHT, new IntPtr(0)).ToInt32());
             sw.Write(" background-color: #{0:X2}{1:X2}{2:X2};", (styles[Style.Default].BackColor >> 0) & 0xFF, (styles[Style.Default].BackColor >> 8) & 0xFF, (styles[Style.Default].BackColor >> 16) & 0xFF);
             sw.WriteLine(" }");
 
@@ -825,8 +827,8 @@ internal static class Helpers
 
             sw.WriteLine("</style>");
 
-            var unicodeLineEndings = ((scintilla.DirectMessage(NativeMethods.SCI_GETLINEENDTYPESACTIVE).ToInt32() & NativeMethods.SC_LINE_END_TYPE_UNICODE) > 0);
-            var tabSize = scintilla.DirectMessage(NativeMethods.SCI_GETTABWIDTH).ToInt32();
+            var unicodeLineEndings = ((scintilla.DirectMessage(SCI_GETLINEENDTYPESACTIVE).ToInt32() & SC_LINE_END_TYPE_UNICODE) > 0);
+            var tabSize = scintilla.DirectMessage(SCI_GETTABWIDTH).ToInt32();
             var tab = new string(' ', tabSize);
             var lastStyle = Style.Default;
 
@@ -952,16 +954,16 @@ internal static class Helpers
             // Get each selection as a segment.
             // Rectangular selections are ordered top to bottom and have line breaks appended.
             var ranges = new List<Tuple<int, int>>();
-            var selCount = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONS).ToInt32();
+            var selCount = scintilla.DirectMessage(SCI_GETSELECTIONS).ToInt32();
             for (int i = 0; i < selCount; i++)
             {
-                var selStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNSTART, new IntPtr(i)).ToInt32();
-                var selEndBytePos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNEND, new IntPtr(i)).ToInt32();
+                var selStartBytePos = scintilla.DirectMessage(SCI_GETSELECTIONNSTART, new IntPtr(i)).ToInt32();
+                var selEndBytePos = scintilla.DirectMessage(SCI_GETSELECTIONNEND, new IntPtr(i)).ToInt32();
 
                 ranges.Add(Tuple.Create(selStartBytePos, selEndBytePos));
             }
 
-            var selIsRect = scintilla.DirectMessage(NativeMethods.SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
+            var selIsRect = scintilla.DirectMessage(SCI_SELECTIONISRECTANGLE) != IntPtr.Zero;
             if (selIsRect)
                 ranges.OrderBy(r => r.Item1); // Sort top to bottom
 
@@ -974,11 +976,11 @@ internal static class Helpers
         else if (currentLine)
         {
             // Get the current line
-            var mainSelection = scintilla.DirectMessage(NativeMethods.SCI_GETMAINSELECTION).ToInt32();
-            var mainCaretPos = scintilla.DirectMessage(NativeMethods.SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
-            var lineIndex = scintilla.DirectMessage(NativeMethods.SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
-            var lineStartBytePos = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
-            var lineLength = scintilla.DirectMessage(NativeMethods.SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+            var mainSelection = scintilla.DirectMessage(SCI_GETMAINSELECTION).ToInt32();
+            var mainCaretPos = scintilla.DirectMessage(SCI_GETSELECTIONNCARET, new IntPtr(mainSelection)).ToInt32();
+            var lineIndex = scintilla.DirectMessage(SCI_LINEFROMPOSITION, new IntPtr(mainCaretPos)).ToInt32();
+            var lineStartBytePos = scintilla.DirectMessage(SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
+            var lineLength = scintilla.DirectMessage(SCI_POSITIONFROMLINE, new IntPtr(lineIndex)).ToInt32();
 
             var styledText = GetStyledText(scintilla, lineStartBytePos, (lineStartBytePos + lineLength), false);
             segments.Add(styledText);
@@ -991,18 +993,18 @@ internal static class Helpers
         }
 
         // Build a list of (used) styles
-        styles = new StyleData[NativeMethods.STYLE_MAX + 1];
+        styles = new StyleData[STYLE_MAX + 1];
 
         styles[Style.Default].Used = true;
         styles[Style.Default].FontName = scintilla.Styles[Style.Default].Font;
         styles[Style.Default].SizeF = scintilla.Styles[Style.Default].SizeF;
-        styles[Style.Default].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
-        styles[Style.Default].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].Weight = scintilla.DirectMessage(SCI_STYLEGETWEIGHT, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].Italic = scintilla.DirectMessage(SCI_STYLEGETITALIC, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].Underline = scintilla.DirectMessage(SCI_STYLEGETUNDERLINE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].BackColor = scintilla.DirectMessage(SCI_STYLEGETBACK, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].ForeColor = scintilla.DirectMessage(SCI_STYLEGETFORE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].Case = scintilla.DirectMessage(SCI_STYLEGETCASE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
+        styles[Style.Default].Visible = scintilla.DirectMessage(SCI_STYLEGETVISIBLE, new IntPtr(Style.Default), IntPtr.Zero).ToInt32();
 
         foreach (var seg in segments)
         {
@@ -1014,13 +1016,13 @@ internal static class Helpers
                     styles[style].Used = true;
                     styles[style].FontName = scintilla.Styles[style].Font;
                     styles[style].SizeF = scintilla.Styles[style].SizeF;
-                    styles[style].Weight = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETWEIGHT, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Italic = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETITALIC, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Underline = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETUNDERLINE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].BackColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETBACK, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].ForeColor = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETFORE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Case = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETCASE, new IntPtr(style), IntPtr.Zero).ToInt32();
-                    styles[style].Visible = scintilla.DirectMessage(NativeMethods.SCI_STYLEGETVISIBLE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].Weight = scintilla.DirectMessage(SCI_STYLEGETWEIGHT, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].Italic = scintilla.DirectMessage(SCI_STYLEGETITALIC, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].Underline = scintilla.DirectMessage(SCI_STYLEGETUNDERLINE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].BackColor = scintilla.DirectMessage(SCI_STYLEGETBACK, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].ForeColor = scintilla.DirectMessage(SCI_STYLEGETFORE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].Case = scintilla.DirectMessage(SCI_STYLEGETCASE, new IntPtr(style), IntPtr.Zero).ToInt32();
+                    styles[style].Visible = scintilla.DirectMessage(SCI_STYLEGETVISIBLE, new IntPtr(style), IntPtr.Zero).ToInt32();
                 }
             }
         }
@@ -1033,18 +1035,18 @@ internal static class Helpers
         Debug.Assert(endBytePos > startBytePos);
 
         // Make sure the range is styled
-        scintilla.DirectMessage(NativeMethods.SCI_COLOURISE, new IntPtr(startBytePos), new IntPtr(endBytePos));
+        scintilla.DirectMessage(SCI_COLOURISE, new IntPtr(startBytePos), new IntPtr(endBytePos));
 
         var byteLength = (endBytePos - startBytePos);
         var buffer = new byte[(byteLength * 2) + (addLineBreak ? 4 : 0) + 2];
         fixed (byte* bp = buffer)
         {
-            NativeMethods.Sci_TextRange* tr = stackalloc NativeMethods.Sci_TextRange[1];
+            Sci_TextRange* tr = stackalloc Sci_TextRange[1];
             tr->chrg.cpMin = startBytePos;
             tr->chrg.cpMax = endBytePos;
             tr->lpstrText = new IntPtr(bp);
 
-            scintilla.DirectMessage(NativeMethods.SCI_GETSTYLEDTEXT, IntPtr.Zero, new IntPtr(tr));
+            scintilla.DirectMessage(SCI_GETSTYLEDTEXT, IntPtr.Zero, new IntPtr(tr));
             byteLength *= 2;
         }
 
@@ -1075,64 +1077,64 @@ internal static class Helpers
         switch (keys & Keys.KeyCode)
         {
             case Keys.Down:
-                keyCode = NativeMethods.SCK_DOWN;
+                keyCode = SCK_DOWN;
                 break;
             case Keys.Up:
-                keyCode = NativeMethods.SCK_UP;
+                keyCode = SCK_UP;
                 break;
             case Keys.Left:
-                keyCode = NativeMethods.SCK_LEFT;
+                keyCode = SCK_LEFT;
                 break;
             case Keys.Right:
-                keyCode = NativeMethods.SCK_RIGHT;
+                keyCode = SCK_RIGHT;
                 break;
             case Keys.Home:
-                keyCode = NativeMethods.SCK_HOME;
+                keyCode = SCK_HOME;
                 break;
             case Keys.End:
-                keyCode = NativeMethods.SCK_END;
+                keyCode = SCK_END;
                 break;
             case Keys.Prior:
-                keyCode = NativeMethods.SCK_PRIOR;
+                keyCode = SCK_PRIOR;
                 break;
             case Keys.Next:
-                keyCode = NativeMethods.SCK_NEXT;
+                keyCode = SCK_NEXT;
                 break;
             case Keys.Delete:
-                keyCode = NativeMethods.SCK_DELETE;
+                keyCode = SCK_DELETE;
                 break;
             case Keys.Insert:
-                keyCode = NativeMethods.SCK_INSERT;
+                keyCode = SCK_INSERT;
                 break;
             case Keys.Escape:
-                keyCode = NativeMethods.SCK_ESCAPE;
+                keyCode = SCK_ESCAPE;
                 break;
             case Keys.Back:
-                keyCode = NativeMethods.SCK_BACK;
+                keyCode = SCK_BACK;
                 break;
             case Keys.Tab:
-                keyCode = NativeMethods.SCK_TAB;
+                keyCode = SCK_TAB;
                 break;
             case Keys.Return:
-                keyCode = NativeMethods.SCK_RETURN;
+                keyCode = SCK_RETURN;
                 break;
             case Keys.Add:
-                keyCode = NativeMethods.SCK_ADD;
+                keyCode = SCK_ADD;
                 break;
             case Keys.Subtract:
-                keyCode = NativeMethods.SCK_SUBTRACT;
+                keyCode = SCK_SUBTRACT;
                 break;
             case Keys.Divide:
-                keyCode = NativeMethods.SCK_DIVIDE;
+                keyCode = SCK_DIVIDE;
                 break;
             case Keys.LWin:
-                keyCode = NativeMethods.SCK_WIN;
+                keyCode = SCK_WIN;
                 break;
             case Keys.RWin:
-                keyCode = NativeMethods.SCK_RWIN;
+                keyCode = SCK_RWIN;
                 break;
             case Keys.Apps:
-                keyCode = NativeMethods.SCK_MENU;
+                keyCode = SCK_MENU;
                 break;
             case Keys.Oem2:
                 keyCode = (byte)'/';

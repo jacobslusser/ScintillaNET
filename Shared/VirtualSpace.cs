@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -12,20 +13,20 @@ public enum VirtualSpace
     /// <summary>
     /// Virtual space is not enabled. This is the default.
     /// </summary>
-    None = NativeMethods.SCVS_NONE,
+    None = ScintillaConstants.SCVS_NONE,
 
     /// <summary>
     /// Virtual space is enabled for rectangular selections.
     /// </summary>
-    RectangularSelection = NativeMethods.SCVS_RECTANGULARSELECTION,
+    RectangularSelection = ScintillaConstants.SCVS_RECTANGULARSELECTION,
 
     /// <summary>
     /// Virtual space is user accessible.
     /// </summary>
-    UserAccessible = NativeMethods.SCVS_USERACCESSIBLE,
+    UserAccessible = ScintillaConstants.SCVS_USERACCESSIBLE,
 
     /// <summary>
     /// Prevents left arrow movement and selection from wrapping to the previous line.
     /// </summary>
-    NoWrapLineStart = NativeMethods.SCVS_NOWRAPLINESTART
+    NoWrapLineStart = ScintillaConstants.SCVS_NOWRAPLINESTART
 }

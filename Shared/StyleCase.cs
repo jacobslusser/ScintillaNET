@@ -1,4 +1,6 @@
-﻿namespace ScintillaNET;
+﻿using Scintilla.NET.Abstractions;
+
+namespace ScintillaNET;
 
 /// <summary>
 /// The possible casing styles of a style.
@@ -8,20 +10,20 @@ public enum StyleCase
     /// <summary>
     /// Display the text normally.
     /// </summary>
-    Mixed = NativeMethods.SC_CASE_MIXED,
+    Mixed = ScintillaConstants.SC_CASE_MIXED,
 
     /// <summary>
     /// Display the text in upper case.
     /// </summary>
-    Upper = NativeMethods.SC_CASE_UPPER,
+    Upper = ScintillaConstants.SC_CASE_UPPER,
 
     /// <summary>
     /// Display the text in lower case.
     /// </summary>
-    Lower = NativeMethods.SC_CASE_LOWER,
+    Lower = ScintillaConstants.SC_CASE_LOWER,
 
     /// <summary>
     /// Display the text in camel case.
     /// </summary>
-    Camel = NativeMethods.SC_CASE_CAMEL
+    Camel = ScintillaConstants.SC_CASE_CAMEL
 }
