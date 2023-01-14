@@ -6,21 +6,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-	<PropertyGroup>
-		<LangVersion>10</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
+  <PropertyGroup>
+	<LangVersion>10</LangVersion>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+	<Reference Include="System.Net.Http" />
+	<Reference Include="System.Threading.Tasks" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-		<Reference Include="System.Net.Http" />
-		<Reference Include="System.Threading.Tasks" />
-	</ItemGroup>
+  <PropertyGroup>
+	<DefineConstants>SCINTILLA5</DefineConstants>
+  </PropertyGroup>
 
-	<ItemGroup>
-	  <Folder Include="Enumerations\" />
-	</ItemGroup>
-
-	<PropertyGroup>
-		<DefineConstants>SCINTILLA5</DefineConstants>
-	</PropertyGroup>
+  <ItemGroup>
+	<Folder Include="Enumerations\" />
+  </ItemGroup>
 </Project>
