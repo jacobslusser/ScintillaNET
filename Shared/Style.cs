@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Text;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 
 namespace ScintillaNET;
 

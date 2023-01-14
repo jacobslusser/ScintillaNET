@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -131,8 +132,8 @@ public class Marker
     /// Gets or sets the marker symbol.
     /// </summary>
     /// <returns>
-    /// One of the <see cref="ScintillaNET.MarkerSymbol" /> enumeration values.
-    /// The default is <see cref="ScintillaNET.MarkerSymbol.Circle" />.
+    /// One of the <see cref="MarkerSymbol" /> enumeration values.
+    /// The default is <see cref="MarkerSymbol.Circle" />.
     /// </returns>
     public MarkerSymbol Symbol
     {

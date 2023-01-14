@@ -17,6 +17,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\Shared\FoldAction.cs" Link="FoldAction.cs" />
+	  <Folder Include="Enumerations\" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<DefineConstants>SCINTILLA5</DefineConstants>
+	</PropertyGroup>
 </Project>

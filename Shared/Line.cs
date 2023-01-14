@@ -1,5 +1,6 @@
 ﻿using Scintilla.NET.Abstractions;
 using System;
+using Scintilla.NET.Abstractions.Enumerations;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -142,7 +143,7 @@ public class Line
     /// <summary>
     /// Toggles the folding state of the line; expanding or contracting all child lines.
     /// </summary>
-    /// <remarks>The line must be set as a <see cref="ScintillaNET.FoldLevelFlags.Header" />.</remarks>
+    /// <remarks>The line must be set as a <see cref="Scintilla.NET.Abstractions.Enumerations.FoldLevelFlags.Header" />.</remarks>
     /// <seealso cref="ToggleFoldShowText"/>
     public void ToggleFold()
     {
@@ -395,7 +396,7 @@ public class Line
 
     /// <summary>
     /// Gets the zero-based line index of the first line before the current line that is marked as
-    /// <see cref="ScintillaNET.FoldLevelFlags.Header" /> and has a <see cref="FoldLevel" /> less than the current line.
+    /// <see cref="Scintilla.NET.Abstractions.Enumerations.FoldLevelFlags.Header" /> and has a <see cref="FoldLevel" /> less than the current line.
     /// </summary>
     /// <returns>The zero-based line index of the fold parent if present; otherwise, -1.</returns>
     public int FoldParent

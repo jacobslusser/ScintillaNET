@@ -1,5 +1,6 @@
 ﻿using System;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 
 namespace ScintillaNET;
 
@@ -18,14 +19,14 @@ public class AutoCSelectionEventArgs : EventArgs
     /// Gets the fillup character that caused the completion.
     /// </summary>
     /// <returns>The fillup character used to cause the completion; otherwise, 0.</returns>
-    /// <remarks>Only a <see cref="ListCompletionMethod" /> of <see cref="ScintillaNET.ListCompletionMethod.FillUp" /> will return a non-zero character.</remarks>
+    /// <remarks>Only a <see cref="ListCompletionMethod" /> of <see cref="Scintilla.NET.Abstractions.Enumerations.ListCompletionMethod.FillUp" /> will return a non-zero character.</remarks>
     /// <seealso cref="Scintilla.AutoCSetFillUps" />
     public int Char { get; private set; }
 
     /// <summary>
     /// Gets a value indicating how the completion occurred.
     /// </summary>
-    /// <returns>One of the <see cref="ScintillaNET.ListCompletionMethod" /> enumeration values.</returns>
+    /// <returns>One of the <see cref="Scintilla.NET.Abstractions.Enumerations.ListCompletionMethod" /> enumeration values.</returns>
     public ListCompletionMethod ListCompletionMethod { get; private set; }
 
     /// <summary>
