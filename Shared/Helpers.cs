@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 using static Scintilla.NET.Abstractions.ScintillaApiStructs;
 

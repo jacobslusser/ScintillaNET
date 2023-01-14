@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 using static ScintillaNET.Helpers;
 

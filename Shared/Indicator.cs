@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Scintilla.NET.Abstractions;
+using Scintilla.NET.Abstractions.Enumerations;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -175,7 +176,7 @@ public class Indicator
     /// Gets or sets the indicator style used when the mouse or caret is over an indicator.
     /// </summary>
     /// <returns>
-    /// One of the <see cref="ScintillaNET.IndicatorStyle" /> enumeration values.
+    /// One of the <see cref="IndicatorStyle" /> enumeration values.
     /// By default, the hover style is equal to the regular <see cref="Style" />.
     /// </returns>
     /// <remarks>Changing the <see cref="Style" /> property will reset the <see cref="HoverStyle" />.</remarks>
@@ -222,7 +223,7 @@ public class Indicator
     /// <summary>
     /// Gets or sets the indicator style.
     /// </summary>
-    /// <returns>One of the <see cref="ScintillaNET.IndicatorStyle" /> enumeration values. The default varies.</returns>
+    /// <returns>One of the <see cref="IndicatorStyle" /> enumeration values. The default varies.</returns>
     /// <remarks>Changing the <see cref="Style" /> property will reset the <see cref="HoverStyle" />.</remarks>
     /// <seealso cref="HoverStyle" />
     public IndicatorStyle Style

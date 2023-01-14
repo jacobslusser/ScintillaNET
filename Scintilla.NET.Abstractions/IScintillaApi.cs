@@ -26,7 +26,7 @@ SOFTWARE.
 
 using System.Collections;
 using System.Text;
-using ScintillaNET;
+using Scintilla.NET.Abstractions.Enumerations;
 
 namespace Scintilla.NET.Abstractions;
 

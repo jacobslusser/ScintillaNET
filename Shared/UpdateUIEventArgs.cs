@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions.Enumerations;
 
 namespace ScintillaNET;
 

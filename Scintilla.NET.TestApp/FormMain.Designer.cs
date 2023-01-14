@@ -1,4 +1,6 @@
-﻿namespace Scintilla.NET.TestApp
+﻿using Scintilla.NET.Abstractions.Enumerations;
+
+namespace Scintilla.NET.TestApp
 {
     partial class FormMain
     {
@@ -45,7 +47,7 @@
             // scintilla
             // 
             this.scintilla.AutoCMaxHeight = 9;
-            this.scintilla.BiDirectionality = ScintillaNET.BiDirectionalDisplayType.Disabled;
+            this.scintilla.BiDirectionality = BiDirectionalDisplayType.Disabled;
             this.scintilla.CaretLineBackColor = System.Drawing.Color.White;
             this.scintilla.CaretLineVisible = true;
             this.scintilla.LexerName = null;
@@ -57,7 +59,7 @@
             this.scintilla.TabIndents = true;
             this.scintilla.TabIndex = 0;
             this.scintilla.UseRightToLeftReadingLayout = false;
-            this.scintilla.WrapMode = ScintillaNET.WrapMode.None;
+            this.scintilla.WrapMode = WrapMode.None;
             this.scintilla.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.scintilla_MouseDoubleClick);
             // 
             // msMain
@@ -132,7 +134,7 @@
             // scintilla1
             // 
             this.scintilla1.AutoCMaxHeight = 9;
-            this.scintilla1.BiDirectionality = ScintillaNET.BiDirectionalDisplayType.Disabled;
+            this.scintilla1.BiDirectionality = BiDirectionalDisplayType.Disabled;
             this.scintilla1.CaretLineBackColor = System.Drawing.Color.Black;
             this.scintilla1.CaretLineVisible = true;
             this.scintilla1.LexerName = null;
@@ -144,7 +146,7 @@
             this.scintilla1.TabIndex = 3;
             this.scintilla1.Text = "scintilla1";
             this.scintilla1.UseRightToLeftReadingLayout = false;
-            this.scintilla1.WrapMode = ScintillaNET.WrapMode.None;
+            this.scintilla1.WrapMode = WrapMode.None;
             // 
             // FormMain
             // 
