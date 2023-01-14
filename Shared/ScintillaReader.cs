@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -25,7 +26,7 @@ public class ScintillaReader : TextReader {
     /// </summary>
     private int TotalRemaining => BufferRemaining + UnbufferedRemaining;
 
-    private Scintilla _scintilla;
+    private IScintillaApi _scintilla;
     private int _bufferSize;
     private string _data;
     private int _dataIndex;
@@ -36,7 +37,7 @@ public class ScintillaReader : TextReader {
     /// Initializes a new instance of the ScintillaReader class that reads all text from the specified Scintilla control.
     /// </summary>
     /// <param name="scintilla">The Scintilla control from which to read.</param>
-    public ScintillaReader(Scintilla scintilla)
+    public ScintillaReader(IScintillaApi scintilla)
         : this(scintilla, 0, scintilla.TextLength) {
     }
     /// <summary>
@@ -44,7 +45,7 @@ public class ScintillaReader : TextReader {
     /// </summary>
     /// <param name="scintilla">The Scintilla control from which to read.</param>
     /// <param name="bufferSize">The number of characters to buffer at a time.</param>
-    public ScintillaReader(Scintilla scintilla, int bufferSize)
+    public ScintillaReader(IScintillaApi scintilla, int bufferSize)
         : this(scintilla, 0, scintilla.TextLength, bufferSize) {
     }
     /// <summary>
@@ -53,7 +54,7 @@ public class ScintillaReader : TextReader {
     /// <param name="scintilla">The Scintilla control from which to read.</param>
     /// <param name="start">The index of the first character to read.</param>
     /// <param name="end">The index just past the last character to read.</param>
-    public ScintillaReader(Scintilla scintilla, int start, int end)
+    public ScintillaReader(IScintillaApi scintilla, int start, int end)
         : this(scintilla, start, end, DefaultBufferSize) {
     }
     /// <summary>
@@ -63,7 +64,7 @@ public class ScintillaReader : TextReader {
     /// <param name="start">The index of the first character to read.</param>
     /// <param name="end">The index just past the last character to read.</param>
     /// <param name="bufferSize">The number of characters to buffer at a time.</param>
-    public ScintillaReader(Scintilla scintilla, int start, int end, int bufferSize) {
+    public ScintillaReader(IScintillaApi scintilla, int start, int end, int bufferSize) {
         _scintilla = scintilla;
         _bufferSize = bufferSize > 0 ? bufferSize : DefaultBufferSize;
         _nextData = start;

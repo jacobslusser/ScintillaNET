@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -7,7 +8,7 @@ namespace ScintillaNET;
 /// </summary>
 public class IndicatorReleaseEventArgs : EventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private readonly int bytePosition;
     private int? position;
 
@@ -31,7 +32,7 @@ public class IndicatorReleaseEventArgs : EventArgs
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that generated this event.</param>
     /// <param name="bytePosition">The zero-based byte position of the clicked text.</param>
-    public IndicatorReleaseEventArgs(Scintilla scintilla, int bytePosition)
+    public IndicatorReleaseEventArgs(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int bytePosition)
     {
         this.scintilla = scintilla;
         this.bytePosition = bytePosition;

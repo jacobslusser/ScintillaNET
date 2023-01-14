@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Scintilla.NET.Abstractions;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -11,7 +12,7 @@ public class Margin
 {
     #region Fields
 
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     #endregion Fields
 
@@ -148,7 +149,7 @@ public class Margin
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this margin.</param>
     /// <param name="index">The index of this margin within the <see cref="MarginCollection" /> that created it.</param>
-    public Margin(Scintilla scintilla, int index)
+    public Margin(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int index)
     {
         this.scintilla = scintilla;
         Index = index;

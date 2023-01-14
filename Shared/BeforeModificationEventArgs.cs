@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -8,7 +9,7 @@ namespace ScintillaNET;
 /// </summary>
 public class BeforeModificationEventArgs : EventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private readonly int bytePosition;
     private readonly int byteLength;
     private readonly IntPtr textPtr;
@@ -80,7 +81,7 @@ public class BeforeModificationEventArgs : EventArgs
     /// <param name="bytePosition">The zero-based byte position within the document where text is being modified.</param>
     /// <param name="byteLength">The length in bytes of the text being modified.</param>
     /// <param name="text">A pointer to the text being inserted.</param>
-    public BeforeModificationEventArgs(Scintilla scintilla, ModificationSource source, int bytePosition, int byteLength, IntPtr text)
+    public BeforeModificationEventArgs(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, ModificationSource source, int bytePosition, int byteLength, IntPtr text)
     {
         this.scintilla = scintilla;
         this.bytePosition = bytePosition;

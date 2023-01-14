@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Scintilla.NET;
 using Scintilla.NET.Abstractions;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 using static Scintilla.NET.Abstractions.ScintillaApiStructs;
@@ -640,7 +639,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// <param name="format">One of the <see cref="CopyFormat" /> enumeration values.</param>
     public void Copy(CopyFormat format)
     {
-        Helpers.Copy(this, format, true, false, 0, 0);
+        HelperWinForms.Copy(this, format, true, false, 0, 0);
     }
 
     /// <summary>
@@ -667,7 +666,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     /// </remarks>
     public void CopyAllowLine(CopyFormat format)
     {
-        Helpers.Copy(this, format, true, true, 0, 0);
+        HelperWinForms.Copy(this, format, true, true, 0, 0);
     }
 
     /// <summary>
@@ -706,7 +705,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
         start = Lines.CharToBytePosition(start);
         end = Lines.CharToBytePosition(end);
 
-        Helpers.Copy(this, format, false, false, start, end);
+        HelperWinForms.Copy(this, format, false, false, start, end);
     }
 
     /// <summary>
@@ -838,7 +837,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     }
 
     /// <inheritdoc />
-    IntPtr IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs>.DirectMessage(IntPtr scintillaPointer, int message, IntPtr wParam, IntPtr lParam)
+    IntPtr IScintillaApi.DirectMessage(IntPtr scintillaPointer, int message, IntPtr wParam, IntPtr lParam)
     {
         return DirectMessage(scintillaPointer, message, wParam, lParam);
     }
@@ -6923,4 +6922,7 @@ public class Scintilla : Control, IScintillaApi<MarkerCollection, StyleCollectio
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Not used by the Scintilla.NET control.")]
     public new RightToLeft RightToLeft { get; set; }
+
+    /// <inheritdoc />
+    public new IntPtr Handle => base.Handle;
 }

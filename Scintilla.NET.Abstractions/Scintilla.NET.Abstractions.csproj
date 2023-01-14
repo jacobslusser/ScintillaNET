@@ -15,4 +15,8 @@
 		<Reference Include="System.Net.Http" />
 		<Reference Include="System.Threading.Tasks" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="..\Shared\FoldAction.cs" Link="FoldAction.cs" />
+	</ItemGroup>
 </Project>
