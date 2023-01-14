@@ -18,6 +18,9 @@
     <RepositoryType />  
     <Platforms>AnyCPU;x64;x86</Platforms>  
   </PropertyGroup>
+  <PropertyGroup>
+	<DefineConstants>SCINTILLA5</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>

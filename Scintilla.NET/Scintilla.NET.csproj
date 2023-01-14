@@ -18,11 +18,11 @@
 	<PropertyGroup>
 		<LangVersion>10</LangVersion>
 	</PropertyGroup>
-	<PropertyGroup>
-		<DefineConstants>SCINTILLA5</DefineConstants>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
 		<PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup>
+		<DefineConstants>SCINTILLA5</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
 		<PackageId>Scintilla.NET</PackageId>
@@ -43,7 +43,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
 		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DefineConstants>TRACE;SCINTILLA5</DefineConstants>
+		<DefineConstants>TRACE</DefineConstants>
 		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
