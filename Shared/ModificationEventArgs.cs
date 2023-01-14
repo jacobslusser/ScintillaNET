@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -7,7 +8,7 @@ namespace ScintillaNET;
 /// </summary>
 public class ModificationEventArgs : BeforeModificationEventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private readonly int bytePosition;
     private readonly int byteLength;
     private readonly IntPtr textPtr;
@@ -43,7 +44,7 @@ public class ModificationEventArgs : BeforeModificationEventArgs
     /// <param name="byteLength">The length in bytes of the inserted or deleted text.</param>
     /// <param name="text">>A pointer to the text inserted or deleted.</param>
     /// <param name="linesAdded">The number of lines added or removed (delta).</param>
-    public ModificationEventArgs(Scintilla scintilla, ModificationSource source, int bytePosition, int byteLength, IntPtr text, int linesAdded) : base(scintilla, source, bytePosition, byteLength, text)
+    public ModificationEventArgs(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, ModificationSource source, int bytePosition, int byteLength, IntPtr text, int linesAdded) : base(scintilla, source, bytePosition, byteLength, text)
     {
         this.scintilla = scintilla;
         this.bytePosition = bytePosition;

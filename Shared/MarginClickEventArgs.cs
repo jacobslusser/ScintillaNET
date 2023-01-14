@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -8,7 +9,7 @@ namespace ScintillaNET;
 /// </summary>
 public class MarginClickEventArgs : EventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private readonly int bytePosition;
     private int? position;
 
@@ -46,7 +47,7 @@ public class MarginClickEventArgs : EventArgs
     /// <param name="modifiers">The modifier keys that where held down at the time of the margin click.</param>
     /// <param name="bytePosition">The zero-based byte position within the document where the line adjacent to the clicked margin starts.</param>
     /// <param name="margin">The zero-based index of the clicked margin.</param>
-    public MarginClickEventArgs(Scintilla scintilla, Keys modifiers, int bytePosition, int margin)
+    public MarginClickEventArgs(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, Keys modifiers, int bytePosition, int margin)
     {
         this.scintilla = scintilla;
         this.bytePosition = bytePosition;

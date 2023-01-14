@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 using static Scintilla.NET.Abstractions.ScintillaConstants;
 
 namespace ScintillaNET;
@@ -8,7 +9,7 @@ namespace ScintillaNET;
 /// </summary>
 public class InsertCheckEventArgs : EventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
     private readonly int bytePosition;
     private readonly int byteLength;
     private readonly IntPtr textPtr;
@@ -61,7 +62,7 @@ public class InsertCheckEventArgs : EventArgs
     /// <param name="bytePosition">The zero-based byte position within the document where text is being inserted.</param>
     /// <param name="byteLength">The length in bytes of the inserted text.</param>
     /// <param name="text">A pointer to the text being inserted.</param>
-    public InsertCheckEventArgs(Scintilla scintilla, int bytePosition, int byteLength, IntPtr text)
+    public InsertCheckEventArgs(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int bytePosition, int byteLength, IntPtr text)
     {
         this.scintilla = scintilla;
         this.bytePosition = bytePosition;

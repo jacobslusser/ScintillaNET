@@ -1,4 +1,5 @@
 ﻿using System;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -7,7 +8,7 @@ namespace ScintillaNET;
 /// </summary>
 public class CallTipClickEventArgs: EventArgs
 {
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi scintilla;
 
     /// <summary>
     /// Gets the type of the call tip click.
@@ -19,7 +20,7 @@ public class CallTipClickEventArgs: EventArgs
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that generated this event.</param>
     /// /// <param name="callTipClickType">Type of the call tip click.</param>
-    public CallTipClickEventArgs(Scintilla scintilla, CallTipClickType callTipClickType)
+    public CallTipClickEventArgs(IScintillaApi scintilla, CallTipClickType callTipClickType)
     {
         this.scintilla = scintilla;
         CallTipClickType = callTipClickType;

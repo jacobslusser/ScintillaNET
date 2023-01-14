@@ -82,13 +82,13 @@
 		<Compile Include="..\Shared\EdgeMode.cs" Link="EdgeMode.cs" />
 		<Compile Include="..\Shared\Eol.cs" Link="Eol.cs" />
 		<Compile Include="..\Shared\FlagsEnumConverter.cs" Link="FlagsEnumConverter.cs" />
-		<Compile Include="..\Shared\FoldAction.cs" Link="FoldAction.cs" />
 		<Compile Include="..\Shared\FoldDisplayText.cs" Link="FoldDisplayText.cs" />
 		<Compile Include="..\Shared\FoldFlags.cs" Link="FoldFlags.cs" />
 		<Compile Include="..\Shared\FoldLevelFlags.cs" Link="FoldLevelFlags.cs" />
 		<Compile Include="..\Shared\FontQuality.cs" Link="FontQuality.cs" />
 		<Compile Include="..\Shared\GapBuffer.cs" Link="GapBuffer.cs" />
 		<Compile Include="..\Shared\Helpers.cs" Link="Helpers.cs" />
+		<Compile Include="..\Shared\HelperWinForms.cs" Link="HelperWinForms.cs" />
 		<Compile Include="..\Shared\HotspotClickEventArgs.cs" Link="HotspotClickEventArgs.cs" />
 		<Compile Include="..\Shared\IdleStyling.cs" Link="IdleStyling.cs" />
 		<Compile Include="..\Shared\ILoader.cs" Link="ILoader.cs" />

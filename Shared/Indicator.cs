@@ -12,7 +12,7 @@ public class Indicator
 {
     #region Fields
 
-    private readonly Scintilla scintilla;
+    private readonly IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla;
 
     #endregion Fields
 
@@ -265,7 +265,7 @@ public class Indicator
     /// </summary>
     /// <param name="scintilla">The <see cref="Scintilla" /> control that created this indicator.</param>
     /// <param name="index">The index of this style within the <see cref="IndicatorCollection" /> that created it.</param>
-    public Indicator(Scintilla scintilla, int index)
+    public Indicator(IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, int index)
     {
         this.scintilla = scintilla;
         Index = index;

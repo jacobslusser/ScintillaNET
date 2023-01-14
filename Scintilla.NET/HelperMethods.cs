@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Scintilla.NET.Abstractions;
 
 namespace ScintillaNET;
 
@@ -13,7 +14,7 @@ public static class HelperMethods
     /// <param name="scintilla">The <see cref="Scintilla"/> control instance.</param>
     /// <param name="separator">The string to use as a separator.</param>
     /// <returns>The folding state of the control.</returns>
-    public static string GetFoldingState(this Scintilla scintilla, string separator = ";")
+    public static string GetFoldingState(this IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, string separator = ";")
     {
         return string.Join(separator,
             scintilla.Lines.Where(f => !f.Expanded).Select(f => f.Index).OrderBy(f => f).ToArray());
@@ -25,7 +26,7 @@ public static class HelperMethods
     /// <param name="scintilla">The <see cref="Scintilla"/> control instance.</param>
     /// <param name="foldingState">A string containing the folded line indexes separated with the <paramref name="separator"/> to restore the folding.</param>
     /// <param name="separator">The string to use as a separator.</param>
-    public static void SetFoldingState(this Scintilla scintilla, string foldingState, string separator = ";")
+    public static void SetFoldingState(this IScintillaApi<MarkerCollection, StyleCollection, IndicatorCollection, LineCollection, MarginCollection, SelectionCollection, SCNotificationEventArgs> scintilla, string foldingState, string separator = ";")
     {
         scintilla.FoldAll(FoldAction.Expand);
 #if NET45
