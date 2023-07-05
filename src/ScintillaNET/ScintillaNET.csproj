@@ -8,7 +8,7 @@
     <AssemblyName>ScintillaNET</AssemblyName>
     <RootNamespace>ScintillaNET</RootNamespace>
     <LangVersion>latest</LangVersion>
-	<UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -81,24 +81,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x64'">
     <EmbeddedResource Include="x64\SciLexer.dll.gz" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x86'">
     <EmbeddedResource Include="x86\SciLexer.dll.gz" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x64'">
     <Content Include="x64\License.txt" />
     <Content Include="x64\SciLexer.dll" />
     <Content Include="x64\SciLexer.pdb" />
     <Content Include="x64\version.txt" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x86'">
     <Content Include="x86\License.txt" />
-    <Content Include="x86\version.txt" />
     <Content Include="x86\SciLexer.dll" />
     <Content Include="x86\SciLexer.pdb" />
+    <Content Include="x86\version.txt" />
   </ItemGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='x64'">
     <Content Include="x64\SciLexer.exp" />
     <Content Include="x64\SciLexer.lib" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x86'">
     <Content Include="x86\SciLexer.exp" />
     <Content Include="x86\SciLexer.lib" />
   </ItemGroup>
@@ -106,11 +113,4 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(ProjectDir)..\..\LICENSE" "$(TargetDir)" /D /F /K /R /Y</PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
